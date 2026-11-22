@@ -795,7 +795,7 @@ jobs:
             ${{ secrets.PACKAGE_APP_ZONE_ID || vars.PACKAGE_APP_ZONE_ID }}
         run: |
           set -euo pipefail
-          node tools/ci/production-resources.ts ensure --out-config packages/worker/wrangler-production.generated.json | tee -a "$GITHUB_OUTPUT"
+          node tools/ci/production-resources.ts ensure --out-config packages/worker/wrangler-production.generated.json --resource-title-base k2 | tee -a "$GITHUB_OUTPUT"
 
       # Package runtime worker (ADR 0016). Shares the main worker's data
       # plane, so it derives resource ids from the generated main config and

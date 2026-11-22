@@ -138,7 +138,7 @@ step_origin() {
 	[ -f packages/worker/.env ] || cp packages/worker/.env.example packages/worker/.env
 	log "origin: ensure production resources"
 	node tools/ci/production-resources.ts ensure \
-		--out-config packages/worker/wrangler-production.generated.json | tee "$STATE_DIR/origin.out"
+		--out-config packages/worker/wrangler-production.generated.json --resource-title-base k2 | tee "$STATE_DIR/origin.out"
 	local config mode bootstrap
 	config="$(output_of "$STATE_DIR/origin.out" wrangler_config)"
 	mode="$(output_of "$STATE_DIR/origin.out" origin_deploy_mode)"

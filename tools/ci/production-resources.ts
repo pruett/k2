@@ -44,10 +44,12 @@ type CliOptions = {
 	dryRun: boolean
 	d1Location?: string
 	kvTitleOverride?: string
+	resourceTitleBase?: string
 }
 
 type ResolvedProductionBindings = {
 	workerName: string
+	resourceTitleBase: string
 	d1DatabaseName: string
 	d1ConfiguredId: string
 	auditD1DatabaseName: string
@@ -91,7 +93,7 @@ function parseArgs(argv: Array<string>): {
 	const command = argv[0]
 	if (command !== 'ensure') {
 		fail(
-			'Missing or invalid command. Usage: node tools/ci/production-resources.ts ensure [--out-config <path>]',
+			'Missing or invalid command. Usage: node tools/ci/production-resources.ts ensure [--out-config <path>] [--resource-title-base <name>]',
 		)
 	}
 
@@ -101,6 +103,7 @@ function parseArgs(argv: Array<string>): {
 		dryRun: false,
 		d1Location: undefined,
 		kvTitleOverride: undefined,
+		resourceTitleBase: undefined,
 	}
 
 	for (let index = 1; index < argv.length; index += 1) {
@@ -125,6 +128,11 @@ function parseArgs(argv: Array<string>): {
 			}
 			case '--kv-title': {
 				options.kvTitleOverride = argv[index + 1] ?? ''
+				index += 1
+				break
+			}
+			case '--resource-title-base': {
+				options.resourceTitleBase = argv[index + 1] ?? ''
 				index += 1
 				break
 			}
@@ -335,9 +343,11 @@ function readProductionR2BucketName(input: {
 async function resolveProductionBindings({
 	wranglerConfigPath,
 	kvTitleOverride,
+	resourceTitleBaseOverride,
 }: {
 	wranglerConfigPath: string
 	kvTitleOverride?: string
+	resourceTitleBaseOverride?: string
 }) {
 	const baseText = await readFile(wranglerConfigPath, 'utf8')
 	const config = parseJsonc<Record<string, unknown>>(baseText)
@@ -358,6 +368,14 @@ async function resolveProductionBindings({
 	if (!productionEnv || typeof productionEnv !== 'object') {
 		fail(`wrangler config "${wranglerConfigPath}" is missing "env.production".`)
 	}
+
+	// Account-level resource titles (KV namespaces, event subscriptions)
+	// default to the worker name; a fork passes --resource-title-base (k2) so
+	// they don't keep the upstream kody-* prefix.
+	const resourceTitleBase =
+		resourceTitleBaseOverride && resourceTitleBaseOverride.length > 0
+			? resourceTitleBaseOverride
+			: workerName
 
 	const d1Databases = (productionEnv as Record<string, unknown>).d1_databases
 	if (!Array.isArray(d1Databases)) {
@@ -459,7 +477,7 @@ async function resolveProductionBindings({
 	const oauthKvTitle =
 		(kvTitleOverride && kvTitleOverride.length > 0 && kvTitleOverride) ||
 		oauthKvTitleFromConfig ||
-		defaultOauthKvTitle(workerName)
+		defaultOauthKvTitle(resourceTitleBase)
 	const bundleArtifactsKvConfiguredId =
 		typeof bundleArtifactsKvEntry.id === 'string'
 			? bundleArtifactsKvEntry.id
@@ -471,7 +489,7 @@ async function resolveProductionBindings({
 			: ''
 	const bundleArtifactsKvTitle =
 		bundleArtifactsKvTitleFromConfig ||
-		defaultBundleArtifactsKvTitle(workerName)
+		defaultBundleArtifactsKvTitle(resourceTitleBase)
 
 	const r2Buckets = (productionEnv as Record<string, unknown>).r2_buckets
 	if (!Array.isArray(r2Buckets)) {
@@ -612,6 +630,7 @@ async function resolveProductionBindings({
 
 	const resolved: ResolvedProductionBindings = {
 		workerName,
+		resourceTitleBase,
 		capabilityVectorIndexName,
 		d1DatabaseName,
 		d1ConfiguredId,
@@ -642,6 +661,7 @@ async function ensureProductionResources(options: CliOptions) {
 	const bindings = await resolveProductionBindings({
 		wranglerConfigPath: options.wranglerConfigPath,
 		kvTitleOverride: options.kvTitleOverride,
+		resourceTitleBaseOverride: options.resourceTitleBase,
 	})
 	console.error(
 		`Ensuring production resources for worker: ${bindings.workerName} (D1: ${bindings.d1DatabaseName}, OAuth KV: ${bindings.oauthKvTitle}, Bundle KV: ${bindings.bundleArtifactsKvTitle}, Community R2: ${bindings.communityAssetsBucketName}, Email R2: ${bindings.emailBlobsBucketName}, Email Queue: ${bindings.emailDeliveryQueueName}, Email DLQ: ${bindings.emailDeliveryDeadLetterQueueName}, Artifacts Repo Events Queue: ${bindings.artifactsRepoEventsQueueName}, Artifacts Repo Events DLQ: ${bindings.artifactsRepoEventsDeadLetterQueueName}, Platform Feedback Queue: ${bindings.platformFeedbackDispatchQueueName}, Platform Feedback DLQ: ${bindings.platformFeedbackDispatchDeadLetterQueueName}, Community Activity Queue: ${bindings.communityActivityDispatchQueueName}, Community Activity DLQ: ${bindings.communityActivityDispatchDeadLetterQueueName}, Community Listing Published Queue: ${bindings.communityListingPublishedDispatchQueueName}, Community Listing Published DLQ: ${bindings.communityListingPublishedDispatchDeadLetterQueueName}, Package Events Queue: ${bindings.packageEventsDispatchQueueName}, Package Events DLQ: ${bindings.packageEventsDispatchDeadLetterQueueName}, Webhook Dispatch Queue: ${bindings.webhookDispatchQueueName}, Webhook Dispatch DLQ: ${bindings.webhookDispatchDeadLetterQueueName})`,
@@ -816,7 +836,7 @@ async function ensureProductionResources(options: CliOptions) {
 			accountId: accountId ?? 'dry-run-account',
 			apiToken: apiToken ?? 'dry-run-token',
 			name: emailSendingEventSubscriptionName({
-				workerName: bindings.workerName,
+				workerName: bindings.resourceTitleBase,
 				kind: entry.kind,
 			}),
 			queueId: emailDeliveryQueue.id,
@@ -842,7 +862,7 @@ async function ensureProductionResources(options: CliOptions) {
 			accountId: accountId ?? 'dry-run-account',
 			apiToken: apiToken ?? 'dry-run-token',
 			name: emailSendingEventSubscriptionName({
-				workerName: bindings.workerName,
+				workerName: bindings.resourceTitleBase,
 				kind: 'system',
 			}),
 			dryRun: options.dryRun,
@@ -877,7 +897,7 @@ async function ensureProductionResources(options: CliOptions) {
 			accountId: accountId ?? 'dry-run-account',
 			apiToken: apiToken ?? 'dry-run-token',
 			name: truncateWithSuffix(
-				bindings.workerName,
+				bindings.resourceTitleBase,
 				'-artifacts-lifecycle-events',
 				63,
 			),
