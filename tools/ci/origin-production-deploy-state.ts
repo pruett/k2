@@ -253,12 +253,16 @@ export function classifyOriginProductionScriptState(
 }
 
 /**
- * Runtime class ownership decides the platform/runtime bootstrap, so a resumed
- * first deploy takes the same path whatever the origin mode is. The runtime
- * bootstrap transfers its classes from origin, so it runs only when origin
- * owns them all, or on a fresh fleet (origin bootstrap creates them first).
- * Anything else, including an unknown origin probe or a missing namespace
- * listing outside a fresh fleet, does not bootstrap (fail closed).
+ * The platform/runtime bootstrap runs only on a fresh fleet (origin bootstrap
+ * creates the classes first) or in the one resumable interruption: platform
+ * owns every platform class, origin still owns every runtime class, runtime
+ * owns none. There the bootstrap completes the transfer and origin uploads the
+ * slim entry, so the origin config generated before the run stays correct.
+ * Any other mixed ownership (for example a partially transferred platform,
+ * which an interrupted run cannot produce because the platform's transfer is
+ * one atomic migration tag) does not bootstrap: no ownership changes mid-run,
+ * and the ambiguous full-entry deploy fails loudly instead. An unknown origin
+ * probe or a missing namespace listing outside a fresh fleet also fails closed.
  */
 function classifyPlatformRuntimeBootstrap(
 	input: OriginFleetProbe,
@@ -279,25 +283,21 @@ function classifyPlatformRuntimeBootstrap(
 	const runtimeOwnsAll = runtimeOwnedClassNames.every((className) =>
 		runtimeOwned.has(className),
 	)
-	const originOwnsAllRuntime = runtimeOwnedClassNames.every((className) =>
-		originOwned.has(className),
-	)
+	const resumesRuntimeTransfer =
+		mode === 'ambiguous' &&
+		input.originScriptExists === true &&
+		runtimeOwnedClassNames.every((className) => originOwned.has(className)) &&
+		everyClassOnScript(
+			namespaces,
+			scriptNames.platform,
+			platformOwnedClassNames,
+		) &&
+		!platformOwnedClassNames.some((className) => originOwned.has(className)) &&
+		!runtimeOwnedClassNames.some((className) => runtimeOwned.has(className))
 	return {
 		platformRuntimeBootstrap:
-			!runtimeOwnsAll && (mode === 'fresh' || originOwnsAllRuntime),
-		resumesRuntimeTransfer:
-			mode === 'ambiguous' &&
-			input.originScriptExists === true &&
-			originOwnsAllRuntime &&
-			everyClassOnScript(
-				namespaces,
-				scriptNames.platform,
-				platformOwnedClassNames,
-			) &&
-			!platformOwnedClassNames.some((className) =>
-				originOwned.has(className),
-			) &&
-			!runtimeOwnedClassNames.some((className) => runtimeOwned.has(className)),
+			!runtimeOwnsAll && (mode === 'fresh' || resumesRuntimeTransfer),
+		resumesRuntimeTransfer,
 	}
 }
 

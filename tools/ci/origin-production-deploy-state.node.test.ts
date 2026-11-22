@@ -564,14 +564,25 @@ test('runtime class ownership alone decides the platform/runtime bootstrap, incl
 		plan(true, [...platformOn(platform), ...runtimeOn(runtime)]).plan,
 	).toMatchObject({ mode: 'steady', platformRuntimeBootstrap: false })
 
-	// Partially transferred platform: still bootstrap runtime, but never slim
-	// the origin, since the transfer cannot be completed in one pass.
-	const partial = plan(true, [ownership(platform, 'MCP'), ...runtimeOn(origin)])
-	expect(partial.state.resumesRuntimeTransfer).toBe(false)
-	expect(partial.plan).toMatchObject({
+	// review-m3 r2: a partially transferred platform (platform owns MCP,
+	// origin still owns Mailbox and every runtime class). Not resumable: no
+	// platform/runtime bootstrap, so no ownership changes after the origin
+	// config is generated, and origin keeps the full entry (fails loudly).
+	const partial = plan(true, [
+		ownership(platform, 'MCP'),
+		ownership(origin, 'Mailbox'),
+		...runtimeOn(origin),
+	])
+	expect(partial.state).toMatchObject({
 		mode: 'ambiguous',
+		platformRuntimeBootstrap: false,
+		resumesRuntimeTransfer: false,
+	})
+	expect(partial.plan).toMatchObject({
 		originEntry: 'full',
-		platformRuntimeBootstrap: true,
+		runOriginBootstrap: false,
+		forcePlatformAndRuntime: false,
+		platformRuntimeBootstrap: false,
 	})
 
 	// Runtime already owns its classes while origin still owns a platform
