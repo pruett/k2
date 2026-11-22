@@ -18,6 +18,8 @@ export APP_BASE_URL=https://k2.pruett.in
 export K2_ZONE_NAME=pruett.in
 # k2 switch: skip the dmarc@ forward rule (TXT records are still ensured).
 export DMARC_REPORT_FORWARD_TO=off
+# /health commit links point here (deploy.yml gets it from GitHub).
+export GITHUB_REPOSITORY=pruett/k2
 K2_HOSTS=(k2-status.pruett.in k2-api.pruett.in k2-api-docs.pruett.in k2-nx-cache.pruett.in)
 
 set -a

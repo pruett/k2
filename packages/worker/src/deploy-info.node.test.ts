@@ -10,7 +10,7 @@ import {
 } from './deploy-info.ts'
 
 const sampleDeployInfo = {
-	repoUrl: 'https://github.com/kody-hq/kody',
+	repoUrl: 'https://github.com/pruett/k2',
 	commit: {
 		sha: 'f2d82dba4ba50cf2ad3f56f5c88f7b8ef5f97d8e',
 		message: 'feat: richer /health metadata (#1799)',
@@ -18,7 +18,7 @@ const sampleDeployInfo = {
 	},
 	pullRequest: {
 		number: 1799,
-		url: 'https://github.com/kody-hq/kody/pull/1799',
+		url: 'https://github.com/pruett/k2/pull/1799',
 		title: 'Richer /health metadata',
 	},
 	deploy: {
@@ -27,7 +27,7 @@ const sampleDeployInfo = {
 		workflow: '🚀 Deploy (production)',
 		job: 'deploy',
 		runId: '12345',
-		runUrl: 'https://github.com/kody-hq/kody/actions/runs/12345',
+		runUrl: 'https://github.com/pruett/k2/actions/runs/12345',
 	},
 } satisfies DeployInfo
 
@@ -44,7 +44,7 @@ function healthReport(
 		commit: commitSha
 			? {
 					sha: commitSha,
-					url: `https://github.com/kody-hq/kody/commit/${commitSha}`,
+					url: `https://github.com/pruett/k2/commit/${commitSha}`,
 					message: commit?.message ?? null,
 					committedAt: commit?.committedAt ?? null,
 				}
