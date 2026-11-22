@@ -55,20 +55,44 @@ retry() {
 }
 
 # key=value lines a tools/ci script printed for $GITHUB_OUTPUT.
-output_of() { grep -E "^$2=" "$1" | tail -1 | cut -d= -f2-; }
+# output_of: a required key; missing is fatal.
+output_of() {
+	local value
+	if ! value="$(optional_output_of "$1" "$2")" || [ -z "$value" ]; then
+		echo "missing required output $2 in $1" >&2
+		return 1
+	fi
+	printf '%s\n' "$value"
+}
+# optional_output_of: empty when the key is absent (e.g. bootstrap configs
+# exist only on a fresh account).
+optional_output_of() {
+	{ grep -E "^$2=" "$1" || true; } | tail -1 | cut -d= -f2-
+}
 
+# Same predicates as deploy.yml: JSON with the endpoint's health flag
+# (`ok: true`, or `status: "ok"` for platform/runtime) and an exact commit
+# match in its commit field (`commit` or `commitSha`). Retries, then fails.
 healthcheck() {
-	local url="$1" body
-	for _ in 1 2 3 4 5 6; do
-		if body="$(curl -fsS --max-time 15 "$url")"; then
-			if printf '%s' "$body" | grep -q "$DEPLOY_COMMIT_SHA"; then
-				echo "OK $url (commit $DEPLOY_COMMIT_SHA)"
-			else
-				echo "OK $url (200; commit not in body)"
-			fi
+	local url="$1" flag="$2" commit_field="$3" body
+	for _ in $(seq 1 12); do
+		if body="$(curl -fsS --max-time 15 -H 'Accept: application/json' "$url")" &&
+			printf '%s' "$body" | EXPECTED="$DEPLOY_COMMIT_SHA" FLAG="$flag" FIELD="$commit_field" node -e '
+				let s = ""
+				process.stdin.on("data", (d) => (s += d)).on("end", () => {
+					let json
+					try { json = JSON.parse(s) } catch { console.error("not JSON"); process.exit(1) }
+					const healthy = process.env.FLAG === "status" ? json?.status === "ok" : json?.ok === true
+					const commit = json?.[process.env.FIELD]
+					if (!healthy || commit !== process.env.EXPECTED) {
+						console.error("unhealthy or stale", { healthy, commit, expected: process.env.EXPECTED })
+						process.exit(1)
+					}
+				})'; then
+			echo "OK $url (commit $DEPLOY_COMMIT_SHA)"
 			return 0
 		fi
-		sleep 10
+		sleep 5
 	done
 	echo "FAIL $url" >&2
 	return 1
@@ -92,7 +116,7 @@ step_jobs() {
 		--out-config packages/jobs-worker/wrangler-production.generated.json | tee "$STATE_DIR/jobs.out"
 	local config bootstrap mode
 	config="$(output_of "$STATE_DIR/jobs.out" jobs_wrangler_config)"
-	bootstrap="$(output_of "$STATE_DIR/jobs.out" jobs_wrangler_bootstrap_config)"
+	bootstrap="$(optional_output_of "$STATE_DIR/jobs.out" jobs_wrangler_bootstrap_config)"
 	mode="$(output_of "$STATE_DIR/jobs.out" jobs_deploy_mode)"
 	echo "$mode" > "$STATE_DIR/jobs-mode"
 	node ./wrangler-env.ts d1 migrations apply JOBS_DB --remote --config "$config"
@@ -117,7 +141,7 @@ step_origin() {
 	local config mode bootstrap
 	config="$(output_of "$STATE_DIR/origin.out" wrangler_config)"
 	mode="$(output_of "$STATE_DIR/origin.out" origin_deploy_mode)"
-	bootstrap="$(output_of "$STATE_DIR/origin.out" origin_bootstrap_wrangler_config)"
+	bootstrap="$(optional_output_of "$STATE_DIR/origin.out" origin_bootstrap_wrangler_config)"
 	echo "origin_deploy_mode=$mode"
 
 	log "generate runtime + platform configs"
@@ -205,15 +229,15 @@ step_nx_cache() {
 
 step_health() {
 	log "healthchecks"
-	local fail=0 host
-	healthcheck "$APP_BASE_URL/health" || fail=1
-	healthcheck "https://k2-platform.$WORKERS_DEV_SUBDOMAIN.workers.dev/__platform/health" || fail=1
-	healthcheck "https://k2-runtime.$WORKERS_DEV_SUBDOMAIN.workers.dev/__runtime/health" || fail=1
+	local fail=0 host dev="$WORKERS_DEV_SUBDOMAIN.workers.dev"
+	healthcheck "$APP_BASE_URL/health" ok commitSha || fail=1
+	healthcheck "https://k2-platform.$dev/__platform/health" status commitSha || fail=1
+	healthcheck "https://k2-runtime.$dev/__runtime/health" status commitSha || fail=1
 	for host in k2-jobs k2-highlight k2-push-queue; do
-		healthcheck "https://$host.$WORKERS_DEV_SUBDOMAIN.workers.dev/health" || fail=1
+		healthcheck "https://$host.$dev/health" ok commit || fail=1
 	done
 	for host in "${K2_HOSTS[@]}"; do
-		healthcheck "https://$host/health" || fail=1
+		healthcheck "https://$host/health" ok commit || fail=1
 	done
 	return "$fail"
 }

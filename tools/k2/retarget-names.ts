@@ -10,6 +10,7 @@
  */
 import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
+import { isExecutedDirectly } from '../node-runtime.ts'
 
 const queues = [
 	'email-delivery',
@@ -22,7 +23,7 @@ const queues = [
 	'scheduled-dispatch',
 ]
 
-export const k2ResourceNames: Array<string> = [
+const k2ResourceNames: Array<string> = [
 	// Workers (and wrangler's `-production` env-suffixed script names)
 	'production',
 	'platform',
@@ -91,7 +92,7 @@ const pattern = new RegExp(
 // alone, e.g. a preview name derived from the upstream `kody` placeholder.
 const keepMarker = 'k2: keep upstream name'
 
-export function retargetText(text: string) {
+function retargetText(text: string) {
 	const lines = text.split('\n')
 	return lines
 		.map((line, index) =>
@@ -109,26 +110,30 @@ function trackedFiles() {
 		.filter((path) => !excluded.some((re) => re.test(path)))
 }
 
-const check = process.argv.includes('--check')
-const changed: Array<string> = []
-for (const path of trackedFiles()) {
-	let text: string
-	try {
-		text = readFileSync(path, 'utf8')
-	} catch {
-		continue
+function main() {
+	const check = process.argv.includes('--check')
+	const changed: Array<string> = []
+	for (const path of trackedFiles()) {
+		let text: string
+		try {
+			text = readFileSync(path, 'utf8')
+		} catch {
+			continue
+		}
+		if (text.includes('\0')) continue
+		const next = retargetText(text)
+		if (next === text) continue
+		changed.push(path)
+		if (!check) writeFileSync(path, next)
 	}
-	if (text.includes('\0')) continue
-	const next = retargetText(text)
-	if (next === text) continue
-	changed.push(path)
-	if (!check) writeFileSync(path, next)
+	// Shorter names can let oxfmt join lines; keep the repo formatted.
+	if (!check && changed.length > 0) {
+		execFileSync('npx', ['oxfmt', ...changed], { stdio: 'inherit' })
+	}
+	console.log(
+		`${check ? 'would change' : 'changed'} ${changed.length} file(s)${changed.length ? ':\n  ' + changed.join('\n  ') : ''}`,
+	)
+	if (check && changed.length > 0) process.exit(1)
 }
-// Shorter names can let oxfmt join lines; keep the repo formatted.
-if (!check && changed.length > 0) {
-	execFileSync('npx', ['oxfmt', ...changed], { stdio: 'inherit' })
-}
-console.log(
-	`${check ? 'would change' : 'changed'} ${changed.length} file(s)${changed.length ? ':\n  ' + changed.join('\n  ') : ''}`,
-)
-if (check && changed.length > 0) process.exit(1)
+
+if (isExecutedDirectly(import.meta.url)) main()

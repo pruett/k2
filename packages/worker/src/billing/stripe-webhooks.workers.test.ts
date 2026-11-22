@@ -680,7 +680,7 @@ test('subscription.updated before personal checkout link defers side effects unt
 		DISCORD_STANDARD_ROLE_ID: '444444444444444444',
 		DISCORD_PRO_ROLE_ID: '555555555555555555',
 		APP_BASE_URL: 'https://kody.codes',
-		SYSTEM_EMAIL_DOMAIN: 'kody.codes',
+		SYSTEM_EMAIL_DOMAIN: 'k2.pruett.in',
 		CLOUDFLARE_ACCOUNT_ID: 'account-123',
 		CLOUDFLARE_API_BASE_URL: 'https://api.cloudflare.test',
 		CLOUDFLARE_API_TOKEN: 'token-123',

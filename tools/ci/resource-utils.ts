@@ -2926,6 +2926,7 @@ function readPackageAppLegacyHostsVar(input: {
  * the package-app switch is off) still publishes the app origin and legacy
  * origins as custom domains, so the site keeps its hostname. Package-app
  * requests fail closed until a separate registrable domain is configured.
+ * Remove when: k2 sets PACKAGE_APP_BASE_URL to its own package-app domain.
  */
 function addAppOriginCustomDomainRoutesWithoutPackageApps(input: {
 	targetEnv: Record<string, unknown>
