@@ -499,3 +499,43 @@ test('dropTransfersOfCreatedClasses keeps a fresh production runtime upload vali
 		},
 	])
 })
+
+test('a package-app host below its zone apex gets no catch-all and no apex route', async () => {
+	// A package-app host below its zone apex shares the zone with an apex the runtime
+	// must never serve, so only the host and its wildcard are routed.
+	const { runtime } = await generateRuntime({
+		envName: 'production',
+		workerPrefix: 'k2',
+		mainWorkerName: 'kody',
+		mainVars: { PACKAGE_APP_BASE_URL: 'https://apps.example.org' },
+	})
+	const routes = runtime.env?.production?.routes
+	expect(routes).toEqual([
+		{ pattern: 'apps.example.org/*', zone_name: 'example.org' },
+		{ pattern: '*.apps.example.org/*', zone_name: 'example.org' },
+	])
+	const patterns = ((routes ?? []) as Array<{ pattern: string }>).map(
+		(route) => route.pattern,
+	)
+	expect(patterns).not.toContain('*/*')
+	expect(patterns).not.toContain('example.org/*')
+	expect(patterns).not.toContain('*.example.org/*')
+})
+
+test('PACKAGE_APP_SAAS_CATCH_ALL_ROUTE=off drops the catch-all on an apex package-app zone', async () => {
+	// k2: the whole pruett.xyz zone serves package apps but has no custom
+	// hostnames, so only the apex and wildcard routes are published.
+	const { runtime } = await generateRuntime({
+		envName: 'production',
+		workerPrefix: 'k2',
+		mainWorkerName: 'kody',
+		mainVars: {
+			PACKAGE_APP_BASE_URL: 'https://example.org',
+			PACKAGE_APP_SAAS_CATCH_ALL_ROUTE: 'off',
+		},
+	})
+	expect(runtime.env?.production?.routes).toEqual([
+		{ pattern: 'example.org/*', zone_name: 'example.org' },
+		{ pattern: '*.example.org/*', zone_name: 'example.org' },
+	])
+})

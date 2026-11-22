@@ -270,9 +270,9 @@ test('writeGeneratedWranglerConfig preserves migrations and copies environment a
 	// committed route would make `wrangler dev` resolve every local request as
 	// that production host). The package-app host is attached to the runtime
 	// Worker (ADR 0016), so the main Worker publishes only the app origin.
-	// k2: the package-app switch is off (no PACKAGE_APP_BASE_URL committed);
-	// the app origin is still published.
-	expect(production?.vars?.PACKAGE_APP_BASE_URL).toBe('')
+	// k2: the package-app switch is on (pruett.xyz); the package-app host goes
+	// to the runtime Worker, so the main Worker publishes only the app origin.
+	expect(production?.vars?.PACKAGE_APP_BASE_URL).toBe('https://pruett.xyz')
 	expect(production?.routes).toEqual([
 		{ pattern: 'heykody.dev', custom_domain: true },
 	])

@@ -56,9 +56,9 @@
 	},
 	"vars": {
 		"PRIMARY_ORIGIN": "https://k2.pruett.in",
-		// k2: no package-app domain yet (PACKAGE_APP_BASE_URL unset); probe the
-		// runtime Worker on workers.dev until one is chosen.
-		"PACKAGE_APP_ORIGIN": "https://k2-runtime.pruett.workers.dev",
+		// k2: the package-app origin (PACKAGE_APP_BASE_URL in
+		// packages/worker/wrangler.jsonc); probes the runtime Worker there.
+		"PACKAGE_APP_ORIGIN": "https://pruett.xyz",
 		"STATUS_PAGE_URL": "https://k2-status.pruett.in",
 		// k2: alert emails off until an operator address is set.
 		"ALERT_EMAIL_TO": "",

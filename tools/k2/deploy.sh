@@ -269,6 +269,9 @@ step_health() {
 	healthcheck "$APP_BASE_URL/health" ok commitSha || fail=1
 	healthcheck "https://k2-platform.$dev/__platform/health" status commitSha || fail=1
 	healthcheck "https://k2-runtime.$dev/__runtime/health" status commitSha || fail=1
+	# Package apps on (PACKAGE_APP_BASE_URL): the runtime also answers on the
+	# package-app host.
+	healthcheck "https://pruett.xyz/__runtime/health" status commitSha || fail=1
 	for host in k2-jobs k2-highlight k2-push-queue; do
 		healthcheck "https://$host.$dev/health" ok commit || fail=1
 	done

@@ -315,11 +315,19 @@ function addPackageAppRoute(runtimeEnv: JsonRecord, envName: string) {
 	}
 	// Cloudflare for SaaS custom hostnames on the canonical zone (ADR 0071).
 	// Apex/wildcard routes stay more specific for first-party package-app traffic.
-	publishedPatterns.add(catchAllPattern)
-	newRoutes.push({
-		pattern: catchAllPattern,
-		zone_name: canonicalZoneName,
-	})
+	// Only when the package-app host is its zone's apex (kody.run): under a
+	// subdomain (e.g. apps.example.org) the zone is shared, and a `*/*` there
+	// would take over the zone apex and every unrelated hostname. A deployment
+	// without custom hostnames sets PACKAGE_APP_SAAS_CATCH_ALL_ROUTE=off to
+	// publish only the apex + wildcard routes (k2).
+	const catchAllOff = vars.PACKAGE_APP_SAAS_CATCH_ALL_ROUTE === 'off'
+	if (canonicalHostname === canonicalZoneName && !catchAllOff) {
+		publishedPatterns.add(catchAllPattern)
+		newRoutes.push({
+			pattern: catchAllPattern,
+			zone_name: canonicalZoneName,
+		})
+	}
 	const existingRoutes = Array.isArray(runtimeEnv.routes)
 		? runtimeEnv.routes.filter((route) => {
 				if (!route || typeof route !== 'object') return true

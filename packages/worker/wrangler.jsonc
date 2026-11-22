@@ -710,10 +710,17 @@
 				// configured route — every `npm run dev` request would arrive
 				// as https://kody.run/... and send local logins to the real
 				// domain. See docs/contributing/setup-manifest.md.
-				// k2 package-app switch: empty = package apps off. Set a URL on a
-				// separate registrable domain to turn them on; the runtime Worker
-				// inherits it (tools/ci/runtime-worker-config.ts).
-				"PACKAGE_APP_BASE_URL": "",
+				// k2 package-app switch: empty = package apps off. A URL on a
+				// separate registrable domain turns them on; the runtime Worker
+				// inherits it (tools/ci/runtime-worker-config.ts), and deploy
+				// ensures its apex + wildcard + domains.* DNS and routes. k2 uses
+				// the pruett.xyz zone (hosts <app>--<handle>.pruett.xyz, on the
+				// free Universal SSL cert, which covers the apex and *.pruett.xyz).
+				"PACKAGE_APP_BASE_URL": "https://pruett.xyz",
+				// k2 has no Cloudflare-for-SaaS custom hostnames: publish only the
+				// pruett.xyz/* and *.pruett.xyz/* runtime routes, not kody's `*/*`
+				// catch-all (tools/ci/runtime-worker-config.ts).
+				"PACKAGE_APP_SAAS_CATCH_ALL_ROUTE": "off",
 				// Email domains are committed (not just GitHub Actions vars) so
 				// they can never silently rederive from APP_BASE_URL. Canonical
 				// email lives on kody.codes. Outbound always sends from the
