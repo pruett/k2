@@ -71,7 +71,8 @@ optional_output_of() {
 }
 
 # Same predicates as deploy.yml: JSON with the endpoint's health flag
-# (`ok: true`, or `status: "ok"` for platform/runtime) and an exact commit
+# (`ok: true`, or `status: "ok"` plus `cookieSecretConfigured: true` for
+# platform/runtime) and an exact commit
 # match in its commit field (`commit` or `commitSha`). Retries, then fails.
 healthcheck() {
 	local url="$1" flag="$2" commit_field="$3" body
@@ -82,7 +83,7 @@ healthcheck() {
 				process.stdin.on("data", (d) => (s += d)).on("end", () => {
 					let json
 					try { json = JSON.parse(s) } catch { console.error("not JSON"); process.exit(1) }
-					const healthy = process.env.FLAG === "status" ? json?.status === "ok" : json?.ok === true
+					const healthy = process.env.FLAG === "status" ? json?.status === "ok" && json?.cookieSecretConfigured === true : json?.ok === true
 					const commit = json?.[process.env.FIELD]
 					if (!healthy || commit !== process.env.EXPECTED) {
 						console.error("unhealthy or stale", { healthy, commit, expected: process.env.EXPECTED })
