@@ -38,6 +38,9 @@ export const k2ResourceNames: Array<string> = [
 	'nx-cache',
 	'push-queue',
 	'highlight',
+	// Vite/miniflare test-env registrations (`<name>-test`) of jobs/highlight
+	'jobs-test',
+	'highlight-test',
 	'production-d1-backups',
 	// D1 (APP_DB `kody` is renamed in the wrangler configs by hand)
 	'audit',

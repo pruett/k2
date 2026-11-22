@@ -39,7 +39,7 @@ export async function writeLocalAuxiliaryDevConfig({
 
 	// Production local serve registers `<name>-production` unless we pin
 	// `env.production.name` to the committed worker name. The test env already
-	// matches origin (`kody-jobs-test` / `kody-highlight-test`); pinning there
+	// matches origin (`k2-jobs-test` / `k2-highlight-test`); pinning there
 	// would break Playwright.
 	if (envName !== 'test') {
 		envRecord.name = config.name

@@ -1721,7 +1721,18 @@ export async function ensurePackageAppDnsRecords(input: {
 /** Local-part for DMARC aggregate reports (rua) on the system email domain. */
 const dmarcReportMailboxLocal = 'dmarc'
 
-export const defaultDmarcReportForwardTo = 'me@kentcdodds.com'
+/**
+ * k2 switch: `off` (the default) skips the dmarc@ Email Routing forward rule;
+ * the `_dmarc` TXT records are still ensured. Set DMARC_REPORT_FORWARD_TO to a
+ * verified Email Routing destination address to forward aggregate reports.
+ */
+export const defaultDmarcReportForwardTo = 'off'
+
+/** The forward destination, or null when the forward rule is switched off. */
+export function resolveDmarcReportForwardTo(configured: string | undefined) {
+	const value = configured?.trim() || defaultDmarcReportForwardTo
+	return value.toLowerCase() === 'off' ? null : value
+}
 
 function dmarcReportMailboxAddress(systemEmailDomain: string) {
 	return `${dmarcReportMailboxLocal}@${systemEmailDomain}`

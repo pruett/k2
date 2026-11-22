@@ -66,14 +66,14 @@ export default mergeConfig(
 					// serve those contracts.
 					workers: [
 						{
-							name: 'kody-jobs-test',
+							name: 'k2-jobs-test',
 							modules: true,
 							scriptPath: resolve(rootDir, '.tmp/jobs-test-service/index.mjs'),
 							compatibilityDate: '2025-06-01',
 							d1Databases: ['JOBS_DB'],
 						},
 						{
-							name: 'kody-highlight-test',
+							name: 'k2-highlight-test',
 							modules: true,
 							scriptPath: resolve(
 								rootDir,

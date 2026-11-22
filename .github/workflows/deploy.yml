@@ -103,7 +103,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           WORKFLOW_RUN_SHA: ${{ github.event.workflow_run.head_sha }}
           WORKFLOW_DISPATCH_SHA: ${{ github.sha }}
-          PRODUCTION_URL: ${{ vars.APP_BASE_URL || 'https://kody.codes' }}
+          PRODUCTION_URL: ${{ vars.APP_BASE_URL || 'https://k2.pruett.in' }}
           # Tip-of-main workflow ↔ checkout contract. Bump together with
           # DEPLOY_WORKFLOW_CONTRACT_VERSION in tools/ci/deploy-workflow-contract.ts
           # when this workflow gains a checkout-coupled requirement.
@@ -517,6 +517,10 @@ jobs:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     name: ⏰ Deploy jobs worker
     timeout-minutes: 8
+    # k2: `fresh` = first deploy on this account; the deploy job redeploys the
+    # jobs worker with its HOST binding once the origin script exists.
+    outputs:
+      jobs_deploy_mode: ${{ steps.jobs_resources.outputs.jobs_deploy_mode }}
     needs:
       - sha-guard
       - require-worker-tokens
@@ -599,13 +603,18 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           DEPLOY_COMMIT_SHA: ${{ needs.sha-guard.outputs.deploy_sha }}
+          # k2: fresh accounts deploy the bootstrap config (JobManager created
+          # fresh, no HOST binding) because the origin script does not exist yet.
           WRANGLER_CONFIG:
-            ${{ steps.jobs_resources.outputs.jobs_wrangler_config }}
+            ${{ steps.jobs_resources.outputs.jobs_wrangler_bootstrap_config ||
+            steps.jobs_resources.outputs.jobs_wrangler_config }}
           # Split deploy (tools/ci/split-worker-deploy.ts): versions upload
           # tagged with this run, then versions deploy of that same id. A
           # retry redeploys the uploaded version instead of uploading again.
+          # Fresh accounts keep the classic first deploy.
           KODY_SPLIT_DEPLOY_TAG:
-            gh-${{ github.run_id }}-${{ github.run_attempt }}
+            ${{ steps.jobs_resources.outputs.jobs_deploy_mode != 'fresh' &&
+            format('gh-{0}-{1}', github.run_id, github.run_attempt) || '' }}
           KODY_SPLIT_DEPLOY_MESSAGE: ${{ needs.sha-guard.outputs.deploy_sha }}
         run: |
           set -euo pipefail
@@ -1328,6 +1337,26 @@ jobs:
             echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
           fi
 
+      # k2: fresh account only. The jobs worker went out without its HOST
+      # binding (the origin script did not exist); now that origin is live,
+      # redeploy it with the full config. The ensure step sees the existing
+      # script and emits the steady config.
+      - name: ⏰ Redeploy jobs worker with HOST (fresh account)
+        if: >-
+          steps.deploy.outcome == 'success' &&
+          needs.deploy-jobs-worker.outputs.jobs_deploy_mode == 'fresh'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          DEPLOY_COMMIT_SHA: ${{ needs.sha-guard.outputs.deploy_sha }}
+        run: |
+          set -euo pipefail
+          node tools/ci/jobs-worker-resources.ts ensure --env production \
+            --out-config packages/jobs-worker/wrangler-production.generated.json
+          node ./wrangler-env.ts deploy \
+            --config packages/jobs-worker/wrangler-production.generated.json \
+            --name k2-jobs --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}"
+
       - name: Save deployed production client assets
         if: steps.deploy.outcome == 'success'
         uses: actions/upload-artifact@v4
@@ -1746,7 +1775,7 @@ jobs:
       needs.sha-guard.outputs.deploy_status_worker == 'true'
     environment:
       name: production
-      url: https://status.kody.codes
+      url: https://k2-status.pruett.in
     steps:
       - name: 📦 Checkout
         uses: actions/checkout@v6.0.2
@@ -1776,8 +1805,10 @@ jobs:
           for attempt in $(seq 1 "$deploy_attempts"); do
             echo "Status worker deploy attempt $attempt/$deploy_attempts"
             set +e
+            # k2: the account id is not committed in packages/status/wrangler.jsonc.
             npm run status:deploy -- \
-              --var "BUILD_COMMIT:${DEPLOY_COMMIT_SHA}" 2>&1 | tee status-deploy.log
+              --var "BUILD_COMMIT:${DEPLOY_COMMIT_SHA}" \
+              --var "CLOUDFLARE_ACCOUNT_ID:${CLOUDFLARE_ACCOUNT_ID}" 2>&1 | tee status-deploy.log
             deploy_status="${PIPESTATUS[0]}"
             set -e
             if [ "$deploy_status" -eq 0 ]; then
@@ -1854,7 +1885,7 @@ jobs:
           EXPECTED_COMMIT_SHA: ${{ needs.sha-guard.outputs.deploy_sha }}
         run: |
           set -euo pipefail
-          HEALTHCHECK_URL="https://status.kody.codes/health"
+          HEALTHCHECK_URL="https://k2-status.pruett.in/health"
 
           attempts=20
           delay_seconds=3
@@ -1879,7 +1910,7 @@ jobs:
 
   deploy-api-worker:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
-    name: 🔌 Deploy API worker (api.kody.codes)
+    name: 🔌 Deploy API worker (k2-api.pruett.in)
     timeout-minutes: 8
     # The KODY_API service binding targets the origin's KodyApi entrypoint,
     # so this deploys after origin. `deploy` may be skipped when only the
@@ -1898,7 +1929,7 @@ jobs:
       (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
     environment:
       name: production
-      url: https://api.kody.codes
+      url: https://k2-api.pruett.in
     steps:
       - name: 📦 Checkout
         uses: actions/checkout@v6.0.2
@@ -1955,7 +1986,7 @@ jobs:
           EXPECTED_COMMIT_SHA: ${{ needs.sha-guard.outputs.deploy_sha }}
         run: |
           set -euo pipefail
-          API_URL="https://api.kody.codes"
+          API_URL="https://k2-api.pruett.in"
 
           # A brand-new custom domain can take a few minutes for DNS and the
           # edge certificate, so this waits longer than the other workers.
@@ -1985,7 +2016,7 @@ jobs:
 
   deploy-api-docs-worker:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
-    name: 📚 Deploy API docs worker (api-docs.kody.codes)
+    name: 📚 Deploy API docs worker (k2-api-docs.pruett.in)
     timeout-minutes: 8
     # Independent of origin: docs fetch the live OpenAPI JSON over HTTPS.
     # Deploys after the API worker when that job ran, so a brand-new API
@@ -2005,7 +2036,7 @@ jobs:
         needs.deploy-api-worker.result == 'skipped')
     environment:
       name: production
-      url: https://api-docs.kody.codes
+      url: https://k2-api-docs.pruett.in
     steps:
       - name: 📦 Checkout
         uses: actions/checkout@v6.0.2
@@ -2059,7 +2090,7 @@ jobs:
           EXPECTED_COMMIT_SHA: ${{ needs.sha-guard.outputs.deploy_sha }}
         run: |
           set -euo pipefail
-          DOCS_URL="https://api-docs.kody.codes"
+          DOCS_URL="https://k2-api-docs.pruett.in"
 
           # Custom domain DNS + cert can take a few minutes on first deploy.
           attempts=40

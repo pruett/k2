@@ -41,6 +41,7 @@ packages/worker/src/generated/
 packages/runtime-worker/wrangler-*.generated.json
 packages/platform-worker/wrangler-*.generated.json
 packages/jobs-worker/wrangler-*.generated.json
+packages/jobs-worker/wrangler-*.generated-bootstrap.json
 packages/highlight-worker/wrangler-*.generated.json
 packages/api-worker/wrangler-*.generated.json
 

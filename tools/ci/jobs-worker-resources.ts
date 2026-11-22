@@ -10,6 +10,7 @@ import {
 	runWrangler,
 } from './resource-utils.ts'
 import { previewResourceNamePattern } from './preview-resources.ts'
+import { getCloudflareWorkerScriptExists } from './origin-production-deploy-state.ts'
 
 type EnvName = 'production' | 'preview'
 
@@ -260,6 +261,22 @@ async function ensureJobsWorkerResources(options: CliOptions) {
 	}
 
 	let workerName = baseConfig.name as string
+	// k2: a fresh production account has no `k2-production` JobManager to
+	// transfer (origin never creates the class) and no origin script for HOST
+	// to bind, so bootstrap production like preview: create the class fresh,
+	// deploy without HOST, then redeploy the full config after origin.
+	let productionFresh = false
+	if (options.envName === 'production' && !options.dryRun) {
+		productionFresh = !(await getCloudflareWorkerScriptExists({
+			accountId: process.env.CLOUDFLARE_ACCOUNT_ID?.trim() ?? '',
+			apiToken: process.env.CLOUDFLARE_API_TOKEN?.trim() ?? '',
+			scriptName: workerName,
+		}))
+	}
+	if (productionFresh) {
+		baseConfig.migrations = [{ tag: 'v1', new_sqlite_classes: ['JobManager'] }]
+	}
+	console.log(`jobs_deploy_mode=${productionFresh ? 'fresh' : 'steady'}`)
 	if (options.envName === 'preview') {
 		// Preview JOBS_DB is the per-preview `--jobs-d1-name` database; preview
 		// cleanup deletes it with the per-preview jobs Worker.
@@ -302,7 +319,7 @@ async function ensureJobsWorkerResources(options: CliOptions) {
 		`${JSON.stringify(baseConfig, null, '\t')}\n`,
 	)
 
-	if (options.envName === 'preview') {
+	if (options.envName === 'preview' || productionFresh) {
 		// Service bindings cannot reference scripts that do not exist yet, and
 		// per-preview app/jobs workers reference each other. The bootstrap
 		// config omits the HOST binding so the jobs worker can deploy before

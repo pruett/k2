@@ -22,6 +22,7 @@ import {
 	ensureCloudflareQueue,
 	ensureDmarcEmailRoutingRule,
 	ensureDmarcReportingTxtRecords,
+	resolveDmarcReportForwardTo,
 	ensureEmailSendingEventSubscription,
 	ensurePackageAppDnsRecords,
 	ensureR2BucketLifecycle,
@@ -1869,5 +1870,14 @@ test('ensureDmarcEmailRoutingRule soft-skips when destination list is 403', asyn
 	})
 	expect(consoleError).toHaveBeenCalledWith(
 		expect.stringContaining('cannot list Email Routing destinations (403)'),
+	)
+})
+
+test('resolveDmarcReportForwardTo defaults to off and honors an explicit address', () => {
+	expect(resolveDmarcReportForwardTo(undefined)).toBeNull()
+	expect(resolveDmarcReportForwardTo('  ')).toBeNull()
+	expect(resolveDmarcReportForwardTo('OFF')).toBeNull()
+	expect(resolveDmarcReportForwardTo(' ops@example.com ')).toBe(
+		'ops@example.com',
 	)
 })

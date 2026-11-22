@@ -5,7 +5,7 @@ import {
 
 /**
  * Auxiliary worker for the workers-unit vitest pool: the main worker's test
- * env binds HIGHLIGHT to "kody-highlight-test", which local `wrangler dev`
+ * env binds HIGHLIGHT to "k2-highlight-test", which local `wrangler dev`
  * resolves from the real highlight-worker config. The vitest pool only loads
  * the main worker config, so this bundle serves the highlight fetch contract
  * with plaintext tokens (Shiki stays on the real highlight worker).

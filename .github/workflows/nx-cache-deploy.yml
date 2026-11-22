@@ -33,7 +33,7 @@ jobs:
     timeout-minutes: 8
     environment:
       name: production
-      url: https://nx-cache.kody.codes
+      url: https://k2-nx-cache.pruett.in
     steps:
       - name: 📦 Checkout
         uses: actions/checkout@v6.0.2
@@ -128,7 +128,7 @@ jobs:
             echo "Skipping Nx cache healthcheck: token is not set."
             exit 0
           fi
-          HEALTHCHECK_URL="https://nx-cache.kody.codes/health"
+          HEALTHCHECK_URL="https://k2-nx-cache.pruett.in/health"
           attempts=20
           delay_seconds=3
           for i in $(seq 1 "$attempts"); do

@@ -1,0 +1,225 @@
+#!/usr/bin/env bash
+# k2 local production deploy: replays .github/workflows/deploy.yml (and
+# nx-cache-deploy.yml) job by job from this checkout, against the account in
+# ~/.config/k2/cloudflare.env, with Worker secrets from ~/.config/k2/k2-secrets.env.
+# No secret value is written to the repo or printed.
+#
+# Usage: tools/k2/deploy.sh [step ...]
+#   steps (default: all, in deploy.yml order):
+#     highlight push-queue jobs origin status api api-docs nx-cache health
+#
+# Every step is safe to rerun: resource ensures are idempotent, secret sync is
+# a bulk upsert, and wrangler deploys converge to the checked-out commit.
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+# --- k2 configuration (non-secret; the one place deploy-time values live) ---
+export APP_BASE_URL=https://k2.pruett.in
+export K2_ZONE_NAME=pruett.in
+# k2 switch: skip the dmarc@ forward rule (TXT records are still ensured).
+export DMARC_REPORT_FORWARD_TO=off
+K2_HOSTS=(k2-status.pruett.in k2-api.pruett.in k2-api-docs.pruett.in k2-nx-cache.pruett.in)
+
+set -a
+# shellcheck disable=SC1090,SC1091
+. "$HOME/.config/k2/cloudflare.env"
+# shellcheck disable=SC1090,SC1091
+. "$HOME/.config/k2/k2-secrets.env"
+set +a
+# The PEM is stored on one line with \n escapes.
+OIDC_SIGNING_PRIVATE_KEY_PEM="$(printf '%b' "$OIDC_SIGNING_PRIVATE_KEY_PEM")"
+export OIDC_SIGNING_PRIVATE_KEY_PEM
+
+cf_api() {
+	curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4$1"
+}
+CLOUDFLARE_ZONE_ID="$(cf_api "/zones?name=$K2_ZONE_NAME" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).result[0].id))')"
+export CLOUDFLARE_ZONE_ID
+WORKERS_DEV_SUBDOMAIN="$(cf_api "/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).result.subdomain))')"
+DEPLOY_COMMIT_SHA="$(git rev-parse HEAD)"
+export DEPLOY_COMMIT_SHA
+STATE_DIR=.tmp/k2-deploy
+mkdir -p "$STATE_DIR"
+
+log() { printf '\n=== %s\n' "$*" >&2; }
+
+# Run a command up to 3 times (deploy.yml retries the same way).
+retry() {
+	local attempt
+	for attempt in 1 2 3; do
+		if "$@"; then return 0; fi
+		[ "$attempt" = 3 ] && return 1
+		log "retrying in $((attempt * 10))s: $1"
+		sleep $((attempt * 10))
+	done
+}
+
+# key=value lines a tools/ci script printed for $GITHUB_OUTPUT.
+output_of() { grep -E "^$2=" "$1" | tail -1 | cut -d= -f2-; }
+
+healthcheck() {
+	local url="$1" body
+	for _ in 1 2 3 4 5 6; do
+		if body="$(curl -fsS --max-time 15 "$url")"; then
+			if printf '%s' "$body" | grep -q "$DEPLOY_COMMIT_SHA"; then
+				echo "OK $url (commit $DEPLOY_COMMIT_SHA)"
+			else
+				echo "OK $url (200; commit not in body)"
+			fi
+			return 0
+		fi
+		sleep 10
+	done
+	echo "FAIL $url" >&2
+	return 1
+}
+
+step_highlight() {
+	log "highlight worker"
+	retry node ./wrangler-env.ts deploy --config packages/highlight-worker/wrangler.jsonc \
+		--name k2-highlight --env production --var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA"
+}
+
+step_push_queue() {
+	log "push queue worker"
+	retry node ./wrangler-env.ts deploy --config packages/push-queue-worker/wrangler.jsonc \
+		--name k2-push-queue --env production --var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA"
+}
+
+step_jobs() {
+	log "jobs worker: ensure D1 + queues"
+	node tools/ci/jobs-worker-resources.ts ensure --env production \
+		--out-config packages/jobs-worker/wrangler-production.generated.json | tee "$STATE_DIR/jobs.out"
+	local config bootstrap mode
+	config="$(output_of "$STATE_DIR/jobs.out" jobs_wrangler_config)"
+	bootstrap="$(output_of "$STATE_DIR/jobs.out" jobs_wrangler_bootstrap_config)"
+	mode="$(output_of "$STATE_DIR/jobs.out" jobs_deploy_mode)"
+	echo "$mode" > "$STATE_DIR/jobs-mode"
+	node ./wrangler-env.ts d1 migrations apply JOBS_DB --remote --config "$config"
+	# Fresh account: no origin script yet, so deploy without HOST and
+	# redeploy with it after origin (step_origin).
+	retry node ./wrangler-env.ts deploy --config "${bootstrap:-$config}" \
+		--name k2-jobs --var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA"
+}
+
+origin_secret_flags=(
+	--set-from-env COOKIE_SECRET --set-from-env SECRET_STORE_KEY
+	--set-from-env CLOUDFLARE_API_TOKEN=CLOUDFLARE_APP_API_TOKEN
+	--set-from-env OIDC_SIGNING_PRIVATE_KEY_PEM --set-from-env OIDC_SIGNING_KEY_ID
+	--set-from-env TURNSTILE_SITE_KEY --set-from-env TURNSTILE_SECRET_KEY
+)
+
+step_origin() {
+	[ -f packages/worker/.env ] || cp packages/worker/.env.example packages/worker/.env
+	log "origin: ensure production resources"
+	node tools/ci/production-resources.ts ensure \
+		--out-config packages/worker/wrangler-production.generated.json | tee "$STATE_DIR/origin.out"
+	local config mode bootstrap
+	config="$(output_of "$STATE_DIR/origin.out" wrangler_config)"
+	mode="$(output_of "$STATE_DIR/origin.out" origin_deploy_mode)"
+	bootstrap="$(output_of "$STATE_DIR/origin.out" origin_bootstrap_wrangler_config)"
+	echo "origin_deploy_mode=$mode"
+
+	log "generate runtime + platform configs"
+	node tools/ci/runtime-worker-config.ts generate --env production \
+		--main-config packages/worker/wrangler-production.generated.json \
+		--worker-name k2-runtime --platform-worker-name k2-platform --main-worker-name k2-production \
+		--out-config packages/runtime-worker/wrangler-production.generated.json
+	node tools/ci/platform-worker-config.ts generate --env production \
+		--main-config packages/worker/wrangler-production.generated.json \
+		--worker-name k2-platform --runtime-worker-name k2-runtime --main-worker-name k2-production \
+		--out-config packages/platform-worker/wrangler-production.generated.json
+
+	log "secrets: origin, runtime, platform"
+	node tools/ci/sync-worker-secrets.ts --env production --config "$config" "${origin_secret_flags[@]}"
+	node tools/ci/sync-worker-secrets.ts --env "" --name k2-runtime \
+		--config packages/runtime-worker/wrangler-production.generated.json \
+		--set-from-env COOKIE_SECRET --set-from-env SECRET_STORE_KEY \
+		--set-from-env CLOUDFLARE_API_TOKEN=CLOUDFLARE_RUNTIME_API_TOKEN
+	local platform_mode=()
+	[ "$mode" = fresh ] || platform_mode=(--versioned)
+	node tools/ci/sync-worker-secrets.ts "${platform_mode[@]}" --env "" --name k2-platform \
+		--config packages/platform-worker/wrangler-production.generated.json "${origin_secret_flags[@]}"
+
+	log "D1 migrations"
+	node ./wrangler-env.ts d1 migrations apply APP_DB --remote --config "$config"
+	node ./wrangler-env.ts d1 migrations apply AUDIT_DB --remote --config "$config"
+
+	if [ "$mode" = fresh ]; then
+		log "bootstrap fresh origin (full entry)"
+		CLOUDFLARE_ENV=production retry npm run deploy -- --name k2-production --config "$bootstrap" \
+			--var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA"
+	fi
+	log "platform worker"
+	retry npm run deploy -- --name k2-platform \
+		--config packages/platform-worker/wrangler-production.generated.json \
+		--var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA"
+	log "runtime worker"
+	retry npm run deploy -- --name k2-runtime \
+		--config packages/runtime-worker/wrangler-production.generated.json \
+		--var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA"
+	log "origin worker"
+	local deploy_info
+	deploy_info="$(node tools/ci/build-deploy-info.ts)"
+	CLOUDFLARE_ENV=production retry npm run deploy -- --name k2-production --config "$config" \
+		--var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA" --var "APP_DEPLOY_INFO:$deploy_info"
+
+	if [ "$(cat "$STATE_DIR/jobs-mode" 2>/dev/null)" = fresh ]; then
+		log "redeploy jobs worker with HOST (fresh account)"
+		node tools/ci/jobs-worker-resources.ts ensure --env production \
+			--out-config packages/jobs-worker/wrangler-production.generated.json
+		retry node ./wrangler-env.ts deploy --config packages/jobs-worker/wrangler-production.generated.json \
+			--name k2-jobs --var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA"
+		echo steady > "$STATE_DIR/jobs-mode"
+	fi
+}
+
+step_status() {
+	log "status worker"
+	# The account id is not committed in packages/status/wrangler.jsonc.
+	retry npm run status:deploy -- --var "BUILD_COMMIT:$DEPLOY_COMMIT_SHA" \
+		--var "CLOUDFLARE_ACCOUNT_ID:$CLOUDFLARE_ACCOUNT_ID"
+	printf '%s' "$CLOUDFLARE_STATUS_API_TOKEN" |
+		npx wrangler secret put CLOUDFLARE_API_TOKEN --config packages/status/wrangler.jsonc
+}
+
+step_api() {
+	log "api worker"
+	retry node ./wrangler-env.ts deploy --config packages/api-worker/wrangler.jsonc \
+		--name k2-api --env production --var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA"
+}
+
+step_api_docs() {
+	log "api docs worker"
+	retry node ./wrangler-env.ts deploy --config packages/api-docs-worker/wrangler.jsonc \
+		--name k2-api-docs --var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA"
+}
+
+step_nx_cache() {
+	log "nx cache worker"
+	node tools/ci/nx-cache-resources.ts
+	retry npm run nx-cache:deploy -- --var "BUILD_COMMIT:$DEPLOY_COMMIT_SHA"
+	node tools/ci/sync-worker-secrets.ts --env "" --config packages/nx-cache/wrangler.jsonc \
+		--name k2-nx-cache --set-from-env CACHE_ACCESS_TOKEN
+}
+
+step_health() {
+	log "healthchecks"
+	local fail=0 host
+	healthcheck "$APP_BASE_URL/health" || fail=1
+	healthcheck "https://k2-platform.$WORKERS_DEV_SUBDOMAIN.workers.dev/__platform/health" || fail=1
+	healthcheck "https://k2-runtime.$WORKERS_DEV_SUBDOMAIN.workers.dev/__runtime/health" || fail=1
+	for host in k2-jobs k2-highlight k2-push-queue; do
+		healthcheck "https://$host.$WORKERS_DEV_SUBDOMAIN.workers.dev/health" || fail=1
+	done
+	for host in "${K2_HOSTS[@]}"; do
+		healthcheck "https://$host/health" || fail=1
+	done
+	return "$fail"
+}
+
+steps=("$@")
+[ "${#steps[@]}" -gt 0 ] || steps=(highlight push-queue jobs origin status api api-docs nx-cache health)
+for s in "${steps[@]}"; do
+	"step_${s//-/_}"
+done

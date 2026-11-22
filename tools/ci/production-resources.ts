@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import {
-	defaultDmarcReportForwardTo,
+	resolveDmarcReportForwardTo,
 	deleteEmailSendingEventSubscriptionIfPresent,
 	ensureArtifactsAccountEventSubscription,
 	ensureCloudflareQueue,
@@ -848,8 +848,9 @@ async function ensureProductionResources(options: CliOptions) {
 			dryRun: options.dryRun,
 		})
 	}
-	const dmarcForwardTo =
-		process.env.DMARC_REPORT_FORWARD_TO?.trim() || defaultDmarcReportForwardTo
+	const dmarcForwardTo = resolveDmarcReportForwardTo(
+		process.env.DMARC_REPORT_FORWARD_TO,
+	)
 	await ensureDmarcReportingTxtRecords({
 		apiToken: apiToken ?? 'dry-run-token',
 		zoneId: zoneId ?? 'dry-run-zone',
@@ -857,14 +858,20 @@ async function ensureProductionResources(options: CliOptions) {
 		userEmailDomain: emailSendingUserDomain,
 		dryRun: options.dryRun,
 	})
-	await ensureDmarcEmailRoutingRule({
-		accountId: accountId ?? 'dry-run-account',
-		apiToken: apiToken ?? 'dry-run-token',
-		zoneId: zoneId ?? 'dry-run-zone',
-		systemEmailDomain: emailSendingSystemDomain,
-		forwardTo: dmarcForwardTo,
-		dryRun: options.dryRun,
-	})
+	if (dmarcForwardTo) {
+		await ensureDmarcEmailRoutingRule({
+			accountId: accountId ?? 'dry-run-account',
+			apiToken: apiToken ?? 'dry-run-token',
+			zoneId: zoneId ?? 'dry-run-zone',
+			systemEmailDomain: emailSendingSystemDomain,
+			forwardTo: dmarcForwardTo,
+			dryRun: options.dryRun,
+		})
+	} else {
+		console.error(
+			'DMARC_REPORT_FORWARD_TO=off: skipping the dmarc@ Email Routing forward rule (DMARC TXT records still ensured).',
+		)
+	}
 	const artifactsEventSubscription =
 		await ensureArtifactsAccountEventSubscription({
 			accountId: accountId ?? 'dry-run-account',

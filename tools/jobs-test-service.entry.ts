@@ -13,7 +13,7 @@ import jobsDisabledReasonSql from '../packages/jobs-worker/migrations/0007-job-d
 
 /**
  * Auxiliary worker for the workers-unit vitest pool: the main worker's test
- * env binds JOBS to "kody-jobs-test" (ADR 0016), which local `wrangler dev`
+ * env binds JOBS to "k2-jobs-test" (ADR 0016), which local `wrangler dev`
  * resolves from the real jobs-worker config. The vitest pool only loads the
  * main worker config, so this bundle serves the JobsService contract from the
  * shared D1 jobs store against its own JOBS_DB (schema applied lazily from

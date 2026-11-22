@@ -335,7 +335,8 @@ async function main() {
 	}
 	const windowSeconds = Number(process.env.REGIONAL_HEALTH_WINDOW_SECONDS)
 	const outcome = await runRegionalHealthCheck({
-		url: process.env.REGIONAL_HEALTH_URL?.trim() || 'https://kody.codes/health',
+		url:
+			process.env.REGIONAL_HEALTH_URL?.trim() || 'https://k2.pruett.in/health',
 		expectedCommitSha,
 		windowMs:
 			(Number.isFinite(windowSeconds) && windowSeconds > 0

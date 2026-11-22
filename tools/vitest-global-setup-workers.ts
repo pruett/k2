@@ -5,7 +5,7 @@ import { ensureWorkerBundlerModules } from './build-worker-bundler-modules.ts'
 /**
  * Vitest global setup for the workers-unit pool: generates gitignored build
  * artifacts (worker-bundler modules, guide catalog) and builds the auxiliary
- * "kody-jobs-test" / "kody-highlight-test" worker bundles that serve the main
+ * "k2-jobs-test" / "k2-highlight-test" worker bundles that serve the main
  * worker's JOBS and HIGHLIGHT service bindings inside the pool.
  */
 export default async function setup() {

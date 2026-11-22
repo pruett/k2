@@ -1445,16 +1445,16 @@
 			],
 			// Jobs + highlight: local dev/e2e runs the secondary configs
 			// together (`wrangler dev --env test` names them
-			// "kody-jobs-test" and "kody-highlight-test").
+			// "k2-jobs-test" and "k2-highlight-test").
 			"services": [
 				{
 					"binding": "JOBS",
-					"service": "kody-jobs-test",
+					"service": "k2-jobs-test",
 					"entrypoint": "JobsService",
 				},
 				{
 					"binding": "HIGHLIGHT",
-					"service": "kody-highlight-test",
+					"service": "k2-highlight-test",
 				},
 			],
 			"queues": {

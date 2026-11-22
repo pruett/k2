@@ -201,7 +201,7 @@ async function startHarnessWithCloudflareMock() {
 		}>()
 		await worker.applyD1Migrations('APP_DB')
 		await worker.applyD1Migrations('AUDIT_DB')
-		await harness.getWorker('kody-jobs-test').applyD1Migrations('JOBS_DB')
+		await harness.getWorker('k2-jobs-test').applyD1Migrations('JOBS_DB')
 		const env = await worker.getEnv()
 		return {
 			origin: url.origin,
