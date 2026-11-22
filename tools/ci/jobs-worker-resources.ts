@@ -263,18 +263,40 @@ async function ensureJobsWorkerResources(options: CliOptions) {
 	let workerName = baseConfig.name as string
 	// k2: a fresh production account has no `k2-production` JobManager to
 	// transfer (origin never creates the class) and no origin script for HOST
-	// to bind, so bootstrap production like preview: create the class fresh,
-	// deploy without HOST, then redeploy the full config after origin.
+	// to bind. Create the class fresh when the jobs script does not exist yet,
+	// and deploy without HOST (then redeploy the full config after origin)
+	// whenever the HOST target is missing, which also covers a rerun after a
+	// partial first deploy.
 	let productionFresh = false
 	if (options.envName === 'production' && !options.dryRun) {
-		productionFresh = !(await getCloudflareWorkerScriptExists({
+		const client = {
 			accountId: process.env.CLOUDFLARE_ACCOUNT_ID?.trim() ?? '',
 			apiToken: process.env.CLOUDFLARE_API_TOKEN?.trim() ?? '',
+		}
+		const hostService = (
+			Array.isArray(envConfig.services) ? envConfig.services : []
+		).find(
+			(entry) =>
+				entry &&
+				typeof entry === 'object' &&
+				(entry as Record<string, unknown>).binding === 'HOST',
+		) as Record<string, unknown> | undefined
+		const jobsExists = await getCloudflareWorkerScriptExists({
+			...client,
 			scriptName: workerName,
-		}))
-	}
-	if (productionFresh) {
-		baseConfig.migrations = [{ tag: 'v1', new_sqlite_classes: ['JobManager'] }]
+		})
+		const hostExists =
+			typeof hostService?.service !== 'string' ||
+			(await getCloudflareWorkerScriptExists({
+				...client,
+				scriptName: hostService.service,
+			}))
+		if (!jobsExists) {
+			baseConfig.migrations = [
+				{ tag: 'v1', new_sqlite_classes: ['JobManager'] },
+			]
+		}
+		productionFresh = !jobsExists || !hostExists
 	}
 	console.log(`jobs_deploy_mode=${productionFresh ? 'fresh' : 'steady'}`)
 	if (options.envName === 'preview') {
