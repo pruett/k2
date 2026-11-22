@@ -350,6 +350,44 @@ export type CliOptions = {
 	outConfigPath: string
 }
 
+/**
+ * The committed production v1 migration both transfers PackageServiceInstance
+ * from the origin and lists it in `new_sqlite_classes` (a wrangler local-map
+ * workaround; see packages/runtime-worker/wrangler.jsonc). Cloudflare rejects
+ * that pair whenever v1 is actually uploaded ("cannot be the target of more
+ * than one migration", 10021), which only happens on a fresh account: an
+ * existing runtime script is already past v2 and wrangler sends no v1. Drop
+ * a transfer whose target the same migration also creates, so a fresh
+ * production runtime gets the class as new (then v2 deletes it), the same
+ * as preview.
+ */
+export function dropTransfersOfCreatedClasses(migrations: unknown) {
+	if (!Array.isArray(migrations)) return migrations
+	return migrations.map((migration) => {
+		if (!migration || typeof migration !== 'object') return migration
+		const record = migration as JsonRecord
+		const created = new Set(
+			[record.new_sqlite_classes, record.new_classes].flatMap((list) =>
+				Array.isArray(list) ? list : [],
+			),
+		)
+		if (!Array.isArray(record.transferred_classes) || created.size === 0) {
+			return migration
+		}
+		const transferred = record.transferred_classes.filter(
+			(entry) =>
+				!(
+					entry &&
+					typeof entry === 'object' &&
+					created.has((entry as JsonRecord).to)
+				),
+		)
+		const next: JsonRecord = { ...record, transferred_classes: transferred }
+		if (transferred.length === 0) delete next.transferred_classes
+		return next
+	})
+}
+
 function parseArgs(argv: Array<string>): CliOptions {
 	const options: Record<string, string> = {}
 	for (let index = 0; index < argv.length; index += 2) {
@@ -442,6 +480,16 @@ export async function generate(options: CliOptions) {
 		}
 	}
 	addPackageAppRoute(runtimeEnv, options.envName)
+	if (options.envName === 'production') {
+		runtimeConfig.migrations = dropTransfersOfCreatedClasses(
+			runtimeConfig.migrations,
+		)
+		if (runtimeEnv.migrations !== undefined) {
+			runtimeEnv.migrations = dropTransfersOfCreatedClasses(
+				runtimeEnv.migrations,
+			)
+		}
+	}
 	await writeFile(
 		options.outConfigPath,
 		`${JSON.stringify(runtimeConfig, null, '\t')}\n`,

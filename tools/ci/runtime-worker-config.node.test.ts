@@ -4,7 +4,10 @@ import path from 'node:path'
 import { expect, test } from 'vitest'
 import { consoleError } from '#worker/test-support/console-spies.ts'
 
-import { generate } from './runtime-worker-config.ts'
+import {
+	dropTransfersOfCreatedClasses,
+	generate,
+} from './runtime-worker-config.ts'
 import { parseJsonc } from './resource-utils.ts'
 
 const runtimeBaseConfigPath = 'packages/runtime-worker/wrangler.jsonc'
@@ -446,4 +449,53 @@ test('only the runtime Worker binds the legacy package-app mount counter', async
 		binding: 'PACKAGE_APP_LEGACY_EVENTS',
 		dataset: 'kody_package_app_legacy_events_preview',
 	})
+})
+
+test('dropTransfersOfCreatedClasses keeps a fresh production runtime upload valid', () => {
+	const committed = [
+		{
+			tag: 'v1',
+			transferred_classes: [
+				{
+					from: 'StorageRunner',
+					from_script: 'k2-production',
+					to: 'StorageRunner',
+				},
+				{
+					from: 'PackageServiceInstance',
+					from_script: 'k2-production',
+					to: 'PackageServiceInstance',
+				},
+			],
+			new_sqlite_classes: ['PackageServiceInstance'],
+		},
+		{ tag: 'v2', deleted_classes: ['PackageServiceInstance'] },
+	]
+	expect(dropTransfersOfCreatedClasses(committed)).toEqual([
+		{
+			tag: 'v1',
+			transferred_classes: [
+				{
+					from: 'StorageRunner',
+					from_script: 'k2-production',
+					to: 'StorageRunner',
+				},
+			],
+			new_sqlite_classes: ['PackageServiceInstance'],
+		},
+		{ tag: 'v2', deleted_classes: ['PackageServiceInstance'] },
+	])
+	expect(
+		dropTransfersOfCreatedClasses([
+			{
+				tag: 'v1',
+				transferred_classes: [{ from: 'A', from_script: 's', to: 'A' }],
+			},
+		]),
+	).toEqual([
+		{
+			tag: 'v1',
+			transferred_classes: [{ from: 'A', from_script: 's', to: 'A' }],
+		},
+	])
 })
