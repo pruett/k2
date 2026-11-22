@@ -21,7 +21,7 @@ import { ExecutionContextSessionV1 } from './execution-contexts/session-do.ts'
 import { getWorkerSentryOptions } from './sentry-options.ts'
 
 /**
- * Platform Worker entrypoint (script `kody-platform`, deployed from
+ * Platform Worker entrypoint (script `k2-platform`, deployed from
  * `packages/platform-worker/wrangler.jsonc`).
  *
  * Owns the remaining platform Durable Objects extracted from the origin
@@ -34,7 +34,7 @@ import { getWorkerSentryOptions } from './sentry-options.ts'
  * `ctx.exports` WorkerEntrypoints. MCP `execute` (and the search/execute
  * graph that fans into it) runs inside the platform-owned `MCP` Durable
  * Object and looks up those exports on **this** script, the same way
- * `kody-runtime` exports its own gateway instead of calling back into origin.
+ * `k2-runtime` exports its own gateway instead of calling back into origin.
  */
 export {
 	FileStore,

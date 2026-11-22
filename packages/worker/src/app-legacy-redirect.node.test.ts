@@ -70,7 +70,7 @@ test('legacy host redirect rewrites listed GET/HEAD navigation and leaves protoc
 		['https://heykody.app/blog'],
 		// Unlisted hosts (workers.dev backup trigger, package-app origin, local
 		// dev) serve normally.
-		['https://kody-production.kody-a99.workers.dev/'],
+		['https://k2-production.kody-a99.workers.dev/'],
 		// A misconfigured list containing the canonical host must not loop.
 		[
 			'https://heykody.app/blog',

@@ -16,7 +16,7 @@ import {
  * Cloudflare queue metrics supply `backlog_count` and the oldest unacknowledged
  * message. A missing oldest timestamp (the API returns 0) falls back to the
  * first tick that observed a non-zero backlog. The cron runs this lane directly
- * so a stuck `kody-scheduled-dispatch` consumer cannot hide its own DLQ.
+ * so a stuck `k2-scheduled-dispatch` consumer cannot hide its own DLQ.
  *
  * The DLQ consumer parks messages in APP_DB (`dead_letter_messages`) and acks
  * them, so parked rows count toward depth too: a message stays on this page

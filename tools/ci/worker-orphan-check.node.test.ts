@@ -47,12 +47,12 @@ test('reports the undeployed stack above the active deployment', () => {
 		'3a6da96b-6da8-4393-b906-8ede58c99374',
 	])
 	const report = formatOrphanReport({
-		workerName: 'kody-production',
+		workerName: 'k2-production',
 		phase: 'preflight',
 		result,
 	})
 	expect(report.annotation).toMatch(
-		/^::error title=Undeployed Worker version \(kody-production\)::/,
+		/^::error title=Undeployed Worker version \(k2-production\)::/,
 	)
 	expect(report.annotation).toContain('gh-39976970841-1')
 	expect(report.summary).toContain('`3a6da96b-6da8-4393-b906-8ede58c99374`')

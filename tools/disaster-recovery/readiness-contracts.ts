@@ -224,7 +224,7 @@ export const canonicalContracts = [
 			'd1-restore-drill',
 		],
 		includes: [
-			'complete checksummed kody-jobs D1 SQL export',
+			'complete checksummed k2-jobs D1 SQL export',
 			'jobs table evidence',
 		],
 		excludes: ['production overwrite', 'Time Travel', 'automatic cutover'],

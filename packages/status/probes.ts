@@ -19,7 +19,7 @@ import {
 const probeTimeoutMs = 10_000
 
 /** Synthetic origin used with the JOBS service binding. Not a public URL. */
-export const jobsProbeOrigin = 'https://kody-jobs.internal'
+export const jobsProbeOrigin = 'https://k2-jobs.internal'
 
 type ProbeConfig = {
 	primaryOrigin: string

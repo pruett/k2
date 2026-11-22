@@ -386,7 +386,7 @@ async function drainDispatchQueue(env: Env, queueBodies: Array<unknown>) {
 	}))
 	await handlePlatformFeedbackDispatchQueue(
 		{
-			queue: 'kody-platform-feedback-dispatch',
+			queue: 'k2-platform-feedback-dispatch',
 			messages,
 			ackAll: vi.fn(),
 			retryAll: vi.fn(),

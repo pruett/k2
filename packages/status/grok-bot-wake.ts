@@ -83,7 +83,7 @@ export function composeGrokBotWakePrompt(input: {
 			`Status page: ${input.statusPageUrl}`,
 			`JSON: ${input.statusPageUrl}/status.json`,
 			'',
-			'This wake comes straight from the kody-status worker, not through kody.codes, so it fires even when the main origin is down. Check status.json, Workers observability, and recent deploys.',
+			'This wake comes straight from the k2-status worker, not through kody.codes, so it fires even when the main origin is down. Check status.json, Workers observability, and recent deploys.',
 		)
 	} else {
 		lines.push(

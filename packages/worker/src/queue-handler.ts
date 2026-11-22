@@ -33,7 +33,8 @@ export function deployedQueueMatches(
 	productionQueueName: string,
 ) {
 	if (batchQueue === productionQueueName) return true
-	const suffix = productionQueueName.slice('kody'.length)
+	// k2: production names are k2-<suffix>; strip the first label either way.
+	const suffix = productionQueueName.slice(productionQueueName.indexOf('-'))
 	return suffix.startsWith('-') && batchQueue.endsWith(suffix)
 }
 

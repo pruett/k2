@@ -1,6 +1,6 @@
 /**
  * Cross-worker contract between the main `kody` Worker and the package
- * runtime Worker (`packages/runtime-worker`, script `kody-runtime`).
+ * runtime Worker (`packages/runtime-worker`, script `k2-runtime`).
  *
  * The main Worker reaches the runtime Worker over the `RUNTIME_WORKER`
  * service binding. Wholesale HTTP forward covers runtime-owned requests

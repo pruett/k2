@@ -1,3 +1,3 @@
-export const artifactsRepoEventsQueueName = 'kody-artifacts-repo-events'
+export const artifactsRepoEventsQueueName = 'k2-artifacts-repo-events'
 export const artifactsRepoEventsDeadLetterQueueName =
-	'kody-artifacts-repo-events-dlq'
+	'k2-artifacts-repo-events-dlq'

@@ -5,7 +5,7 @@ import { KodyApi } from './open-api/kody-api.ts'
 import { originWorkerHandler } from './origin-handler.ts'
 
 /**
- * Slim origin Worker entrypoint: production (script `kody-production`) and
+ * Slim origin Worker entrypoint: production (script `k2-production`) and
  * preview (`kody-pr-<n>`).
  *
  * The committed `packages/worker/wrangler.jsonc` never points any
@@ -22,7 +22,7 @@ import { originWorkerHandler } from './origin-handler.ts'
  *
  * ADR 0034: origin owns zero Durable Object classes in production and
  * preview. Every env.production and env.preview `durable_objects` binding
- * sets `script_name` (kody-platform or kody-runtime) and the `workflows`
+ * sets `script_name` (k2-platform or k2-runtime) and the `workflows`
  * binding does too, so none of those classes need a local export here — only
  * `index.ts` (dev/test, fresh/ambiguous production, and legacy preview
  * origins) does.
@@ -31,12 +31,12 @@ import { originWorkerHandler } from './origin-handler.ts'
  * production genuinely calls on this script:
  * - `KodyFetchGateway` — the origin-only `/__maintenance/execute-smoke`
  *   deploy check (see `execute-maintenance.ts`) proves this script's own
- *   loopback export. MCP `execute` itself runs on `kody-platform` and looks
+ *   loopback export. MCP `execute` itself runs on `k2-platform` and looks
  *   up its own gateway there, not through this script.
- * - `JobsHost` — `kody-jobs`' `HOST` service binding calls back into this
+ * - `JobsHost` — `k2-jobs`' `HOST` service binding calls back into this
  *   script for job execution (see
  *   docs/contributing/architecture/jobs-worker-migration-runbook.md).
- * - `KodyApi` — `kody-api`'s `KODY_API` service binding forwards
+ * - `KodyApi` — `k2-api`'s `KODY_API` service binding forwards
  *   `api.kody.codes` requests here (see
  *   docs/contributing/architecture/open-api.md).
  * - `DynamicWorkerUsageTail` — tail worker attached to the Worker Loader

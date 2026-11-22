@@ -51,7 +51,7 @@ const optionalArtifactsSchema = createSchema<unknown, Artifacts | undefined>(
 	},
 )
 
-// Service binding to the package runtime Worker (`kody-runtime`). Present in
+// Service binding to the package runtime Worker (`k2-runtime`). Present in
 // production/preview and multi-worker local dev; absent in tests and
 // single-worker dev, where the main Worker serves the runtime lane itself.
 const optionalFetcherSchema = createSchema<unknown, Fetcher | undefined>(
@@ -221,7 +221,7 @@ export const EnvSchema = object({
 	// Highlight worker service binding. Optional: tests and single-worker
 	// local fallback to plaintext tokens when the binding is absent.
 	HIGHLIGHT: optionalFetcherSchema,
-	// Repo push queue worker (`kody-push-queue`). Optional: tests and local
+	// Repo push queue worker (`k2-push-queue`). Optional: tests and local
 	// single-worker dev keep the isolate-local receive-pack wait path.
 	REPO_PUSH_QUEUE: optionalFetcherSchema,
 	STORAGE_RUNNER: requiredDurableObjectNamespaceSchema(

@@ -24,8 +24,8 @@ test('app base URLs prefer the request origin, fall back to APP_BASE_URL then ko
 	> = [
 		[
 			{ APP_BASE_URL: 'https://heykody.dev' },
-			'https://kody-production.kody-a99.workers.dev/mcp',
-			'https://kody-production.kody-a99.workers.dev',
+			'https://k2-production.kody-a99.workers.dev/mcp',
+			'https://k2-production.kody-a99.workers.dev',
 		],
 		[
 			{ APP_BASE_URL: 'https://configured.example' },

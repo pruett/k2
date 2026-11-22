@@ -210,8 +210,8 @@ test('parseD1PacedSources requires UUID ids and known bindings', () => {
 		parseD1PacedSources(
 			sourcesJson([
 				{ binding: 'APP_DB', name: 'kody', id: appId },
-				{ binding: 'JOBS_DB', name: 'kody-jobs', id: jobsId },
-				{ binding: 'AUDIT_DB', name: 'kody-audit', id: auditId },
+				{ binding: 'JOBS_DB', name: 'k2-jobs', id: jobsId },
+				{ binding: 'AUDIT_DB', name: 'k2-audit', id: auditId },
 			]),
 		),
 	).toHaveLength(3)
@@ -725,8 +725,8 @@ test('missing JOBS_DB binding is skipped without failing the tick', async () => 
 	const env = createEnv({
 		DR_D1_PACED_SOURCES: sourcesJson([
 			{ binding: 'APP_DB', name: 'kody', id: appId },
-			{ binding: 'JOBS_DB', name: 'kody-jobs', id: jobsId },
-			{ binding: 'AUDIT_DB', name: 'kody-audit', id: auditId },
+			{ binding: 'JOBS_DB', name: 'k2-jobs', id: jobsId },
+			{ binding: 'AUDIT_DB', name: 'k2-audit', id: auditId },
 		]),
 		// JOBS_DB intentionally omitted
 	})
@@ -745,10 +745,10 @@ test('missing JOBS_DB binding is skipped without failing the tick', async () => 
 		await client.head(pacedD1StagingManifestKey(day, 'kody')),
 	).toMatchObject({ exists: true })
 	expect(
-		await client.head(pacedD1StagingManifestKey(day, 'kody-audit')),
+		await client.head(pacedD1StagingManifestKey(day, 'k2-audit')),
 	).toMatchObject({ exists: true })
 	expect(
-		await client.head(pacedD1StagingManifestKey(day, 'kody-jobs')),
+		await client.head(pacedD1StagingManifestKey(day, 'k2-jobs')),
 	).toMatchObject({ exists: false })
 })
 
@@ -814,7 +814,7 @@ async function sealTwoSourcesForDrill() {
 		APP_DB: createAppD1(appSqlite),
 		DR_D1_PACED_SOURCES: sourcesJson([
 			{ binding: 'APP_DB', name: 'kody', id: appId },
-			{ binding: 'AUDIT_DB', name: 'kody-audit', id: auditId },
+			{ binding: 'AUDIT_DB', name: 'k2-audit', id: auditId },
 		]),
 	})
 	for (const time of ['01:00', '01:05', '01:10', '01:15']) {
@@ -906,7 +906,7 @@ test('restore drill drills one source per tick and resumes from APP_DB progress'
 	).toEqual(
 		expect.arrayContaining([
 			['kody', 'passed'],
-			['kody-audit', 'pending'],
+			['k2-audit', 'pending'],
 		]),
 	)
 
@@ -950,7 +950,7 @@ test('restore drill reports a tick that died mid-phase with source and phase, th
 		day,
 		sources: [
 			{ id: appId, name: 'kody' },
-			{ id: auditId, name: 'kody-audit' },
+			{ id: auditId, name: 'k2-audit' },
 		],
 		nowIso: sundayAt('07:00').toISOString(),
 	})
@@ -1001,11 +1001,11 @@ test('restore drill reports a tick that died mid-phase with source and phase, th
 	expect(failure).toBeInstanceOf(D1PacedRestoreDrillError)
 	expect(failure).toMatchObject({
 		kind: 'mismatch',
-		checkpoint: { day, source: 'kody-audit', table: 'items', phase: 'verify' },
+		checkpoint: { day, source: 'k2-audit', table: 'items', phase: 'verify' },
 	})
 	const progress = await readLatestD1PacedRestoreDrill(env.APP_DB)
 	const audit = progress?.sources.find(
-		(source) => source.databaseName === 'kody-audit',
+		(source) => source.databaseName === 'k2-audit',
 	)
 	expect(audit).toMatchObject({ status: 'failed', interruptedCount: 2 })
 	expect(audit?.tables.find((table) => table.table === 'items')).toMatchObject({

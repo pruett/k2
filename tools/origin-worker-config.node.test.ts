@@ -69,10 +69,10 @@ test('reads and strips --config flags', () => {
 
 test('reads and strips --name flags', () => {
 	expect(
-		readNameFlag(['--name', 'kody-production', '--var', 'APP_COMMIT_SHA:abc']),
-	).toBe('kody-production')
+		readNameFlag(['--name', 'k2-production', '--var', 'APP_COMMIT_SHA:abc']),
+	).toBe('k2-production')
 	expect(readNameFlag(['--name=kody-pr-2055'])).toBe('kody-pr-2055')
 	expect(
-		omitNameFlag(['--name', 'kody-production', '--var', 'APP_COMMIT_SHA:abc']),
+		omitNameFlag(['--name', 'k2-production', '--var', 'APP_COMMIT_SHA:abc']),
 	).toEqual(['--var', 'APP_COMMIT_SHA:abc'])
 })

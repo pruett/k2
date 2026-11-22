@@ -198,7 +198,7 @@ function resolveEmailSendingDomain(input: {
  * System/transactional mail (`kody@<SYSTEM_EMAIL_DOMAIN>`) is a separate
  * Email Sending domain from user inboxes. Cloudflare event subscriptions are
  * domain-scoped, so signup/password-reset/email-change lifecycle events only
- * arrive when this domain also has a subscription on `kody-email-delivery`.
+ * arrive when this domain also has a subscription on `k2-email-delivery`.
  */
 function resolveSystemEmailSendingDomain(input: {
 	dryRun: boolean

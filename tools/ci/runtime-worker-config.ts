@@ -20,7 +20,7 @@ import { isExecutedDirectly } from '../node-runtime.ts'
  * KV namespaces, R2 buckets, queues), so resource identifiers are copied
  * from the main Worker's already-provisioned generated config rather than
  * re-provisioned. Cross-script references (`script_name`, `from_script`,
- * `service`) committed as `kody`/`kody-runtime` are rewritten to the actual
+ * `service`) committed as `kody`/`k2-runtime` are rewritten to the actual
  * worker names, which lets preview deploys use per-PR names.
  *
  * The runtime Worker never binds the main Worker, so it deploys before the
@@ -30,8 +30,8 @@ import { isExecutedDirectly } from '../node-runtime.ts'
  */
 
 const defaultBaseConfigPath = 'packages/runtime-worker/wrangler.jsonc'
-const committedRuntimeName = 'kody-runtime'
-const committedPlatformName = 'kody-platform'
+const committedRuntimeName = 'k2-runtime'
+const committedPlatformName = 'k2-platform'
 const committedMainName = 'kody'
 
 type JsonRecord = Record<string, unknown>
@@ -138,7 +138,7 @@ function copyResourceIdentifiers(input: {
 		},
 		// Service bindings (the JOBS binding to the jobs worker): the main
 		// generated config carries the resolved per-environment worker name
-		// (`kody-jobs` in production, `<worker>-jobs` in preview).
+		// (`k2-jobs` in production, `<worker>-jobs` in preview).
 		{ section: 'services', key: 'binding', fields: ['service'] },
 	]
 	for (const { section, key, fields, mainOptional } of copies) {
@@ -416,7 +416,7 @@ export async function generate(options: CliOptions) {
 	runtimeConfig.name = options.runtimeWorkerName
 	// Pin the selected env's name too. Wrangler otherwise deploys and
 	// secret-bulks `--env production` as `<name>-production`, which would not
-	// match the main worker's cross-script bindings (`kody-runtime`).
+	// match the main worker's cross-script bindings (`k2-runtime`).
 	runtimeEnv.name = options.runtimeWorkerName
 	delete runtimeConfig.$schema
 	copyResourceIdentifiers({

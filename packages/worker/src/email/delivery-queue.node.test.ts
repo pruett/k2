@@ -155,7 +155,7 @@ test('delivery queue handles terminal outcomes without a D1-to-Mailbox graph mir
 
 	await handleEmailDeliveryQueue(
 		{
-			queue: 'kody-email-delivery',
+			queue: 'k2-email-delivery',
 			messages: queueMessages,
 			ackAll() {},
 			retryAll() {},
@@ -237,7 +237,7 @@ test('an event held by another delivery retries after the claim window', async (
 	}
 	await handleEmailDeliveryQueue(
 		{
-			queue: 'kody-email-delivery',
+			queue: 'k2-email-delivery',
 			messages: [queued],
 			ackAll() {},
 			retryAll() {},
@@ -277,7 +277,7 @@ test('an unmatched status event acks on its last attempt instead of parking in t
 	})
 	await handleEmailDeliveryQueue(
 		{
-			queue: 'kody-email-delivery',
+			queue: 'k2-email-delivery',
 			messages: [early, last],
 			ackAll() {},
 			retryAll() {},

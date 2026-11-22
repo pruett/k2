@@ -42,7 +42,7 @@ test('origin Vite deploy pins the production script name when callers omit --nam
 		'--var',
 		'APP_COMMIT_SHA:abc',
 		'--name',
-		'kody-production',
+		'k2-production',
 	])
 })
 
@@ -55,7 +55,7 @@ test('origin Vite deploy keeps an explicit --name (preview per-PR workers)', () 
 				'--config',
 				'packages/worker/wrangler-preview.generated.json',
 			],
-			'kody-production',
+			'k2-production',
 		),
 	).toEqual([
 		'deploy',

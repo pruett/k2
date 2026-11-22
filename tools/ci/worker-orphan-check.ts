@@ -11,7 +11,7 @@
  *
  * Usage:
  *   node tools/ci/worker-orphan-check.ts --phase preflight \
- *     --name kody-production --config <wrangler config> [--env production]
+ *     --name k2-production --config <wrangler config> [--env production]
  */
 import { spawnSync } from 'node:child_process'
 import { appendFileSync, existsSync } from 'node:fs'

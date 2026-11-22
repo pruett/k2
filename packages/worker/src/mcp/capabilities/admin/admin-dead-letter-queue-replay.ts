@@ -44,7 +44,7 @@ export const adminDeadLetterQueueReplayCapability = defineDomainCapability(
 		name: 'adminDeadLetterQueueReplay',
 		contextRuns: 'deny',
 		description:
-			'Replay one parked dead-letter message to its source queue (for example kody-platform-feedback-dispatch-dlq to kody-platform-feedback-dispatch), then remove it from the dead-letter queue. The source consumer runs it again with fresh retries. Queues without a producer binding (email delivery, Artifacts repo events) report replay as unsupported; ack those instead. Admin-only and audit-logged.',
+			'Replay one parked dead-letter message to its source queue (for example k2-platform-feedback-dispatch-dlq to k2-platform-feedback-dispatch), then remove it from the dead-letter queue. The source consumer runs it again with fresh retries. Queues without a producer binding (email delivery, Artifacts repo events) report replay as unsupported; ack those instead. Admin-only and audit-logged.',
 		keywords: ['admin', 'dead letter queue', 'dlq', 'replay', 'retry'],
 		inputSchema,
 		outputSchema,

@@ -115,7 +115,7 @@ export type JobsWorkerLocalLane = (typeof jobsWorkerLocalLanes)[number]
 
 /**
  * Lanes the cron runs directly on JobsHost instead of
- * `kody-scheduled-dispatch`. The DLQ depth alert watches that queue's
+ * `k2-scheduled-dispatch`. The DLQ depth alert watches that queue's
  * dead-letter queue, so the check cannot depend on the queue to be delivered.
  */
 export const inlineScheduledLanes = [
@@ -404,6 +404,5 @@ export function getScheduledLaneCadence(
 }
 
 export const scheduledDispatchQueueBinding = 'SCHEDULED_DISPATCH_QUEUE'
-export const scheduledDispatchQueueName = 'kody-scheduled-dispatch'
-export const scheduledDispatchDeadLetterQueueName =
-	'kody-scheduled-dispatch-dlq'
+export const scheduledDispatchQueueName = 'k2-scheduled-dispatch'
+export const scheduledDispatchDeadLetterQueueName = 'k2-scheduled-dispatch-dlq'

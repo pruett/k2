@@ -73,12 +73,12 @@ const sealedDumpKeys = (day: string) => ({
 })
 const jobsSource = {
 	id: '44444444-4444-4444-8444-444444444444',
-	name: 'kody-jobs',
+	name: 'k2-jobs',
 }
 
 const auditSource = {
 	id: '55555555-5555-4555-8555-555555555555',
-	name: 'kody-audit',
+	name: 'k2-audit',
 }
 
 /** Production shape: APP + AUDIT + JOBS paced, REST export off for all. */
@@ -519,7 +519,7 @@ test('REST D1 evidence is recorded only when every REST source has a restorable 
 			},
 			{
 				databaseId: jobsSource.id,
-				databaseName: 'kody-jobs',
+				databaseName: 'k2-jobs',
 				manifestKey: jobs.manifestKey,
 			},
 		],
@@ -564,7 +564,7 @@ test('a missing paced seal blocks the full seal and opens one Sentry issue per s
 		kind: 'incomplete',
 		day: seeded.day,
 		reason: 'paced-d1-seal-missing',
-		source: 'kody-audit',
+		source: 'k2-audit',
 	})
 	assert.equal(await bucket.head(sealedFullManifestKey(seeded.day)), null)
 
@@ -578,7 +578,7 @@ test('a missing paced seal blocks the full seal and opens one Sentry issue per s
 			{
 				day: seeded.day,
 				reason: 'paced-d1-seal-missing',
-				source: 'kody-audit',
+				source: 'k2-audit',
 			},
 		],
 	])

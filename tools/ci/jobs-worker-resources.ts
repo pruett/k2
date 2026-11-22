@@ -264,7 +264,7 @@ async function ensureJobsWorkerResources(options: CliOptions) {
 		// Preview JOBS_DB is the per-preview `--jobs-d1-name` database; preview
 		// cleanup deletes it with the per-preview jobs Worker.
 		// Per-preview jobs workers are brand new scripts: they cannot run the
-		// production script-transfer migration (from_script "kody-production"),
+		// production script-transfer migration (from_script "k2-production"),
 		// so the
 		// generated preview config creates the class fresh instead.
 		workerName = options.workerName

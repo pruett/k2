@@ -132,7 +132,7 @@ test('preview queue names are per-worker copies of the production queue names', 
 
 	const longWorkerName = `kody-branch-${'a1'.repeat(15)}-z`
 	const otherLongWorkerName = `kody-branch-${'a1'.repeat(15)}-y`
-	const productionDlq = 'kody-community-listing-published-dispatch-dlq'
+	const productionDlq = 'k2-community-listing-published-dispatch-dlq'
 	const longName = previewQueueName(longWorkerName, productionDlq)
 	const otherLongName = previewQueueName(otherLongWorkerName, productionDlq)
 	expect(longName).not.toBe(otherLongName)

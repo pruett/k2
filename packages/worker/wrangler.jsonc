@@ -278,7 +278,7 @@
 				"traces": {
 					"enabled": true,
 					"head_sampling_rate": 0.02,
-					"destinations": ["sentry-otlp-traces"],
+					// k2: no Sentry OTLP destination in this account.
 				},
 			},
 			"worker_loaders": [
@@ -289,15 +289,15 @@
 					"binding": "APP_LOADER",
 				},
 			],
-			// The runtime lane's workflow moved to the kody-runtime script (ADR
+			// The runtime lane's workflow moved to the k2-runtime script (ADR
 			// 0016); MCP durable escalation in this Worker starts instances over
 			// the cross-script binding.
 			"workflows": [
 				{
 					"binding": "DYNAMIC_CALLABLE_WORKFLOWS",
-					"name": "kody-runtime-dynamic-callable-workflows",
+					"name": "k2-runtime-dynamic-callable-workflows",
 					"class_name": "DynamicCallableWorkflow",
-					"script_name": "kody-runtime",
+					"script_name": "k2-runtime",
 				},
 			],
 			// Package runtime Worker (ADR 0016): runtime-owned requests are
@@ -308,22 +308,22 @@
 			"services": [
 				{
 					"binding": "RUNTIME_WORKER",
-					"service": "kody-runtime",
+					"service": "k2-runtime",
 					"entrypoint": "RuntimeWorkerService",
 				},
 				{
 					"binding": "JOBS",
-					"service": "kody-jobs",
+					"service": "k2-jobs",
 					"entrypoint": "JobsService",
 				},
 				{
 					"binding": "HIGHLIGHT",
-					"service": "kody-highlight",
+					"service": "k2-highlight",
 				},
 				// Per-repo receive-pack write queue (repo-push-queue flag).
 				{
 					"binding": "REPO_PUSH_QUEUE",
-					"service": "kody-push-queue",
+					"service": "k2-push-queue",
 					"entrypoint": "RepoPushQueueGateway",
 				},
 			],
@@ -354,99 +354,99 @@
 			},
 			"durable_objects": {
 				"bindings": [
-					// Platform-owned Durable Objects live in the kody-platform
+					// Platform-owned Durable Objects live in the k2-platform
 					// script (ADR 0034); storage transferred there via that
 					// script's `transferred_classes` migration.
 					{
 						"class_name": "MCP",
 						"name": "MCP_OBJECT",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "McpClientHub",
 						"name": "MCP_CLIENT_HUB",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "OAuthPurgeCoordinator",
 						"name": "OAUTH_PURGE_COORDINATOR",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
-					// Runtime-owned Durable Objects live in the kody-runtime script
+					// Runtime-owned Durable Objects live in the k2-runtime script
 					// (ADR 0016); storage transferred there via that script's
 					// `transferred_classes` migration.
 					{
 						"class_name": "StorageRunner",
 						"name": "STORAGE_RUNNER",
-						"script_name": "kody-runtime",
+						"script_name": "k2-runtime",
 					},
 					{
 						"class_name": "RunLog",
 						"name": "RUN_LOG",
-						"script_name": "kody-runtime",
+						"script_name": "k2-runtime",
 					},
 					{
 						"class_name": "UserMeter",
 						"name": "USER_METER",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "Mailbox",
 						"name": "MAILBOX",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "RepoSessionIndex",
 						"name": "REPO_SESSION_INDEX",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "FileStore",
 						"name": "FILE_STORE",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "FileRoom",
 						"name": "FILE_ROOM",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "StripePlanRefresh",
 						"name": "STRIPE_PLAN_REFRESH",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "RepoSession",
 						"name": "REPO_SESSION",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "ExecutionContextSessionV1",
 						"name": "EXECUTION_CONTEXT_SESSION",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "PackageRealtimeSession",
 						"name": "PACKAGE_REALTIME_SESSION",
-						"script_name": "kody-runtime",
+						"script_name": "k2-runtime",
 					},
 				],
 			},
 			"d1_databases": [
 				{
 					"binding": "APP_DB",
-					"database_name": "kody",
+					"database_name": "k2",
 					"migrations_dir": "./migrations",
 				},
 				{
 					"binding": "AUDIT_DB",
-					"database_name": "kody-audit",
+					"database_name": "k2-audit",
 					"migrations_dir": "./audit-migrations",
 				},
 				// Read-only for paced D1 shadow backup (migrations live on jobs-worker).
 				{
 					"binding": "JOBS_DB",
-					"database_name": "kody-jobs",
+					"database_name": "k2-jobs",
 				},
 			],
 			"send_email": [
@@ -458,63 +458,63 @@
 				"producers": [
 					{
 						"binding": "PLATFORM_FEEDBACK_DISPATCH_QUEUE",
-						"queue": "kody-platform-feedback-dispatch",
+						"queue": "k2-platform-feedback-dispatch",
 					},
 					{
 						"binding": "COMMUNITY_ACTIVITY_DISPATCH_QUEUE",
-						"queue": "kody-community-activity-dispatch",
+						"queue": "k2-community-activity-dispatch",
 					},
 					{
 						"binding": "COMMUNITY_LISTING_PUBLISHED_DISPATCH_QUEUE",
-						"queue": "kody-community-listing-published-dispatch",
+						"queue": "k2-community-listing-published-dispatch",
 					},
 					{
 						"binding": "PACKAGE_EVENTS_DISPATCH_QUEUE",
-						"queue": "kody-package-events-dispatch",
+						"queue": "k2-package-events-dispatch",
 					},
 					{
 						"binding": "WEBHOOK_DISPATCH_QUEUE",
-						"queue": "kody-webhook-dispatch",
+						"queue": "k2-webhook-dispatch",
 					},
 				],
 				"consumers": [
 					{
-						"queue": "kody-email-delivery",
+						"queue": "k2-email-delivery",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 3,
-						"dead_letter_queue": "kody-email-delivery-dlq",
+						"dead_letter_queue": "k2-email-delivery-dlq",
 					},
 					{
-						"queue": "kody-artifacts-repo-events",
+						"queue": "k2-artifacts-repo-events",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 3,
-						"dead_letter_queue": "kody-artifacts-repo-events-dlq",
+						"dead_letter_queue": "k2-artifacts-repo-events-dlq",
 					},
 					{
-						"queue": "kody-platform-feedback-dispatch",
+						"queue": "k2-platform-feedback-dispatch",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 3,
-						"dead_letter_queue": "kody-platform-feedback-dispatch-dlq",
+						"dead_letter_queue": "k2-platform-feedback-dispatch-dlq",
 					},
 					{
-						"queue": "kody-community-activity-dispatch",
+						"queue": "k2-community-activity-dispatch",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 3,
-						"dead_letter_queue": "kody-community-activity-dispatch-dlq",
+						"dead_letter_queue": "k2-community-activity-dispatch-dlq",
 					},
 					{
-						"queue": "kody-community-listing-published-dispatch",
+						"queue": "k2-community-listing-published-dispatch",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 3,
-						"dead_letter_queue": "kody-community-listing-published-dispatch-dlq",
+						"dead_letter_queue": "k2-community-listing-published-dispatch-dlq",
 					},
 					{
-						"queue": "kody-package-events-dispatch",
+						"queue": "k2-package-events-dispatch",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 3,
@@ -522,71 +522,71 @@
 						// subscriber; cap consumer concurrency so an emit burst
 						// cannot multiply into unbounded isolate loads.
 						"max_concurrency": 16,
-						"dead_letter_queue": "kody-package-events-dispatch-dlq",
+						"dead_letter_queue": "k2-package-events-dispatch-dlq",
 					},
 					{
-						"queue": "kody-webhook-dispatch",
+						"queue": "k2-webhook-dispatch",
 						"max_batch_size": 1,
 						"max_batch_timeout": 5,
 						"max_retries": 10,
 						"max_concurrency": 16,
-						"dead_letter_queue": "kody-webhook-dispatch-dlq",
+						"dead_letter_queue": "k2-webhook-dispatch-dlq",
 					},
 					// Dead-letter queues (including the jobs worker's scheduled
 					// dispatch DLQ) are parked in APP_DB for the admin DLQ
 					// capabilities (docs/contributing/dead-letter-queues.md). A
 					// message that cannot be parked retries for ~100 minutes.
 					{
-						"queue": "kody-email-delivery-dlq",
+						"queue": "k2-email-delivery-dlq",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 100,
 						"retry_delay": 60,
 					},
 					{
-						"queue": "kody-artifacts-repo-events-dlq",
+						"queue": "k2-artifacts-repo-events-dlq",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 100,
 						"retry_delay": 60,
 					},
 					{
-						"queue": "kody-platform-feedback-dispatch-dlq",
+						"queue": "k2-platform-feedback-dispatch-dlq",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 100,
 						"retry_delay": 60,
 					},
 					{
-						"queue": "kody-community-activity-dispatch-dlq",
+						"queue": "k2-community-activity-dispatch-dlq",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 100,
 						"retry_delay": 60,
 					},
 					{
-						"queue": "kody-community-listing-published-dispatch-dlq",
+						"queue": "k2-community-listing-published-dispatch-dlq",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 100,
 						"retry_delay": 60,
 					},
 					{
-						"queue": "kody-package-events-dispatch-dlq",
+						"queue": "k2-package-events-dispatch-dlq",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 100,
 						"retry_delay": 60,
 					},
 					{
-						"queue": "kody-webhook-dispatch-dlq",
+						"queue": "k2-webhook-dispatch-dlq",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 100,
 						"retry_delay": 60,
 					},
 					{
-						"queue": "kody-scheduled-dispatch-dlq",
+						"queue": "k2-scheduled-dispatch-dlq",
 						"max_batch_size": 10,
 						"max_batch_timeout": 5,
 						"max_retries": 100,
@@ -605,29 +605,29 @@
 			"r2_buckets": [
 				{
 					"binding": "COMMUNITY_ASSETS",
-					"bucket_name": "kody-community-assets",
+					"bucket_name": "k2-community-assets",
 				},
 				{
 					"binding": "EMAIL_BLOBS",
-					"bucket_name": "kody-email-blobs",
+					"bucket_name": "k2-email-blobs",
 				},
 				{
 					"binding": "REPO_SESSION_BLOBS",
-					"bucket_name": "kody-repo-session-blobs",
+					"bucket_name": "k2-repo-session-blobs",
 				},
 				{
 					"binding": "FILE_BLOBS",
-					"bucket_name": "kody-file-blobs",
+					"bucket_name": "k2-file-blobs",
 				},
 				{
 					"binding": "OPERATOR_BACKUPS",
-					"bucket_name": "kody-operator-backups",
+					"bucket_name": "k2-operator-backups",
 				},
 			],
 			"vectorize": [
 				{
 					"binding": "CAPABILITY_VECTOR_INDEX",
-					"index_name": "kody-capabilities-prod",
+					"index_name": "k2-capabilities-prod",
 				},
 			],
 			"analytics_engine_datasets": [
@@ -710,17 +710,20 @@
 				// configured route — every `npm run dev` request would arrive
 				// as https://kody.run/... and send local logins to the real
 				// domain. See docs/contributing/setup-manifest.md.
-				"PACKAGE_APP_BASE_URL": "https://kody.run",
+				// k2 package-app switch: empty = package apps off. Set a URL on a
+				// separate registrable domain to turn them on; the runtime Worker
+				// inherits it (tools/ci/runtime-worker-config.ts).
+				"PACKAGE_APP_BASE_URL": "",
 				// Email domains are committed (not just GitHub Actions vars) so
 				// they can never silently rederive from APP_BASE_URL. Canonical
 				// email lives on kody.codes. Outbound always sends from the
 				// canonical domains, which requires Email Routing + Email
 				// Sending verification on the kody.codes zone.
-				"USER_EMAIL_DOMAIN": "inbox.kody.codes",
-				"SYSTEM_EMAIL_DOMAIN": "kody.codes",
+				"USER_EMAIL_DOMAIN": "inbox.k2.pruett.in",
+				"SYSTEM_EMAIL_DOMAIN": "k2.pruett.in",
 				// Fathom Analytics site id (public, non-secret). Production
 				// only so local dev, preview, and tests never send pageviews.
-				"FATHOM_SITE_ID": "WKKSDJGN",
+				// k2: upstream Fathom site id removed (analytics off).
 				// Public playlist whose latest Atom-feed videos may open in
 				// the site-wide `/?youtubeId=` overlay. Tests leave this unset.
 				// The kody org: its @kody/newsletter package keeps the consent ledger.
@@ -753,18 +756,18 @@
 				// Disaster-recovery exporter → locked R2 bucket in the KCD
 				// (DR) account. The companion S3 credentials are Worker
 				// secrets set out-of-band via the Cloudflare API.
-				"DR_EXPORT_ENABLED": "true",
+				"DR_EXPORT_ENABLED": "false",
 				// Shadow paced D1 backup (alongside REST export). Match live
 				// production: APP + AUDIT + JOBS (deploy still expands UUIDs
 				// from resource bindings; committed list must not omit AUDIT).
-				"DR_D1_PACED_BACKUP_ENABLED": "true",
+				"DR_D1_PACED_BACKUP_ENABLED": "false",
 				// Streaming one-table drill + durable S3 report (re-enabled
 				// after KODY-AQ pause). Keep false only for emergency stop.
-				"DR_D1_PACED_RESTORE_DRILL_ENABLED": "true",
-				"DR_D1_PACED_SOURCES": "[{\"binding\":\"APP_DB\",\"name\":\"kody\",\"id\":\"8c1014d1-6b41-4695-a0a2-159071f0f919\"},{\"binding\":\"AUDIT_DB\",\"name\":\"kody-audit\",\"id\":\"c48f9d10-e4fc-4749-9188-82d68025284e\"},{\"binding\":\"JOBS_DB\",\"name\":\"kody-jobs\",\"id\":\"5410331e-4d25-47e4-a1e5-a248f7cc764c\"}]",
+				"DR_D1_PACED_RESTORE_DRILL_ENABLED": "false",
+				"DR_D1_PACED_SOURCES": "[{\"binding\":\"APP_DB\",\"name\":\"kody\",\"id\":\"8c1014d1-6b41-4695-a0a2-159071f0f919\"},{\"binding\":\"AUDIT_DB\",\"name\":\"k2-audit\",\"id\":\"c48f9d10-e4fc-4749-9188-82d68025284e\"},{\"binding\":\"JOBS_DB\",\"name\":\"k2-jobs\",\"id\":\"5410331e-4d25-47e4-a1e5-a248f7cc764c\"}]",
 				"SOFT_DELETE_PURGE_ENABLED": "true",
-				"DR_BACKUP_ACCOUNT_ID": "a41d50ecaf0ae0f86dd1824ef6729cb2",
-				"DR_BACKUP_BUCKET_NAME": "kody-production-backups",
+				"DR_BACKUP_ACCOUNT_ID": "",
+				"DR_BACKUP_BUCKET_NAME": "k2-production-backups",
 				// Public verification material shared with the DR control plane.
 				// The matching signing private key remains control-plane-only.
 				"BACKUP_MANIFEST_SIGNING_KEY_ID": "kody-dr-2026-07",
@@ -919,32 +922,32 @@
 					"binding": "DYNAMIC_CALLABLE_WORKFLOWS",
 					"name": "kody-runtime-preview-dynamic-callable-workflows",
 					"class_name": "DynamicCallableWorkflow",
-					"script_name": "kody-runtime",
+					"script_name": "k2-runtime",
 				},
 			],
 			// Preview deploys generate per-PR worker names; the deploy config
-			// generator rewrites "kody-runtime" service/script references to the
+			// generator rewrites "k2-runtime" service/script references to the
 			// PR's runtime worker name (tools/ci/runtime-worker-config.ts).
 			// Jobs and highlight names are rewritten by preview-resources.ts.
 			"services": [
 				{
 					"binding": "RUNTIME_WORKER",
-					"service": "kody-runtime",
+					"service": "k2-runtime",
 					"entrypoint": "RuntimeWorkerService",
 				},
 				{
 					"binding": "JOBS",
-					"service": "kody-jobs",
+					"service": "k2-jobs",
 					"entrypoint": "JobsService",
 				},
 				{
 					"binding": "HIGHLIGHT",
-					"service": "kody-highlight",
+					"service": "k2-highlight",
 				},
 				// Per-repo receive-pack write queue (repo-push-queue flag).
 				{
 					"binding": "REPO_PUSH_QUEUE",
-					"service": "kody-push-queue",
+					"service": "k2-push-queue",
 					"entrypoint": "RepoPushQueueGateway",
 				},
 			],
@@ -978,72 +981,72 @@
 					{
 						"class_name": "MCP",
 						"name": "MCP_OBJECT",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "McpClientHub",
 						"name": "MCP_CLIENT_HUB",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "OAuthPurgeCoordinator",
 						"name": "OAUTH_PURGE_COORDINATOR",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "StorageRunner",
 						"name": "STORAGE_RUNNER",
-						"script_name": "kody-runtime",
+						"script_name": "k2-runtime",
 					},
 					{
 						"class_name": "RunLog",
 						"name": "RUN_LOG",
-						"script_name": "kody-runtime",
+						"script_name": "k2-runtime",
 					},
 					{
 						"class_name": "UserMeter",
 						"name": "USER_METER",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "Mailbox",
 						"name": "MAILBOX",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "RepoSessionIndex",
 						"name": "REPO_SESSION_INDEX",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "FileStore",
 						"name": "FILE_STORE",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "FileRoom",
 						"name": "FILE_ROOM",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "StripePlanRefresh",
 						"name": "STRIPE_PLAN_REFRESH",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "RepoSession",
 						"name": "REPO_SESSION",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "ExecutionContextSessionV1",
 						"name": "EXECUTION_CONTEXT_SESSION",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "PackageRealtimeSession",
 						"name": "PACKAGE_REALTIME_SESSION",
-						"script_name": "kody-runtime",
+						"script_name": "k2-runtime",
 					},
 				],
 			},
@@ -1318,7 +1321,7 @@
 					"tag": "v26",
 				},
 				// Local stand-in for the platform-owned class (ADR 0034: deployed
-				// origins bind it on kody-platform and own no class).
+				// origins bind it on k2-platform and own no class).
 				{
 					"new_sqlite_classes": ["ExecutionContextSessionV1"],
 					"tag": "v27",

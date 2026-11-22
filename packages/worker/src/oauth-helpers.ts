@@ -30,7 +30,7 @@ const inertHandler = {
  * injection. Scheduled lanes, RPC entrypoints (`JobsHost.runScheduledLane`),
  * OIDC UserInfo/logout (served before `oauthProvider.fetch`), token-response
  * `id_token` enrichment (runs after that fetch returns), and capabilities
- * served from the sessionful `MCP` Durable Object on kody-platform therefore
+ * served from the sessionful `MCP` Durable Object on k2-platform therefore
  * build the same `OAuthHelpersImpl` through the library's `getOAuthApi` with
  * the shared options. The library loads lazily from the pre-bundled module
  * (`tools/build-worker-bundler-modules.ts`): a plain dynamic

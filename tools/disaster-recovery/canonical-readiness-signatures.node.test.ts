@@ -58,7 +58,7 @@ const restoreProvenance = {
 	migrationSetSha256: sha256(canonicalJson(migrationNames)),
 	schemaSha256: '3'.repeat(64),
 	sourceBookmark: 'bookmark-1',
-	sourceDatabaseName: 'kody-production',
+	sourceDatabaseName: 'k2-production',
 	sqlSha256: '2'.repeat(64),
 	trustedBaselineId: 'production-baseline-2026',
 	trustedBaselineSha256: '4'.repeat(64),
@@ -66,7 +66,7 @@ const restoreProvenance = {
 const jobsRestoreProvenance = {
 	...restoreProvenance,
 	backupManifestSha256: '5'.repeat(64),
-	sourceDatabaseName: 'kody-jobs',
+	sourceDatabaseName: 'k2-jobs',
 	sqlSha256: '6'.repeat(64),
 	trustedBaselineId: 'jobs-baseline-2026',
 }

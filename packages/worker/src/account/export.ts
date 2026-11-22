@@ -106,7 +106,7 @@ const oauthSurfaceUnavailableWarning =
 /**
  * `OAUTH_PROVIDER` exists only inside the provider's `fetch` wrapper, so
  * `accountExportManifest` / `accountExportSection` served from the sessionful
- * `MCP` Durable Object on kody-platform get the library-built helpers from
+ * `MCP` Durable Object on k2-platform get the library-built helpers from
  * `resolveOAuthHelpers` instead.
  */
 function resolveOAuthGrantReader(

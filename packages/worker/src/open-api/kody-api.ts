@@ -25,7 +25,7 @@ function loadHttpHandler() {
 }
 
 /**
- * `KodyApi` — the origin's entrypoint for the `kody-api` edge worker that
+ * `KodyApi` — the origin's entrypoint for the `k2-api` edge worker that
  * serves `api.kody.codes`. The edge worker owns rate limits, CORS, header
  * stripping, and size caps; this entrypoint authenticates the API token and
  * runs the operation next to D1 and the capability registry. Links in

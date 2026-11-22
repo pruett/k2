@@ -15,8 +15,8 @@ import { isExecutedDirectly } from '../node-runtime.ts'
  * databases, KV namespaces, R2 buckets, queues), so resource identifiers
  * are copied from the origin Worker's already-provisioned generated config
  * rather than re-provisioned. Cross-script references (`script_name`,
- * `from_script`, `service`) committed as `kody` / `kody-runtime` /
- * `kody-platform` are rewritten to the actual worker names, which lets
+ * `from_script`, `service`) committed as `kody` / `k2-runtime` /
+ * `k2-platform` are rewritten to the actual worker names, which lets
  * preview deploys use per-PR names.
  *
  * For preview it also writes a *bootstrap* variant of this Worker with every
@@ -29,8 +29,8 @@ import { isExecutedDirectly } from '../node-runtime.ts'
  */
 
 const defaultBaseConfigPath = 'packages/platform-worker/wrangler.jsonc'
-const committedPlatformName = 'kody-platform'
-const committedRuntimeName = 'kody-runtime'
+const committedPlatformName = 'k2-platform'
+const committedRuntimeName = 'k2-runtime'
 const committedMainName = 'kody'
 
 type JsonRecord = Record<string, unknown>
@@ -341,7 +341,7 @@ export async function generate(options: CliOptions) {
 	platformConfig.name = options.platformWorkerName
 	// Pin the selected env's name too. Wrangler otherwise deploys and
 	// secret-bulks `--env production` as `<name>-production`, which would
-	// not match the origin worker's cross-script bindings (`kody-platform`).
+	// not match the origin worker's cross-script bindings (`k2-platform`).
 	platformEnv.name = options.platformWorkerName
 	delete platformConfig.$schema
 	copyResourceIdentifiers({

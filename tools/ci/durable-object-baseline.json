@@ -251,72 +251,72 @@
 						{
 							"name": "MCP_OBJECT",
 							"class_name": "MCP",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "MCP_CLIENT_HUB",
 							"class_name": "McpClientHub",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "OAUTH_PURGE_COORDINATOR",
 							"class_name": "OAuthPurgeCoordinator",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "STORAGE_RUNNER",
 							"class_name": "StorageRunner",
-							"script_name": "kody-runtime"
+							"script_name": "k2-runtime"
 						},
 						{
 							"name": "RUN_LOG",
 							"class_name": "RunLog",
-							"script_name": "kody-runtime"
+							"script_name": "k2-runtime"
 						},
 						{
 							"name": "USER_METER",
 							"class_name": "UserMeter",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "MAILBOX",
 							"class_name": "Mailbox",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "REPO_SESSION_INDEX",
 							"class_name": "RepoSessionIndex",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "STRIPE_PLAN_REFRESH",
 							"class_name": "StripePlanRefresh",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "REPO_SESSION",
 							"class_name": "RepoSession",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "PACKAGE_REALTIME_SESSION",
 							"class_name": "PackageRealtimeSession",
-							"script_name": "kody-runtime"
+							"script_name": "k2-runtime"
 						},
 						{
 							"name": "EXECUTION_CONTEXT_SESSION",
 							"class_name": "ExecutionContextSessionV1",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "FILE_STORE",
 							"class_name": "FileStore",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"class_name": "FileRoom",
 							"name": "FILE_ROOM",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						}
 					]
 				},
@@ -326,72 +326,72 @@
 						{
 							"name": "MCP_OBJECT",
 							"class_name": "MCP",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "MCP_CLIENT_HUB",
 							"class_name": "McpClientHub",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "OAUTH_PURGE_COORDINATOR",
 							"class_name": "OAuthPurgeCoordinator",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "STORAGE_RUNNER",
 							"class_name": "StorageRunner",
-							"script_name": "kody-runtime"
+							"script_name": "k2-runtime"
 						},
 						{
 							"name": "RUN_LOG",
 							"class_name": "RunLog",
-							"script_name": "kody-runtime"
+							"script_name": "k2-runtime"
 						},
 						{
 							"name": "USER_METER",
 							"class_name": "UserMeter",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "MAILBOX",
 							"class_name": "Mailbox",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "REPO_SESSION_INDEX",
 							"class_name": "RepoSessionIndex",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "STRIPE_PLAN_REFRESH",
 							"class_name": "StripePlanRefresh",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "REPO_SESSION",
 							"class_name": "RepoSession",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "PACKAGE_REALTIME_SESSION",
 							"class_name": "PackageRealtimeSession",
-							"script_name": "kody-runtime"
+							"script_name": "k2-runtime"
 						},
 						{
 							"name": "EXECUTION_CONTEXT_SESSION",
 							"class_name": "ExecutionContextSessionV1",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "FILE_STORE",
 							"class_name": "FileStore",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"class_name": "FileRoom",
 							"name": "FILE_ROOM",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						}
 					]
 				},
@@ -527,42 +527,42 @@
 						{
 							"name": "USER_METER",
 							"class_name": "UserMeter",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "MCP_OBJECT",
 							"class_name": "MCP",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "MCP_CLIENT_HUB",
 							"class_name": "McpClientHub",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "MAILBOX",
 							"class_name": "Mailbox",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "REPO_SESSION",
 							"class_name": "RepoSession",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "REPO_SESSION_INDEX",
 							"class_name": "RepoSessionIndex",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "FILE_STORE",
 							"class_name": "FileStore",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "EXECUTION_CONTEXT_SESSION",
 							"class_name": "ExecutionContextSessionV1",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						}
 					]
 				},
@@ -584,42 +584,42 @@
 						{
 							"name": "USER_METER",
 							"class_name": "UserMeter",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "MCP_OBJECT",
 							"class_name": "MCP",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "MCP_CLIENT_HUB",
 							"class_name": "McpClientHub",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "MAILBOX",
 							"class_name": "Mailbox",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "REPO_SESSION",
 							"class_name": "RepoSession",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "REPO_SESSION_INDEX",
 							"class_name": "RepoSessionIndex",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "FILE_STORE",
 							"class_name": "FileStore",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						},
 						{
 							"name": "EXECUTION_CONTEXT_SESSION",
 							"class_name": "ExecutionContextSessionV1",
-							"script_name": "kody-platform"
+							"script_name": "k2-platform"
 						}
 					]
 				}
@@ -756,17 +756,17 @@
 						{
 							"name": "STORAGE_RUNNER",
 							"class_name": "StorageRunner",
-							"script_name": "kody-runtime"
+							"script_name": "k2-runtime"
 						},
 						{
 							"name": "RUN_LOG",
 							"class_name": "RunLog",
-							"script_name": "kody-runtime"
+							"script_name": "k2-runtime"
 						},
 						{
 							"name": "PACKAGE_REALTIME_SESSION",
 							"class_name": "PackageRealtimeSession",
-							"script_name": "kody-runtime"
+							"script_name": "k2-runtime"
 						},
 						{
 							"name": "EXECUTION_CONTEXT_SESSION",
@@ -820,17 +820,17 @@
 						{
 							"name": "STORAGE_RUNNER",
 							"class_name": "StorageRunner",
-							"script_name": "kody-runtime"
+							"script_name": "k2-runtime"
 						},
 						{
 							"name": "RUN_LOG",
 							"class_name": "RunLog",
-							"script_name": "kody-runtime"
+							"script_name": "k2-runtime"
 						},
 						{
 							"name": "PACKAGE_REALTIME_SESSION",
 							"class_name": "PackageRealtimeSession",
-							"script_name": "kody-runtime"
+							"script_name": "k2-runtime"
 						},
 						{
 							"name": "EXECUTION_CONTEXT_SESSION",
@@ -892,7 +892,7 @@
 					"transferred_classes": [
 						{
 							"from": "JobManager",
-							"from_script": "kody-production",
+							"from_script": "k2-production",
 							"to": "JobManager"
 						}
 					]

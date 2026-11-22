@@ -195,7 +195,7 @@ test('restore trust registry is exact, pins the reviewed identities, and cannot 
 					{
 						accountId: productionAccountId,
 						databaseId: productionUuid,
-						databaseName: 'kody-production',
+						databaseName: 'k2-production',
 						purpose: 'production',
 					},
 				],
@@ -216,7 +216,7 @@ test('restore trust registry is exact, pins the reviewed identities, and cannot 
 					{
 						accountId: productionAccountId.toUpperCase(),
 						databaseId: productionUuid,
-						databaseName: 'kody-production',
+						databaseName: 'k2-production',
 					},
 				],
 			}),
@@ -272,7 +272,7 @@ test('restore trust registry is exact, pins the reviewed identities, and cannot 
 			{
 				accountId: 'a99ee2e72728dd52902ef288b7b1447d',
 				databaseId: jobsDatabaseId,
-				databaseName: 'kody-jobs',
+				databaseName: 'k2-jobs',
 			},
 		],
 		drillTargets: [
@@ -334,26 +334,26 @@ test('restore trust registry is exact, pins the reviewed identities, and cannot 
 
 test('restore-drill --database selects a configured source and jobs migrations', () => {
 	expect(
-		cliArgs('--target-name', 'kody-jobs-drill', '--database', 'kody-jobs')
+		cliArgs('--target-name', 'kody-jobs-drill', '--database', 'k2-jobs')
 			.database,
-	).toBe('kody-jobs')
+	).toBe('k2-jobs')
 	expect(() =>
-		assertRequestedDatabase('kody-jobs', jobsDatabaseId, 'kody-jobs'),
+		assertRequestedDatabase('k2-jobs', jobsDatabaseId, 'k2-jobs'),
 	).not.toThrow()
 	expect(() =>
-		assertRequestedDatabase('kody-jobs', jobsDatabaseId, jobsDatabaseId),
+		assertRequestedDatabase('k2-jobs', jobsDatabaseId, jobsDatabaseId),
 	).not.toThrow()
 	expect(() =>
 		assertRequestedDatabase(
 			'kody',
 			'8c1014d1-6b41-4695-a0a2-159071f0f919',
-			'kody-jobs',
+			'k2-jobs',
 		),
-	).toThrow('--database kody-jobs does not match manifest source kody')
+	).toThrow('--database k2-jobs does not match manifest source kody')
 	expect(migrationsDirectoryForDatabase('kody')).toMatch(
 		/packages\/worker\/migrations\/?$/,
 	)
-	expect(migrationsDirectoryForDatabase('kody-jobs')).toMatch(
+	expect(migrationsDirectoryForDatabase('k2-jobs')).toMatch(
 		/packages\/jobs-worker\/migrations\/?$/,
 	)
 })

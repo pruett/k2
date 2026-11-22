@@ -27,7 +27,7 @@ function createQueueMessage(id: string, body: unknown) {
 
 function createBatch(messages: Array<ReturnType<typeof createQueueMessage>>) {
 	return {
-		queue: 'kody-community-activity-dispatch',
+		queue: 'k2-community-activity-dispatch',
 		messages,
 		ackAll: vi.fn(),
 		retryAll: vi.fn(),

@@ -10,7 +10,7 @@ import type { ParkedDeadLetterMessage } from '#worker/dead-letter/store.ts'
 export const deadLetterQueueNameSchema = z
 	.enum(deadLetterQueueNames)
 	.describe(
-		'Production dead-letter queue name, for example kody-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name.',
+		'Production dead-letter queue name, for example k2-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name.',
 	)
 
 export const deadLetterMessageIdSchema = z

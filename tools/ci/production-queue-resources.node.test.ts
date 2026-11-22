@@ -29,29 +29,29 @@ function createProductionEnv() {
 				'WEBHOOK',
 			].map((name) => ({
 				binding: `${name}_DISPATCH_QUEUE`,
-				queue: `kody-${name.toLowerCase().replaceAll('_', '-')}-dispatch`,
+				queue: `k2-${name.toLowerCase().replaceAll('_', '-')}-dispatch`,
 			})),
 			consumers: [
-				consumer('kody-email-delivery'),
-				consumer('kody-artifacts-repo-events'),
-				consumer('kody-platform-feedback-dispatch'),
-				consumer('kody-community-activity-dispatch'),
-				consumer('kody-community-listing-published-dispatch'),
-				consumer('kody-package-events-dispatch', { max_concurrency: 16 }),
-				consumer('kody-webhook-dispatch', {
+				consumer('k2-email-delivery'),
+				consumer('k2-artifacts-repo-events'),
+				consumer('k2-platform-feedback-dispatch'),
+				consumer('k2-community-activity-dispatch'),
+				consumer('k2-community-listing-published-dispatch'),
+				consumer('k2-package-events-dispatch', { max_concurrency: 16 }),
+				consumer('k2-webhook-dispatch', {
 					max_batch_size: 1,
 					max_retries: 10,
 					max_concurrency: 16,
 				}),
 				...[
-					'kody-email-delivery-dlq',
-					'kody-artifacts-repo-events-dlq',
-					'kody-platform-feedback-dispatch-dlq',
-					'kody-community-activity-dispatch-dlq',
-					'kody-community-listing-published-dispatch-dlq',
-					'kody-package-events-dispatch-dlq',
-					'kody-webhook-dispatch-dlq',
-					'kody-scheduled-dispatch-dlq',
+					'k2-email-delivery-dlq',
+					'k2-artifacts-repo-events-dlq',
+					'k2-platform-feedback-dispatch-dlq',
+					'k2-community-activity-dispatch-dlq',
+					'k2-community-listing-published-dispatch-dlq',
+					'k2-package-events-dispatch-dlq',
+					'k2-webhook-dispatch-dlq',
+					'k2-scheduled-dispatch-dlq',
 				].map(deadLetterConsumer),
 			],
 		},
@@ -85,25 +85,24 @@ test('production queue config requires all consumers and consistent producers', 
 			configPath: 'packages/worker/wrangler.jsonc',
 		}),
 	).toEqual({
-		emailDeliveryQueueName: 'kody-email-delivery',
-		emailDeliveryDeadLetterQueueName: 'kody-email-delivery-dlq',
-		artifactsRepoEventsQueueName: 'kody-artifacts-repo-events',
-		artifactsRepoEventsDeadLetterQueueName: 'kody-artifacts-repo-events-dlq',
-		platformFeedbackDispatchQueueName: 'kody-platform-feedback-dispatch',
+		emailDeliveryQueueName: 'k2-email-delivery',
+		emailDeliveryDeadLetterQueueName: 'k2-email-delivery-dlq',
+		artifactsRepoEventsQueueName: 'k2-artifacts-repo-events',
+		artifactsRepoEventsDeadLetterQueueName: 'k2-artifacts-repo-events-dlq',
+		platformFeedbackDispatchQueueName: 'k2-platform-feedback-dispatch',
 		platformFeedbackDispatchDeadLetterQueueName:
-			'kody-platform-feedback-dispatch-dlq',
-		communityActivityDispatchQueueName: 'kody-community-activity-dispatch',
+			'k2-platform-feedback-dispatch-dlq',
+		communityActivityDispatchQueueName: 'k2-community-activity-dispatch',
 		communityActivityDispatchDeadLetterQueueName:
-			'kody-community-activity-dispatch-dlq',
+			'k2-community-activity-dispatch-dlq',
 		communityListingPublishedDispatchQueueName:
-			'kody-community-listing-published-dispatch',
+			'k2-community-listing-published-dispatch',
 		communityListingPublishedDispatchDeadLetterQueueName:
-			'kody-community-listing-published-dispatch-dlq',
-		packageEventsDispatchQueueName: 'kody-package-events-dispatch',
-		packageEventsDispatchDeadLetterQueueName:
-			'kody-package-events-dispatch-dlq',
-		webhookDispatchQueueName: 'kody-webhook-dispatch',
-		webhookDispatchDeadLetterQueueName: 'kody-webhook-dispatch-dlq',
+			'k2-community-listing-published-dispatch-dlq',
+		packageEventsDispatchQueueName: 'k2-package-events-dispatch',
+		packageEventsDispatchDeadLetterQueueName: 'k2-package-events-dispatch-dlq',
+		webhookDispatchQueueName: 'k2-webhook-dispatch',
+		webhookDispatchDeadLetterQueueName: 'k2-webhook-dispatch-dlq',
 	})
 
 	expect(parseEnv(() => {})).not.toThrow()
@@ -115,24 +114,23 @@ test('production queue config requires all consumers and consistent producers', 
 	expect(
 		parseEnv((env) => {
 			env.queues.consumers = env.queues.consumers.map((consumer) =>
-				consumer.queue === 'kody-scheduled-dispatch-dlq'
+				consumer.queue === 'k2-scheduled-dispatch-dlq'
 					? { ...consumer, queue: 'kody-unrelated-queue' }
 					: consumer,
 			)
 		}),
 	).toThrow(
-		'must define the production dead-letter Queue consumer "kody-scheduled-dispatch-dlq"',
+		'must define the production dead-letter Queue consumer "k2-scheduled-dispatch-dlq"',
 	)
 	expect(
 		parseEnv((env) => {
 			const consumer = env.queues.consumers.find(
-				(candidate) =>
-					candidate.queue === 'kody-platform-feedback-dispatch-dlq',
+				(candidate) => candidate.queue === 'k2-platform-feedback-dispatch-dlq',
 			)
 			Object.assign(consumer ?? {}, { max_retries: 3 })
 		}),
 	).toThrow(
-		'invalid production dead-letter consumer settings for "kody-platform-feedback-dispatch-dlq"',
+		'invalid production dead-letter consumer settings for "k2-platform-feedback-dispatch-dlq"',
 	)
 	expect(
 		parseEnv((env) => {
@@ -142,15 +140,15 @@ test('production queue config requires all consumers and consistent producers', 
 			}
 		}),
 	).toThrow(
-		'must bind "PLATFORM_FEEDBACK_DISPATCH_QUEUE" to "kody-platform-feedback-dispatch"',
+		'must bind "PLATFORM_FEEDBACK_DISPATCH_QUEUE" to "k2-platform-feedback-dispatch"',
 	)
 	for (const [binding, queue] of [
-		['COMMUNITY_ACTIVITY_DISPATCH_QUEUE', 'kody-community-activity-dispatch'],
+		['COMMUNITY_ACTIVITY_DISPATCH_QUEUE', 'k2-community-activity-dispatch'],
 		[
 			'COMMUNITY_LISTING_PUBLISHED_DISPATCH_QUEUE',
-			'kody-community-listing-published-dispatch',
+			'k2-community-listing-published-dispatch',
 		],
-		['PACKAGE_EVENTS_DISPATCH_QUEUE', 'kody-package-events-dispatch'],
+		['PACKAGE_EVENTS_DISPATCH_QUEUE', 'k2-package-events-dispatch'],
 	]) {
 		expect(
 			parseEnv((env) => {
@@ -169,12 +167,10 @@ test('production queue config requires all consumers and consistent producers', 
 		expect(
 			parseEnv((env) => {
 				const webhook = env.queues.consumers.find(
-					(consumer) => consumer.queue === 'kody-webhook-dispatch',
+					(consumer) => consumer.queue === 'k2-webhook-dispatch',
 				)
 				Object.assign(webhook ?? {}, invalidSettings)
 			}),
-		).toThrow(
-			'invalid production consumer settings for "kody-webhook-dispatch"',
-		)
+		).toThrow('invalid production consumer settings for "k2-webhook-dispatch"')
 	}
 })

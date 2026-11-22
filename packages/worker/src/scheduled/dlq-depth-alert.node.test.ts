@@ -41,7 +41,7 @@ vi.mock('#mcp/cloudflare/cloudflare-rest-client.ts', () => {
 })
 
 const now = new Date('2026-10-16T12:00:00.000Z')
-const stuckQueue = 'kody-webhook-dispatch-dlq'
+const stuckQueue = 'k2-webhook-dispatch-dlq'
 type Sample = {
 	backlogCount: number
 	oldestMessageTimestampMs: number | null
@@ -176,7 +176,7 @@ test('a stuck production DLQ pages once, stays quiet on cooldown, and pages agai
 	expect(first).toMatchObject({ status: 'checked', alerted: 1, sustained: 1 })
 	expect(mocks.captureMessage).toHaveBeenCalledTimes(1)
 	expect(mocks.captureMessage.mock.calls[0]?.[0]).toContain(
-		'Dead-letter queue kody-webhook-dispatch-dlq still has 3 unacknowledged messages after 16 minutes.',
+		'Dead-letter queue k2-webhook-dispatch-dlq still has 3 unacknowledged messages after 16 minutes.',
 	)
 	expect(mocks.setFingerprint).toHaveBeenCalledWith(['dlq-depth', stuckQueue])
 	expect(consoleWarn).toHaveBeenCalledWith(
@@ -311,7 +311,7 @@ test('a cooldown write failure does not page that queue', async () => {
 	})
 	await expect(
 		checkDlqDepthAndAlert({ env: productionEnv(failingKv), now }),
-	).rejects.toThrow(/kody-webhook-dispatch-dlq \(state write failed\)/)
+	).rejects.toThrow(/k2-webhook-dispatch-dlq \(state write failed\)/)
 	expect(mocks.captureMessage).not.toHaveBeenCalled()
 })
 
@@ -323,7 +323,7 @@ test('one unread queue fails the lane after a sibling stuck queue has already pa
 			backlogCount: 2,
 			oldestMessageTimestampMs: now.getTime() - 20 * 60_000,
 		},
-		'kody-email-delivery-dlq': {
+		'k2-email-delivery-dlq': {
 			backlogCount: 0,
 			oldestMessageTimestampMs: null,
 			status: 403,
@@ -331,7 +331,7 @@ test('one unread queue fails the lane after a sibling stuck queue has already pa
 	})
 	await expect(
 		checkDlqDepthAndAlert({ env: productionEnv(kv), now }),
-	).rejects.toThrow(/kody-email-delivery-dlq/)
+	).rejects.toThrow(/k2-email-delivery-dlq/)
 	expect(mocks.captureMessage).toHaveBeenCalledTimes(1)
 	expect(mocks.captureMessage.mock.calls[0]?.[0]).toContain(stuckQueue)
 })
@@ -376,7 +376,7 @@ test('parked dead-letter messages keep the queue on the page after the consumer 
 	consoleWarn.mockImplementation(() => {})
 	mocks.captureMessage.mockClear()
 	const { kv } = memoryKv()
-	const parkedQueue = 'kody-platform-feedback-dispatch-dlq'
+	const parkedQueue = 'k2-platform-feedback-dispatch-dlq'
 	const appDb = {
 		prepare: () => ({
 			all: async () => ({
@@ -463,7 +463,7 @@ test('a Cloudflare 5xx that outlasts retries warns on one issue instead of faili
 			backlogCount: 2,
 			oldestMessageTimestampMs: now.getTime() - 20 * 60_000,
 		},
-		'kody-email-delivery-dlq': {
+		'k2-email-delivery-dlq': {
 			backlogCount: 0,
 			oldestMessageTimestampMs: null,
 			status: 500,
@@ -481,13 +481,13 @@ test('a Cloudflare 5xx that outlasts retries warns on one issue instead of faili
 	})
 	const metricsCalls = mocks.rawRequest.mock.calls.filter(([request]) =>
 		(request as { path: string }).path.endsWith(
-			'id-kody-email-delivery-dlq/metrics',
+			'id-k2-email-delivery-dlq/metrics',
 		),
 	)
 	expect(metricsCalls).toHaveLength(3)
 	expect(mocks.captureMessage).toHaveBeenCalledTimes(2)
 	expect(mocks.captureMessage.mock.calls[1]?.[0]).toContain(
-		'kody-email-delivery-dlq (Failed to read Cloudflare Queue metrics (500)',
+		'k2-email-delivery-dlq (Failed to read Cloudflare Queue metrics (500)',
 	)
 	expect(mocks.setFingerprint).toHaveBeenLastCalledWith([
 		'dlq-depth-alert',

@@ -81,7 +81,7 @@ function appAndJobsEnv(bucket: MemoryBucket) {
 	const jobsId = '44444444-4444-4444-8444-444444444444'
 	env.SOURCE_DATABASES = JSON.stringify([
 		{ id: env.SOURCE_DATABASE_ID, name: env.SOURCE_DATABASE_NAME },
-		{ id: jobsId, name: 'kody-jobs' },
+		{ id: jobsId, name: 'k2-jobs' },
 	])
 	env.ALLOWED_SOURCE_DATABASE_IDS = `${env.SOURCE_DATABASE_ID},${jobsId}`
 	return env
@@ -145,13 +145,13 @@ test('dashboard warns when a configured D1 source is missing and marks the day u
 	assert.equal(status?.d1Verified, false)
 	assert.equal(status?.d1Restorable, false)
 	assert.ok(
-		status?.warnings.includes('kody-jobs: D1 manifest missing'),
+		status?.warnings.includes('k2-jobs: D1 manifest missing'),
 		status?.warnings.join('; '),
 	)
 
 	vi.spyOn(globalThis, 'fetch').mockResolvedValue(identityEnvelope(1_000))
 	const html = await renderDashboard(env, { now })
-	assert.match(html, /kody-jobs: D1 manifest missing/)
+	assert.match(html, /k2-jobs: D1 manifest missing/)
 	assert.match(html, /<td class="bad">Missing<\/td>/)
 	assert.doesNotMatch(html, /SOURCE_ACCOUNT_ID/)
 	assert.match(html, /Identifiers/)

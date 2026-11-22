@@ -2910,6 +2910,52 @@ function readPackageAppLegacyHostsVar(input: {
  * at all and keep whatever domains were attached out-of-band.
  * Permanent: saved MCP client configs keep pointing at legacy app hosts, so those hosts keep serving.
  */
+/**
+ * k2: production without a package-app domain (PACKAGE_APP_BASE_URL unset,
+ * the package-app switch is off) still publishes the app origin and legacy
+ * origins as custom domains, so the site keeps its hostname. Package-app
+ * requests fail closed until a separate registrable domain is configured.
+ */
+function addAppOriginCustomDomainRoutesWithoutPackageApps(input: {
+	targetEnv: Record<string, unknown>
+	resolvedVars: Record<string, unknown>
+	baseConfigPath: string
+	envName: WranglerEnvName
+}) {
+	if (input.envName !== 'production') return
+	const appHostname = readHostnameVar({
+		resolvedVars: input.resolvedVars,
+		varName: 'APP_BASE_URL',
+		baseConfigPath: input.baseConfigPath,
+		envName: input.envName,
+	})
+	if (!appHostname) return
+	const hostnames = [
+		appHostname,
+		...readLegacyHostsVar(input).filter((host) => host !== appHostname),
+	]
+	const existingRoutes = Array.isArray(input.targetEnv.routes)
+		? (input.targetEnv.routes as Array<unknown>)
+		: []
+	const existingPatterns = new Set(
+		existingRoutes.flatMap((route) => {
+			if (!route || typeof route !== 'object') return []
+			const pattern = (route as Record<string, unknown>).pattern
+			return typeof pattern === 'string' ? [pattern] : []
+		}),
+	)
+	input.targetEnv.routes = [
+		...existingRoutes,
+		...hostnames
+			.filter((hostname) => !existingPatterns.has(hostname))
+			.map((pattern) => ({ pattern, custom_domain: true })),
+	]
+	input.targetEnv.workers_dev = true
+	console.error(
+		`Worker routes: ${hostnames.join(', ')} (APP_BASE_URL, APP_LEGACY_HOSTS); workers.dev trigger kept. No PACKAGE_APP_BASE_URL: package apps are off.`,
+	)
+}
+
 function addPackageAppCustomDomainRoute(input: {
 	targetEnv: Record<string, unknown>
 	resolvedVars: Record<string, unknown>
@@ -2922,7 +2968,10 @@ function addPackageAppCustomDomainRoute(input: {
 		baseConfigPath: input.baseConfigPath,
 		envName: input.envName,
 	})
-	if (!packageAppHostname) return
+	if (!packageAppHostname) {
+		addAppOriginCustomDomainRoutesWithoutPackageApps(input)
+		return
+	}
 
 	const appHostname = readHostnameVar({
 		resolvedVars: input.resolvedVars,

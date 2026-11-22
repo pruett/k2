@@ -110,7 +110,7 @@ function createDesired(
 		bucketName: 'kody-d1-backup-archive',
 		workerName: 'kody-d1-backup-writer',
 		sourceD1Databases,
-		productionResourceDenylist: ['kody-email-blobs', 'kody-community-assets'],
+		productionResourceDenylist: ['k2-email-blobs', 'k2-community-assets'],
 		...overrides,
 	})
 }
@@ -237,8 +237,8 @@ test('generation and CLI reject non-dedicated resources and invalid D1 allowlist
 	> = [
 		[
 			{
-				bucketName: 'kody-email-blobs',
-				productionResourceDenylist: ['kody-email-blobs'],
+				bucketName: 'k2-email-blobs',
+				productionResourceDenylist: ['k2-email-blobs'],
 			},
 			'distinct from production resources',
 		],
@@ -273,7 +273,7 @@ test('generation and CLI reject non-dedicated resources and invalid D1 allowlist
 			'--source-d1',
 			`${sourceD1Uuid}:kody-production-database`,
 			'--deny-production-resource',
-			'kody-email-blobs',
+			'k2-email-blobs',
 		],
 		{ ...cliEnv, BACKUP_R2_BUCKET_NAME: 'kody-d1-backup-archive' },
 	)
@@ -283,7 +283,7 @@ test('generation and CLI reject non-dedicated resources and invalid D1 allowlist
 		destinationAccountId: normalizedDestinationAccountId,
 		bucketName: 'kody-d1-backup-archive',
 		sourceD1Databases,
-		productionResourceDenylist: ['kody-email-blobs'],
+		productionResourceDenylist: ['k2-email-blobs'],
 	})
 	expect(
 		parseBackupCliArgs(
@@ -656,7 +656,7 @@ test('CLI defaults to plan and never renders its provisioner token', async () =>
 			'--source-d1',
 			`${sourceD1Uuid}:kody-production-database`,
 			'--deny-production-resource',
-			'kody-email-blobs',
+			'k2-email-blobs',
 		],
 		env: {
 			BACKUP_SOURCE_ACCOUNT_ID: sourceAccountId,

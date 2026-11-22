@@ -4,7 +4,7 @@
 	// proxies `/openapi.json` from the live API so the UI stays JSON-only on
 	// `api.kody.codes` (no Accept-HTML there). DNS + cert come from
 	// `custom_domain: true` on deploy, same as `api.kody.codes`.
-	"name": "kody-api-docs",
+	"name": "k2-api-docs",
 	"main": "./src/index.ts",
 	"compatibility_date": "2026-04-16",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
@@ -25,11 +25,11 @@
 	"workers_dev": false,
 	"routes": [
 		{
-			"pattern": "api-docs.kody.codes",
+			"pattern": "k2-api-docs.pruett.in",
 			"custom_domain": true,
 		},
 	],
 	"vars": {
-		"OPENAPI_SPEC_URL": "https://api.kody.codes/openapi.json",
+		"OPENAPI_SPEC_URL": "https://k2-api.pruett.in/openapi.json",
 	},
 }

@@ -522,7 +522,7 @@ async function evaluateRepoPushQueue(
 
 /**
  * Hand the push to the per-repo `RepoPushQueueV1` Durable Object
- * (`kody-push-queue`). The queue acks only after the pack has landed in its
+ * (`k2-push-queue`). The queue acks only after the pack has landed in its
  * storage, sends one push at a time, and returns the Artifacts response. No
  * fallback when the queue is unhealthy: the client gets a retryable 503.
  */

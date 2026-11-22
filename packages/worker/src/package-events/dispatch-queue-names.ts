@@ -1,4 +1,4 @@
 export const packageEventsDispatchQueueBinding = 'PACKAGE_EVENTS_DISPATCH_QUEUE'
-export const packageEventsDispatchQueueName = 'kody-package-events-dispatch'
+export const packageEventsDispatchQueueName = 'k2-package-events-dispatch'
 export const packageEventsDispatchDeadLetterQueueName =
-	'kody-package-events-dispatch-dlq'
+	'k2-package-events-dispatch-dlq'

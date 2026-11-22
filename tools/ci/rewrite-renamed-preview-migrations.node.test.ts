@@ -427,8 +427,8 @@ test('isAllowedPreviewD1DatabaseName accepts per-preview names only', () => {
 	expect(isAllowedPreviewD1DatabaseName('kody-pr-12-jobs-db')).toBe(true)
 	expect(isAllowedPreviewD1DatabaseName('kody-preview-jobs')).toBe(false)
 	expect(isAllowedPreviewD1DatabaseName('kody')).toBe(false)
-	expect(isAllowedPreviewD1DatabaseName('kody-audit')).toBe(false)
-	expect(isAllowedPreviewD1DatabaseName('kody-jobs')).toBe(false)
+	expect(isAllowedPreviewD1DatabaseName('k2-audit')).toBe(false)
+	expect(isAllowedPreviewD1DatabaseName('k2-jobs')).toBe(false)
 })
 
 test('readD1DatabaseNameFromConfig and assertPreviewOnlyD1Target gate production names', () => {

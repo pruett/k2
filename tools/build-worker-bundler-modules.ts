@@ -32,7 +32,7 @@ import { isExecutedDirectly } from './node-runtime.ts'
  * #2504). The OAuth provider rides the same lane: origin's `fetch` wrapper
  * imports it statically, but
  * `#worker/oauth-helpers.ts` needs it only when `OAUTH_PROVIDER` is absent
- * (scheduled purge lane, the `MCP` Durable Object on kody-platform), and the
+ * (scheduled purge lane, the `MCP` Durable Object on k2-platform), and the
  * platform/runtime startup entries must not carry it. Local-execute package
  * graph (#2830 rewrite / shim templates) uses the same deferral so platform
  * startup bytes stay under budget (kody#2831). isomorphic-git is already lazy

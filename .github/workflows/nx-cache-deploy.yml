@@ -112,7 +112,7 @@ jobs:
             exit 0
           fi
           node tools/ci/sync-worker-secrets.ts --env "" --config \
-            packages/nx-cache/wrangler.jsonc --name kody-nx-cache \
+            packages/nx-cache/wrangler.jsonc --name k2-nx-cache \
             --set-from-env CACHE_ACCESS_TOKEN \
             --set-from-env-optional CACHE_READ_TOKEN
 

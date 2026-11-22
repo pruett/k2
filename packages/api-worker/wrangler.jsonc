@@ -5,7 +5,7 @@
 	// origin's `KodyApi` entrypoint over the KODY_API service binding, where
 	// the API token is authenticated and the operation runs next to D1.
 	// Deploys after origin (the binding targets an origin entrypoint).
-	"name": "kody-api",
+	"name": "k2-api",
 	"main": "./src/index.ts",
 	"compatibility_date": "2026-04-16",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
@@ -30,14 +30,14 @@
 			"workers_dev": false,
 			"routes": [
 				{
-					"pattern": "api.kody.codes",
+					"pattern": "k2-api.pruett.in",
 					"custom_domain": true,
 				},
 			],
 			"services": [
 				{
 					"binding": "KODY_API",
-					"service": "kody-production",
+					"service": "k2-production",
 					"entrypoint": "KodyApi",
 				},
 			],
@@ -46,7 +46,7 @@
 			"r2_buckets": [
 				{
 					"binding": "REPO_SESSION_BLOBS",
-					"bucket_name": "kody-repo-session-blobs",
+					"bucket_name": "k2-repo-session-blobs",
 				},
 			],
 			"ratelimits": [

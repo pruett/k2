@@ -275,9 +275,9 @@ jobs:
   # Worker. Each Worker's CLOUDFLARE_API_TOKEN secret comes from its own
   # narrower GitHub secret, overwritten on every sync so no Worker keeps a
   # stale deploy-scope value:
-  #   kody-production, kody-platform <- CLOUDFLARE_APP_API_TOKEN
-  #   kody-runtime                   <- CLOUDFLARE_RUNTIME_API_TOKEN
-  #   kody-status                    <- CLOUDFLARE_STATUS_API_TOKEN
+  #   k2-production, k2-platform <- CLOUDFLARE_APP_API_TOKEN
+  #   k2-runtime                   <- CLOUDFLARE_RUNTIME_API_TOKEN
+  #   k2-status                    <- CLOUDFLARE_STATUS_API_TOKEN
   # There is no fallback to the deploy token. Run this before any production
   # mutation (including jobs/highlight siblings) so a missing token fails the
   # deploy instead of leaving the fleet half-applied.
@@ -361,7 +361,7 @@ jobs:
             set +e
             node ./wrangler-env.ts deploy \
               --config packages/highlight-worker/wrangler.jsonc \
-              --name kody-highlight \
+              --name k2-highlight \
               --env production \
               --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" 2>&1 | tee highlight-deploy.log
             deploy_status="${PIPESTATUS[0]}"
@@ -414,7 +414,7 @@ jobs:
           exit 1
 
   # The push queue worker deploys before origin so origin's REPO_PUSH_QUEUE
-  # service binding validates against an existing kody-push-queue script. It
+  # service binding validates against an existing k2-push-queue script. It
   # owns the RepoPushQueueV1 Durable Object (migration tag v1), so this uses
   # `wrangler deploy`; see packages/push-queue-worker/readme.md.
   deploy-push-queue-worker:
@@ -461,7 +461,7 @@ jobs:
             set +e
             node ./wrangler-env.ts deploy \
               --config packages/push-queue-worker/wrangler.jsonc \
-              --name kody-push-queue \
+              --name k2-push-queue \
               --env production \
               --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" 2>&1 | tee push-queue-deploy.log
             deploy_status="${PIPESTATUS[0]}"
@@ -571,7 +571,7 @@ jobs:
             ${{ steps.jobs_resources.outputs.jobs_wrangler_config }}
         run: |
           if [ ! -f tools/ci/worker-orphan-check.ts ]; then exit 0; fi
-          node tools/ci/worker-orphan-check.ts --phase preflight --name kody-jobs --config "$WRANGLER_CONFIG"
+          node tools/ci/worker-orphan-check.ts --phase preflight --name k2-jobs --config "$WRANGLER_CONFIG"
 
       - name: 🔐 Sync jobs worker secrets
         env:
@@ -590,9 +590,9 @@ jobs:
           fi
           # --env "" with --name: wrangler secret bulk still suffixes
           # -<env> even when --name is set, so --env production would write
-          # to kody-jobs-production while deploy uploads kody-jobs.
+          # to k2-jobs-production while deploy uploads k2-jobs.
           node tools/ci/sync-worker-secrets.ts --env "" --config \
-            "$WRANGLER_CONFIG" --name kody-jobs --set-from-env-optional SENTRY_DSN
+            "$WRANGLER_CONFIG" --name k2-jobs --set-from-env-optional SENTRY_DSN
 
       - name: ☁️ Deploy jobs worker
         env:
@@ -616,10 +616,10 @@ jobs:
             echo "Jobs worker deploy attempt $attempt/$deploy_attempts"
             set +e
             # Explicit --name: without it wrangler would append the
-            # environment to the script name (kody-jobs-production), which
+            # environment to the script name (k2-jobs-production), which
             # would not match the main worker's JOBS service binding.
             node ./wrangler-env.ts deploy --config "$WRANGLER_CONFIG" \
-              --name kody-jobs \
+              --name k2-jobs \
               --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" 2>&1 | tee jobs-deploy.log
             deploy_status="${PIPESTATUS[0]}"
             set -e
@@ -680,7 +680,7 @@ jobs:
             ${{ steps.jobs_resources.outputs.jobs_wrangler_config }}
         run: |
           if [ ! -f tools/ci/worker-orphan-check.ts ] || [ -z "${WRANGLER_CONFIG:-}" ]; then exit 0; fi
-          node tools/ci/worker-orphan-check.ts --phase failure --name kody-jobs --config "$WRANGLER_CONFIG"
+          node tools/ci/worker-orphan-check.ts --phase failure --name k2-jobs --config "$WRANGLER_CONFIG"
 
       - name: 🪵 Collect wrangler logs (jobs, on failure)
         id: jobs_wrangler_logs
@@ -802,14 +802,14 @@ jobs:
           node tools/ci/runtime-worker-config.ts generate \
             --env production \
             --main-config packages/worker/wrangler-production.generated.json \
-            --worker-name kody-runtime \
-            --platform-worker-name kody-platform \
-            --main-worker-name kody-production \
+            --worker-name k2-runtime \
+            --platform-worker-name k2-platform \
+            --main-worker-name k2-production \
             --out-config packages/runtime-worker/wrangler-production.generated.json | tee -a "$GITHUB_OUTPUT"
 
       # Platform Durable Object worker (ADR 0034). Shares the origin worker's
       # data plane. Deploy this script before runtime and origin so their
-      # cross-script bindings target a live kody-platform script.
+      # cross-script bindings target a live k2-platform script.
       - name: 🧩 Generate platform worker config
         id: platform_config
         if: >-
@@ -820,9 +820,9 @@ jobs:
           node tools/ci/platform-worker-config.ts generate \
             --env production \
             --main-config packages/worker/wrangler-production.generated.json \
-            --worker-name kody-platform \
-            --runtime-worker-name kody-runtime \
-            --main-worker-name kody-production \
+            --worker-name k2-platform \
+            --runtime-worker-name k2-runtime \
+            --main-worker-name k2-production \
             --out-config packages/platform-worker/wrangler-production.generated.json | tee -a "$GITHUB_OUTPUT"
 
       # Read-only: compare each Worker's newest version with its active
@@ -843,13 +843,13 @@ jobs:
           if [ ! -f tools/ci/worker-orphan-check.ts ]; then exit 0; fi
           PHASE=preflight
           if [ -n "${PLATFORM_CONFIG:-}" ]; then
-            node tools/ci/worker-orphan-check.ts --phase "$PHASE" --name kody-platform --config "$PLATFORM_CONFIG"
+            node tools/ci/worker-orphan-check.ts --phase "$PHASE" --name k2-platform --config "$PLATFORM_CONFIG"
           fi
           if [ -n "${RUNTIME_CONFIG:-}" ]; then
-            node tools/ci/worker-orphan-check.ts --phase "$PHASE" --name kody-runtime --config "$RUNTIME_CONFIG"
+            node tools/ci/worker-orphan-check.ts --phase "$PHASE" --name k2-runtime --config "$RUNTIME_CONFIG"
           fi
           if [ -n "${ORIGIN_CONFIG:-}" ]; then
-            node tools/ci/worker-orphan-check.ts --phase "$PHASE" --name kody-production --config "$ORIGIN_CONFIG" --env production
+            node tools/ci/worker-orphan-check.ts --phase "$PHASE" --name k2-production --config "$ORIGIN_CONFIG" --env production
           fi
 
       - name: 🔐 Sync Cloudflare Secrets (bulk)
@@ -924,8 +924,8 @@ jobs:
       # and never falls back to the deploy token.
       # --env "" with --name: wrangler secret bulk still suffixes -<env>
       # even when --name is set, so --env production would write
-      # COOKIE_SECRET to kody-runtime-production while deploy uploads
-      # kody-runtime. Preview uses the same empty-env pin.
+      # COOKIE_SECRET to k2-runtime-production while deploy uploads
+      # k2-runtime. Preview uses the same empty-env pin.
       - name: 🔐 Sync Cloudflare Secrets to runtime worker (bulk)
         if: >-
           needs.sha-guard.outputs.deploy_runtime == 'true' ||
@@ -942,7 +942,7 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           PACKAGE_APP_TICKET_KEYS: ${{ secrets.PACKAGE_APP_TICKET_KEYS }}
         run: >
-          node tools/ci/sync-worker-secrets.ts --env "" --name kody-runtime
+          node tools/ci/sync-worker-secrets.ts --env "" --name k2-runtime
           --config "$WRANGLER_CONFIG" --set-from-env COOKIE_SECRET
           --set-from-env-optional SECRET_STORE_KEY --set-from-env-optional
           AI_GATEWAY_ID --set-from-env-optional SENTRY_DSN --set-from-env
@@ -997,7 +997,7 @@ jobs:
         run: >
           node tools/ci/sync-worker-secrets.ts
           ${PLATFORM_SECRET_MODE:+$PLATFORM_SECRET_MODE} --env "" --name
-          kody-platform --config "$WRANGLER_CONFIG" --set-from-env COOKIE_SECRET
+          k2-platform --config "$WRANGLER_CONFIG" --set-from-env COOKIE_SECRET
           --set-from-env-optional SECRET_STORE_KEY --set-from-env-optional
           AI_GATEWAY_ID --set-from-env-optional SENTRY_DSN --set-from-env
           CLOUDFLARE_API_TOKEN=CLOUDFLARE_APP_API_TOKEN --set-from-env-optional
@@ -1052,7 +1052,7 @@ jobs:
           for attempt in $(seq 1 "$deploy_attempts"); do
             echo "Origin bootstrap deploy attempt $attempt/$deploy_attempts"
             set +e
-            npm run deploy -- --name kody-production --config "$WRANGLER_CONFIG" --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" 2>&1 | tee deploy-origin-bootstrap.log
+            npm run deploy -- --name k2-production --config "$WRANGLER_CONFIG" --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" 2>&1 | tee deploy-origin-bootstrap.log
             deploy_status="${PIPESTATUS[0]}"
             set -e
 
@@ -1109,9 +1109,9 @@ jobs:
             echo "Platform deploy attempt $attempt/$deploy_attempts"
             set +e
             # Explicit --name: without it wrangler appends the environment to
-            # the script name (kody-platform-production), which would not
+            # the script name (k2-platform-production), which would not
             # match origin/runtime cross-script bindings.
-            npm run deploy -- --name kody-platform --config "$WRANGLER_CONFIG" --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" 2>&1 | tee deploy-platform.log
+            npm run deploy -- --name k2-platform --config "$WRANGLER_CONFIG" --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" 2>&1 | tee deploy-platform.log
             deploy_status="${PIPESTATUS[0]}"
             set -e
 
@@ -1134,13 +1134,13 @@ jobs:
             deploy_delay_seconds=$((deploy_delay_seconds * 2))
           done
 
-          PLATFORM_URL="$(node -e 'const fs = require("node:fs"); const text = fs.readFileSync(process.argv[1], "utf8").replace(/\u001b\[[0-9;]*m/g, ""); const worker = process.argv[2]; const escaped = worker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); const workerUrlRegex = new RegExp(`https://(?:[a-zA-Z0-9-]+\\.)?${escaped}\\.[a-zA-Z0-9._-]+\\.workers\\.dev`, "g"); const matches = text.match(workerUrlRegex); process.stdout.write(matches?.at(-1) ?? "")' deploy-platform.log kody-platform)"
+          PLATFORM_URL="$(node -e 'const fs = require("node:fs"); const text = fs.readFileSync(process.argv[1], "utf8").replace(/\u001b\[[0-9;]*m/g, ""); const worker = process.argv[2]; const escaped = worker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); const workerUrlRegex = new RegExp(`https://(?:[a-zA-Z0-9-]+\\.)?${escaped}\\.[a-zA-Z0-9._-]+\\.workers\\.dev`, "g"); const matches = text.match(workerUrlRegex); process.stdout.write(matches?.at(-1) ?? "")' deploy-platform.log k2-platform)"
           if [ -n "$PLATFORM_URL" ]; then
             echo "url=$PLATFORM_URL" >> "$GITHUB_OUTPUT"
           fi
 
       # Deploys before origin so origin's cross-script Durable Object and
-      # service bindings target a live kody-runtime script. See
+      # service bindings target a live k2-runtime script. See
       # docs/contributing/architecture/runtime-worker-migration-runbook.md.
       - name: ☁️ Deploy runtime worker to Cloudflare Workers
         id: deploy_runtime
@@ -1173,9 +1173,9 @@ jobs:
             echo "Runtime deploy attempt $attempt/$deploy_attempts"
             set +e
             # Explicit --name: without it wrangler appends the environment to
-            # the script name (kody-runtime-production), which would not match
+            # the script name (k2-runtime-production), which would not match
             # the main worker's cross-script bindings.
-            npm run deploy -- --name kody-runtime --config "$WRANGLER_CONFIG" --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" 2>&1 | tee deploy-runtime.log
+            npm run deploy -- --name k2-runtime --config "$WRANGLER_CONFIG" --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" 2>&1 | tee deploy-runtime.log
             deploy_status="${PIPESTATUS[0]}"
             set -e
 
@@ -1198,7 +1198,7 @@ jobs:
             deploy_delay_seconds=$((deploy_delay_seconds * 2))
           done
 
-          RUNTIME_URL="$(node -e 'const fs = require("node:fs"); const text = fs.readFileSync(process.argv[1], "utf8").replace(/\u001b\[[0-9;]*m/g, ""); const worker = process.argv[2]; const escaped = worker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); const workerUrlRegex = new RegExp(`https://(?:[a-zA-Z0-9-]+\\.)?${escaped}\\.[a-zA-Z0-9._-]+\\.workers\\.dev`, "g"); const matches = text.match(workerUrlRegex); process.stdout.write(matches?.at(-1) ?? "")' deploy-runtime.log kody-runtime)"
+          RUNTIME_URL="$(node -e 'const fs = require("node:fs"); const text = fs.readFileSync(process.argv[1], "utf8").replace(/\u001b\[[0-9;]*m/g, ""); const worker = process.argv[2]; const escaped = worker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); const workerUrlRegex = new RegExp(`https://(?:[a-zA-Z0-9-]+\\.)?${escaped}\\.[a-zA-Z0-9._-]+\\.workers\\.dev`, "g"); const matches = text.match(workerUrlRegex); process.stdout.write(matches?.at(-1) ?? "")' deploy-runtime.log k2-runtime)"
           if [ -n "$RUNTIME_URL" ]; then
             echo "url=$RUNTIME_URL" >> "$GITHUB_OUTPUT"
           fi
@@ -1285,7 +1285,7 @@ jobs:
           # wrangler-env.ts adding --env production) Wrangler uploads a
           # new `kody` script and replays origin Durable Object migrations
           # the slim entry does not export.
-          DEPLOY_ARGS=(--name kody-production --config "$WRANGLER_CONFIG" --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" --var "APP_DEPLOY_INFO:${APP_DEPLOY_INFO}")
+          DEPLOY_ARGS=(--name k2-production --config "$WRANGLER_CONFIG" --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" --var "APP_DEPLOY_INFO:${APP_DEPLOY_INFO}")
 
           is_retryable_deploy_failure() {
             node tools/ci/retry-classifiers.ts deploy deploy.log
@@ -1595,13 +1595,13 @@ jobs:
           if [ ! -f tools/ci/worker-orphan-check.ts ]; then exit 0; fi
           PHASE=failure
           if [ -n "${PLATFORM_CONFIG:-}" ]; then
-            node tools/ci/worker-orphan-check.ts --phase "$PHASE" --name kody-platform --config "$PLATFORM_CONFIG"
+            node tools/ci/worker-orphan-check.ts --phase "$PHASE" --name k2-platform --config "$PLATFORM_CONFIG"
           fi
           if [ -n "${RUNTIME_CONFIG:-}" ]; then
-            node tools/ci/worker-orphan-check.ts --phase "$PHASE" --name kody-runtime --config "$RUNTIME_CONFIG"
+            node tools/ci/worker-orphan-check.ts --phase "$PHASE" --name k2-runtime --config "$RUNTIME_CONFIG"
           fi
           if [ -n "${ORIGIN_CONFIG:-}" ]; then
-            node tools/ci/worker-orphan-check.ts --phase "$PHASE" --name kody-production --config "$ORIGIN_CONFIG" --env production
+            node tools/ci/worker-orphan-check.ts --phase "$PHASE" --name k2-production --config "$ORIGIN_CONFIG" --env production
           fi
 
       - name: 🪵 Collect wrangler logs (on failure)
@@ -1929,10 +1929,10 @@ jobs:
             echo "API worker deploy attempt $attempt/$deploy_attempts"
             set +e
             # Explicit --name: without it wrangler appends the environment
-            # to the script name (kody-api-production).
+            # to the script name (k2-api-production).
             node ./wrangler-env.ts deploy \
               --config packages/api-worker/wrangler.jsonc \
-              --name kody-api \
+              --name k2-api \
               --env production \
               --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" 2>&1 | tee api-deploy.log
             deploy_status="${PIPESTATUS[0]}"
@@ -2037,7 +2037,7 @@ jobs:
             set +e
             node ./wrangler-env.ts deploy \
               --config packages/api-docs-worker/wrangler.jsonc \
-              --name kody-api-docs \
+              --name k2-api-docs \
               --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}" 2>&1 | tee api-docs-deploy.log
             deploy_status="${PIPESTATUS[0]}"
             set -e
@@ -2119,10 +2119,10 @@ jobs:
       - name: 🔒 Reconcile DR backup retention policies when authorized
         env:
           DR_BACKUP_ADMIN_TOKEN: ${{ secrets.DR_BACKUP_ADMIN_TOKEN }}
-          BACKUP_SOURCE_ACCOUNT_ID: a99ee2e72728dd52902ef288b7b1447d
+          BACKUP_SOURCE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           BACKUP_DESTINATION_ACCOUNT_ID: ${{ secrets.DR_BACKUP_ACCOUNT_ID }}
-          BACKUP_R2_BUCKET_NAME: kody-production-backups
-          BACKUP_WORKER_NAME: kody-production-d1-backups
+          BACKUP_R2_BUCKET_NAME: k2-production-backups
+          BACKUP_WORKER_NAME: k2-production-d1-backups
           BACKUP_SOURCE_D1_ALLOWLIST: >-
             [{"uuid":"8c1014d1-6b41-4695-a0a2-159071f0f919","name":"kody"}]
         run: node tools/ci/backup-resources-reconcile-cli.ts
@@ -2142,7 +2142,7 @@ jobs:
           fi
           node tools/ci/sync-worker-secrets.ts --env "" --config \
             packages/backup-control-plane/wrangler.jsonc \
-            --name kody-production-d1-backups --set-from-env-optional SENTRY_DSN
+            --name k2-production-d1-backups --set-from-env-optional SENTRY_DSN
 
       - name: ☁️ Deploy backup control plane to DR account
         env:

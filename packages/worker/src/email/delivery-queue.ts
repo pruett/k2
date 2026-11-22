@@ -13,7 +13,7 @@ import { transactionalEmailVerificationKind } from './verification-delivery.ts'
 export { emailDeliveryQueueName } from './delivery-queue-names.ts'
 
 const unmatchedRetryDelaySeconds = 30
-// Matches `max_retries` on the kody-email-delivery consumer (wrangler.jsonc).
+// Matches `max_retries` on the k2-email-delivery consumer (wrangler.jsonc).
 export const emailDeliveryMaxRetries = 3
 // The consumer allows 3 retries; together they must outlast a crashed
 // delivery's ledger claim, or the event lands in the DLQ unapplied.

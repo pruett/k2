@@ -7,7 +7,7 @@
 	// are reached through the HOST service binding (`JobsHost` entrypoint);
 	// the main worker reaches this worker through its JOBS service binding
 	// (`JobsService` entrypoint).
-	"name": "kody-jobs",
+	"name": "k2-jobs",
 	"main": "./src/index.ts",
 	"compatibility_date": "2026-04-16",
 	// Birthday Week 2026-10-01: pending I/O keeps JobManager from idle eviction
@@ -51,9 +51,9 @@
 			"transferred_classes": [
 				{
 					"from": "JobManager",
-					// The deployed production main worker script is "kody-production"
+					// The deployed production main worker script is "k2-production"
 					// (wrangler appends the environment name to the top-level name).
-					"from_script": "kody-production",
+					"from_script": "k2-production",
 					"to": "JobManager",
 				},
 			],
@@ -72,14 +72,14 @@
 			"d1_databases": [
 				{
 					"binding": "JOBS_DB",
-					"database_name": "kody-jobs",
+					"database_name": "k2-jobs",
 					"migrations_dir": "./migrations",
 				},
 			],
 			"services": [
 				{
 					"binding": "HOST",
-					"service": "kody-production",
+					"service": "k2-production",
 					"entrypoint": "JobsHost",
 				},
 			],
@@ -87,17 +87,17 @@
 				"producers": [
 					{
 						"binding": "SCHEDULED_DISPATCH_QUEUE",
-						"queue": "kody-scheduled-dispatch",
+						"queue": "k2-scheduled-dispatch",
 					},
 				],
 				"consumers": [
 					{
-						"queue": "kody-scheduled-dispatch",
+						"queue": "k2-scheduled-dispatch",
 						"max_batch_size": 1,
 						"max_batch_timeout": 0,
 						"max_retries": 3,
 						"max_concurrency": 16,
-						"dead_letter_queue": "kody-scheduled-dispatch-dlq",
+						"dead_letter_queue": "k2-scheduled-dispatch-dlq",
 					},
 				],
 			},
@@ -148,7 +148,7 @@
 		"test": {
 			// Local test workers are fresh scripts: they cannot run the
 			// production script-transfer migration (from_script
-			// "kody-production"), so the
+			// "k2-production"), so the
 			// class is created fresh here (matching the generated preview
 			// config in tools/ci/jobs-worker-resources.ts).
 			"migrations": [

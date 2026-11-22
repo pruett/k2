@@ -94,17 +94,17 @@ const productionArgs = (outConfigPath: string) => ({
 	envName: 'production' as const,
 	d1DatabaseName: 'kody',
 	d1DatabaseId: 'dry-run-kody',
-	auditD1DatabaseName: 'kody-audit',
+	auditD1DatabaseName: 'k2-audit',
 	auditD1DatabaseId: 'dry-run-kody-audit',
-	jobsD1DatabaseName: 'kody-jobs',
+	jobsD1DatabaseName: 'k2-jobs',
 	jobsD1DatabaseId: 'dry-run-kody-jobs',
 	oauthKvId: 'dry-run-kody-oauth',
 	bundleArtifactsKvId: 'dry-run-kody-bundle-artifacts',
-	communityAssetsBucketName: 'kody-community-assets',
-	emailBlobsBucketName: 'kody-email-blobs',
-	repoSessionBlobsBucketName: 'kody-repo-session-blobs',
-	fileBlobsBucketName: 'kody-file-blobs',
-	operatorBackupsBucketName: 'kody-operator-backups',
+	communityAssetsBucketName: 'k2-community-assets',
+	emailBlobsBucketName: 'k2-email-blobs',
+	repoSessionBlobsBucketName: 'k2-repo-session-blobs',
+	fileBlobsBucketName: 'k2-file-blobs',
+	operatorBackupsBucketName: 'k2-operator-backups',
 })
 
 type GeneratedEnv = {
@@ -248,28 +248,30 @@ test('writeGeneratedWranglerConfig preserves migrations and copies environment a
 		},
 		{
 			binding: 'AUDIT_DB',
-			database_name: 'kody-audit',
+			database_name: 'k2-audit',
 			database_id: 'dry-run-kody-audit',
 			migrations_dir: './audit-migrations',
 		},
 		{
 			binding: 'JOBS_DB',
-			database_name: 'kody-jobs',
+			database_name: 'k2-jobs',
 			database_id: 'dry-run-kody-jobs',
 		},
 	])
 	expect(production?.r2_buckets).toEqual([
-		{ binding: 'COMMUNITY_ASSETS', bucket_name: 'kody-community-assets' },
-		{ binding: 'EMAIL_BLOBS', bucket_name: 'kody-email-blobs' },
-		{ binding: 'REPO_SESSION_BLOBS', bucket_name: 'kody-repo-session-blobs' },
-		{ binding: 'FILE_BLOBS', bucket_name: 'kody-file-blobs' },
-		{ binding: 'OPERATOR_BACKUPS', bucket_name: 'kody-operator-backups' },
+		{ binding: 'COMMUNITY_ASSETS', bucket_name: 'k2-community-assets' },
+		{ binding: 'EMAIL_BLOBS', bucket_name: 'k2-email-blobs' },
+		{ binding: 'REPO_SESSION_BLOBS', bucket_name: 'k2-repo-session-blobs' },
+		{ binding: 'FILE_BLOBS', bucket_name: 'k2-file-blobs' },
+		{ binding: 'OPERATOR_BACKUPS', bucket_name: 'k2-operator-backups' },
 	])
 	// Routes are generated from the base-URL vars rather than committed (a
 	// committed route would make `wrangler dev` resolve every local request as
 	// that production host). The package-app host is attached to the runtime
 	// Worker (ADR 0016), so the main Worker publishes only the app origin.
-	expect(typeof production?.vars?.PACKAGE_APP_BASE_URL).toBe('string')
+	// k2: the package-app switch is off (no PACKAGE_APP_BASE_URL committed);
+	// the app origin is still published.
+	expect(production?.vars?.PACKAGE_APP_BASE_URL).toBe('')
 	expect(production?.routes).toEqual([
 		{ pattern: 'heykody.dev', custom_domain: true },
 	])
@@ -379,9 +381,11 @@ test('writeGeneratedWranglerConfig preserves migrations and copies environment a
 	// and deleting its DNS record. That must fail the deploy, not ship.
 	using _exit = mockProcessExit()
 	await expect(
-		writeGeneratedWranglerConfig(
-			productionArgs(path.join(temp.dir, 'wrangler-no-app-origin.json')),
-		),
+		writeGeneratedWranglerConfig({
+			...productionArgs(path.join(temp.dir, 'wrangler-no-app-origin.json')),
+			// k2: package apps are off in the committed config; turn them on.
+			workerVars: { PACKAGE_APP_BASE_URL: 'https://kody.run' },
+		}),
 	).rejects.toThrow('process.exit called')
 	expect(consoleError).toHaveBeenCalledWith(
 		expect.stringContaining('without "APP_BASE_URL"'),
@@ -400,6 +404,8 @@ test('writeGeneratedWranglerConfig keeps legacy app hosts attached during a doma
 		workerVars: {
 			APP_BASE_URL: 'https://heykody.app',
 			APP_LEGACY_HOSTS: 'heykody.dev',
+			// k2: package apps are off in the committed config; turn them on.
+			PACKAGE_APP_BASE_URL: 'https://kody.run',
 		},
 	})
 	const production = (await readConfig(outPath)).env?.production
@@ -424,6 +430,7 @@ test('writeGeneratedWranglerConfig keeps legacy app hosts attached during a doma
 				workerVars: {
 					APP_BASE_URL: 'https://heykody.app',
 					APP_LEGACY_HOSTS: legacyHosts,
+					PACKAGE_APP_BASE_URL: String(packageAppBaseUrl),
 				},
 			}),
 		).rejects.toThrow('process.exit called')
@@ -525,12 +532,12 @@ test('writeGeneratedWranglerConfig expands DR_D1_PACED_SOURCES with live D1 UUID
 		},
 		{
 			binding: 'AUDIT_DB',
-			name: 'kody-audit',
+			name: 'k2-audit',
 			id: 'dry-run-kody-audit',
 		},
 		{
 			binding: 'JOBS_DB',
-			name: 'kody-jobs',
+			name: 'k2-jobs',
 			id: 'dry-run-kody-jobs',
 		},
 	])
@@ -544,10 +551,10 @@ test('ensureR2BucketLifecycle dry-run returns the policy without calling Wrangle
 		],
 	}
 	expect(
-		ensureR2BucketLifecycle({ name: 'kody-nx-cache', policy, dryRun: true }),
-	).toEqual({ name: 'kody-nx-cache', policy })
+		ensureR2BucketLifecycle({ name: 'k2-nx-cache', policy, dryRun: true }),
+	).toEqual({ name: 'k2-nx-cache', policy })
 	expect(consoleError).toHaveBeenCalledWith(
-		'[dry-run] set R2 lifecycle for kody-nx-cache',
+		'[dry-run] set R2 lifecycle for k2-nx-cache',
 	)
 })
 
@@ -555,20 +562,20 @@ test('Queue and Email Sending subscription ensure creates and reconciles Cloudfl
 	consoleError.mockImplementation(() => {})
 	const queueFetch = mockFetch(
 		listed([]),
-		ok({ queue_id: 'queue-1', queue_name: 'kody-email-delivery' }),
+		ok({ queue_id: 'queue-1', queue_name: 'k2-email-delivery' }),
 	)
 	const queue = await ensureCloudflareQueue({
 		...creds,
-		name: 'kody-email-delivery',
+		name: 'k2-email-delivery',
 		fetcher: queueFetch,
 	})
-	expect(queue).toEqual({ id: 'queue-1', name: 'kody-email-delivery' })
+	expect(queue).toEqual({ id: 'queue-1', name: 'k2-email-delivery' })
 	expect(queueFetch).toHaveBeenNthCalledWith(
 		2,
 		`${accountApi}/queues`,
 		expect.objectContaining({
 			method: 'POST',
-			body: JSON.stringify({ queue_name: 'kody-email-delivery' }),
+			body: JSON.stringify({ queue_name: 'k2-email-delivery' }),
 		}),
 	)
 
@@ -576,13 +583,13 @@ test('Queue and Email Sending subscription ensure creates and reconciles Cloudfl
 	await expect(
 		ensureCloudflareQueue({
 			...creds,
-			name: 'kody-email-delivery',
+			name: 'k2-email-delivery',
 			existingQueues: [
-				{ queue_id: 'queue-existing', queue_name: 'kody-email-delivery' },
+				{ queue_id: 'queue-existing', queue_name: 'k2-email-delivery' },
 			],
 			fetcher: reusedQueueFetch,
 		}),
-	).resolves.toEqual({ id: 'queue-existing', name: 'kody-email-delivery' })
+	).resolves.toEqual({ id: 'queue-existing', name: 'k2-email-delivery' })
 	expect(reusedQueueFetch).not.toHaveBeenCalled()
 
 	const subscriptionArgs = {
@@ -1054,7 +1061,7 @@ test('Cloudflare API requests retry gateway blips, null bodies, and 429s but not
 	const create: Request = {
 		pathname: '/queues',
 		method: 'POST',
-		body: { queue_name: 'kody-email-delivery' },
+		body: { queue_name: 'k2-email-delivery' },
 	}
 	const retried: Array<[Response, Request]> = [
 		[
@@ -1095,7 +1102,7 @@ test('Cloudflare API requests retry gateway blips, null bodies, and 429s but not
 		],
 	]
 	for (const [firstResponse, request] of retried) {
-		const result = { queue_id: 'queue-1', queue_name: 'kody-email-delivery' }
+		const result = { queue_id: 'queue-1', queue_name: 'k2-email-delivery' }
 		const fetcher = mockFetch(firstResponse, ok(result))
 		const payload = await cloudflareApiRequest({
 			accountId: 'account-1',

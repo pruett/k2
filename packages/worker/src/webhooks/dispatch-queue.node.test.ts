@@ -125,7 +125,7 @@ function createQueueMessage(id: string, body: unknown) {
 
 function createBatch(messages: Array<ReturnType<typeof createQueueMessage>>) {
 	return {
-		queue: 'kody-webhook-dispatch',
+		queue: 'k2-webhook-dispatch',
 		messages,
 		ackAll: vi.fn<() => void>(),
 		retryAll: vi.fn<() => void>(),

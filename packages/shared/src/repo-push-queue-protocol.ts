@@ -1,6 +1,6 @@
 /**
  * Wire contract between the origin plain-repo git proxy and the
- * `kody-push-queue` Worker (`RepoPushQueueV1`). Keep changes forward and
+ * `k2-push-queue` Worker (`RepoPushQueueV1`). Keep changes forward and
  * backward compatible: origin and the queue Worker deploy independently, so
  * either side may run a newer version during a rollout. Breaking changes ship
  * as a new Durable Object class (`RepoPushQueueV2`) and a new request path.

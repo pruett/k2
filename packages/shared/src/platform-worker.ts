@@ -1,8 +1,8 @@
 /**
  * Cross-worker contract for the platform Durable Object Worker
- * (`packages/platform-worker`, script `kody-platform`).
+ * (`packages/platform-worker`, script `k2-platform`).
  *
- * The origin `kody` Worker and `kody-runtime` reach platform-owned Durable
+ * The origin `kody` Worker and `k2-runtime` reach platform-owned Durable
  * Objects through cross-script bindings, not RPC. The only structured HTTP
  * endpoint is the deploy healthcheck below.
  */

@@ -67,7 +67,7 @@ function createQueueMessage(id: string, body: unknown, attempts = 1) {
 
 function createBatch(messages: Array<ReturnType<typeof createQueueMessage>>) {
 	return {
-		queue: 'kody-package-events-dispatch',
+		queue: 'k2-package-events-dispatch',
 		messages,
 		ackAll: vi.fn<() => void>(),
 		retryAll: vi.fn<() => void>(),

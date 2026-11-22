@@ -1,6 +1,6 @@
 {
 	"$schema": "../../node_modules/wrangler/config-schema.json",
-	"name": "kody-production-d1-backups",
+	"name": "k2-production-d1-backups",
 	"main": "./worker.ts",
 	"compatibility_date": "2026-07-22",
 	"compatibility_flags": ["nodejs_compat"],
@@ -44,29 +44,30 @@
 	"r2_buckets": [
 		{
 			"binding": "BACKUP_BUCKET",
-			"bucket_name": "kody-production-backups",
+			"bucket_name": "k2-production-backups",
 		},
 	],
 	"vars": {
 		// Both must be exactly "true" for any schedule to run. The blocking
 		// export benchmark passed 2026-07-23: a clean production export
 		// completed in ~6s and produced a ~101 MB SQL object.
-		"ENABLE_PRODUCTION_D1_BACKUPS": "true",
+		"ENABLE_PRODUCTION_D1_BACKUPS": "false",
 		"BACKUP_BENCHMARK_APPROVED": "true",
-		// Production Kody Cloudflare account and D1 database.
-		"SOURCE_ACCOUNT_ID": "a99ee2e72728dd52902ef288b7b1447d",
+		// k2: DR backups are off and this Worker is not deployed; upstream
+		// account ids removed. Production Kody Cloudflare account and D1 database.
+		"SOURCE_ACCOUNT_ID": "",
 		"SOURCE_DATABASE_ID": "8c1014d1-6b41-4695-a0a2-159071f0f919",
 		"SOURCE_DATABASE_NAME": "kody",
-		// REST D1 source list. `kody-jobs` UUID is the production D1 named
-		// `kody-jobs` (JOBS_DB); deploy resolves it by name in
+		// REST D1 source list. `k2-jobs` UUID is the production D1 named
+		// `k2-jobs` (JOBS_DB); deploy resolves it by name in
 		// tools/ci/jobs-worker-resources.ts (`jobs_d1_database_id`).
 		// restExport:false retires the locking REST export (#4306); the paced
 		// lane is the D1 backup. Rollback: drop restExport and redeploy.
-		"SOURCE_DATABASES": "[{\"id\":\"8c1014d1-6b41-4695-a0a2-159071f0f919\",\"name\":\"kody\",\"restExport\":false},{\"id\":\"5410331e-4d25-47e4-a1e5-a248f7cc764c\",\"name\":\"kody-jobs\",\"restExport\":false}]",
+		"SOURCE_DATABASES": "[{\"id\":\"8c1014d1-6b41-4695-a0a2-159071f0f919\",\"name\":\"kody\",\"restExport\":false},{\"id\":\"5410331e-4d25-47e4-a1e5-a248f7cc764c\",\"name\":\"k2-jobs\",\"restExport\":false}]",
 		// Paced D1 sources (same ids as the worker's DR_D1_PACED_SOURCES). Their
 		// sealed paced nights are the full seal's D1 source of truth.
-		"D1_PACED_SOURCES": "[{\"id\":\"8c1014d1-6b41-4695-a0a2-159071f0f919\",\"name\":\"kody\"},{\"id\":\"c48f9d10-e4fc-4749-9188-82d68025284e\",\"name\":\"kody-audit\"},{\"id\":\"5410331e-4d25-47e4-a1e5-a248f7cc764c\",\"name\":\"kody-jobs\"}]",
-		"ALLOWED_SOURCE_ACCOUNT_IDS": "a99ee2e72728dd52902ef288b7b1447d",
+		"D1_PACED_SOURCES": "[{\"id\":\"8c1014d1-6b41-4695-a0a2-159071f0f919\",\"name\":\"kody\"},{\"id\":\"c48f9d10-e4fc-4749-9188-82d68025284e\",\"name\":\"k2-audit\"},{\"id\":\"5410331e-4d25-47e4-a1e5-a248f7cc764c\",\"name\":\"k2-jobs\"}]",
+		"ALLOWED_SOURCE_ACCOUNT_IDS": "",
 		"ALLOWED_SOURCE_DATABASE_IDS": "8c1014d1-6b41-4695-a0a2-159071f0f919,5410331e-4d25-47e4-a1e5-a248f7cc764c",
 		"BUILD_COMMIT": "REPLACE_AT_DEPLOY_TIME",
 		// Non-secret provenance. The matching PKCS#8 private key is a Worker secret.
@@ -84,7 +85,7 @@
 		"ACCESS_APP_AUD": "769c70e393e2652f5878af99333322184a35cc3aef53376344f8753805e42a76",
 		"ACCESS_ALLOWED_EMAIL": "me@kentcdodds.com",
 		// DR (KCD) account: isolated restore drills only, never production.
-		"DRILL_ACCOUNT_ID": "a41d50ecaf0ae0f86dd1824ef6729cb2",
-		"PRIMARY_WORKER_ORIGIN": "https://kody.codes",
+		"DRILL_ACCOUNT_ID": "",
+		"PRIMARY_WORKER_ORIGIN": "https://k2.pruett.in",
 	},
 }

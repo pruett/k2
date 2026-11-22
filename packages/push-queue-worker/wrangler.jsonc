@@ -5,7 +5,7 @@
 	// reaches it through the REPO_PUSH_QUEUE service binding (named
 	// `RepoPushQueueGateway` entrypoint). A dedicated script keeps origin,
 	// platform, and runtime deploys from resetting in-flight pushes.
-	"name": "kody-push-queue",
+	"name": "k2-push-queue",
 	"main": "./src/index.ts",
 	// Pending I/O keeps a DO from idle eviction, so an accepted push whose
 	// caller disconnected still reaches Artifacts.

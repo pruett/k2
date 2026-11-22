@@ -63,7 +63,7 @@ export function createManifest(
 		source: overrides.source ?? {
 			accountId: productionAccountId,
 			databaseId: productionUuid,
-			databaseName: 'kody-production',
+			databaseName: 'k2-production',
 		},
 		export: {
 			bookmark: 'bookmark-1',
@@ -151,7 +151,7 @@ function createBaselineRegistry(
 				source: {
 					accountId: productionAccountId,
 					databaseId: productionUuid,
-					databaseName: 'kody-production',
+					databaseName: 'k2-production',
 				},
 				baseline,
 			},
@@ -161,7 +161,7 @@ function createBaselineRegistry(
 				source: {
 					accountId: productionAccountId,
 					databaseId: productionUuid,
-					databaseName: 'kody-production',
+					databaseName: 'k2-production',
 				},
 				baseline,
 			},
@@ -178,7 +178,7 @@ export function createTrustRegistry(
 			{
 				accountId: productionAccountId,
 				databaseId: productionUuid,
-				databaseName: 'kody-production',
+				databaseName: 'k2-production',
 			},
 		],
 		drillTargets: [

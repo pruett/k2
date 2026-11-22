@@ -178,7 +178,7 @@ async function seedSealedRestoreDay(bucket: MemoryBucket, day = '2026-07-22') {
 function configureJobsDatabase(env: BackupEnvironment) {
 	env.SOURCE_DATABASES = JSON.stringify([
 		{ id: env.SOURCE_DATABASE_ID, name: env.SOURCE_DATABASE_NAME },
-		{ id: JOBS_DATABASE_ID, name: 'kody-jobs' },
+		{ id: JOBS_DATABASE_ID, name: 'k2-jobs' },
 	])
 	env.ALLOWED_SOURCE_DATABASE_IDS = `${env.SOURCE_DATABASE_ID},${JOBS_DATABASE_ID}`
 }
@@ -191,7 +191,7 @@ async function putJobsManifestWithoutSql(
 ) {
 	const jobsEnv = bindSourceDatabase(env, {
 		id: JOBS_DATABASE_ID,
-		name: 'kody-jobs',
+		name: 'k2-jobs',
 	})
 	const jobsPayload = backupPayload(jobsEnv, new Date(`${day}T12:00:00.000Z`))
 	const sqlBody = 'CREATE TABLE jobs(id INTEGER);\n'
@@ -212,7 +212,7 @@ async function putJobsManifestWithoutSql(
 			source: {
 				accountId: ACCOUNT_ID,
 				databaseId: JOBS_DATABASE_ID,
-				databaseName: 'kody-jobs',
+				databaseName: 'k2-jobs',
 			},
 			sql: { objectKey: sqlObjectKey, ...sql },
 		}),
@@ -429,7 +429,7 @@ test('production restore verifies every required SQL object before importing APP
 			},
 			{
 				databaseId: JOBS_DATABASE_ID,
-				databaseName: 'kody-jobs',
+				databaseName: 'k2-jobs',
 				manifestKey: jobs.manifestKey,
 				manifestSha256: sha256Text(jobs.storedText),
 			},
@@ -460,7 +460,7 @@ test('production restore verifies every required SQL object before importing APP
 			error instanceof BackupError &&
 			error.code === 'restore-sql-missing' &&
 			error.message.includes(jobs.sqlObjectKey) &&
-			error.message.includes('kody-jobs'),
+			error.message.includes('k2-jobs'),
 	)
 	assert.equal(fetchCalls, 0)
 	assert.equal(importedAppDb, false)
@@ -639,7 +639,7 @@ test('a sealed paced source missing from configuration refuses the restore', asy
 				{
 					...ref,
 					databaseId: '44444444-4444-4444-8444-444444444444',
-					databaseName: 'kody-audit',
+					databaseName: 'k2-audit',
 					manifestKey: pacedD1SealedManifestKey(
 						pacedD1RetentionTierForDay(pacedTestTipDay),
 						'44444444-4444-4444-8444-444444444444',

@@ -30717,16 +30717,16 @@ export const capabilityManifest = {
 							"queue": {
 								"type": "string",
 								"enum": [
-									"kody-email-delivery-dlq",
-									"kody-artifacts-repo-events-dlq",
-									"kody-platform-feedback-dispatch-dlq",
-									"kody-community-activity-dispatch-dlq",
-									"kody-community-listing-published-dispatch-dlq",
-									"kody-package-events-dispatch-dlq",
-									"kody-webhook-dispatch-dlq",
-									"kody-scheduled-dispatch-dlq"
+									"k2-email-delivery-dlq",
+									"k2-artifacts-repo-events-dlq",
+									"k2-platform-feedback-dispatch-dlq",
+									"k2-community-activity-dispatch-dlq",
+									"k2-community-listing-published-dispatch-dlq",
+									"k2-package-events-dispatch-dlq",
+									"k2-webhook-dispatch-dlq",
+									"k2-scheduled-dispatch-dlq"
 								],
-								"description": "Production dead-letter queue name, for example kody-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name."
+								"description": "Production dead-letter queue name, for example k2-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name."
 							},
 							"message_id": {
 								"description": "Return only this message. Omit to page through the queue.",
@@ -30882,13 +30882,13 @@ export const capabilityManifest = {
 						],
 						"additionalProperties": false
 					},
-					"inputTypeDefinition": "type AdminDeadLetterQueuePeekInput = {\n\t/** Production dead-letter queue name, for example kody-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name. */\n\tqueue: \"kody-email-delivery-dlq\" | \"kody-artifacts-repo-events-dlq\" | \"kody-platform-feedback-dispatch-dlq\" | \"kody-community-activity-dispatch-dlq\" | \"kody-community-listing-published-dispatch-dlq\" | \"kody-package-events-dispatch-dlq\" | \"kody-webhook-dispatch-dlq\" | \"kody-scheduled-dispatch-dlq\"\n\t/** Return only this message. Omit to page through the queue. */\n\tmessage_id?: string\n\t/** Messages per page, oldest first (default 20, max 50). */\n\tlimit?: number\n\t/** next_cursor from the previous page. */\n\tcursor?: string\n}",
+					"inputTypeDefinition": "type AdminDeadLetterQueuePeekInput = {\n\t/** Production dead-letter queue name, for example k2-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name. */\n\tqueue: \"k2-email-delivery-dlq\" | \"k2-artifacts-repo-events-dlq\" | \"k2-platform-feedback-dispatch-dlq\" | \"k2-community-activity-dispatch-dlq\" | \"k2-community-listing-published-dispatch-dlq\" | \"k2-package-events-dispatch-dlq\" | \"k2-webhook-dispatch-dlq\" | \"k2-scheduled-dispatch-dlq\"\n\t/** Return only this message. Omit to page through the queue. */\n\tmessage_id?: string\n\t/** Messages per page, oldest first (default 20, max 50). */\n\tlimit?: number\n\t/** next_cursor from the previous page. */\n\tcursor?: string\n}",
 					"outputTypeDefinition": "type AdminDeadLetterQueuePeekOutput = {\n\tqueue: string\n\tsource_queue: string\n\tparked_count: number\n\tmessages: Array<{\n\tmessage_id: string\n\tqueue: string\n\tsource_queue: string\n\tstatus: \"parked\" | \"replaying\"\n\tattempts: number\n\tenqueued_at: string\n\tparked_at: string\n\tage_seconds: number\n\tpayload_type: string\n\tpayload_bytes: number\n\ttop_level_keys: Array<string>\n\ttop_level_key_count: number\n\tkind: string | null\n\tstable_ids: Record<string, string>\n\treplayable: boolean\n}>\n\tnext_cursor: string | null\n\tredaction: string\n}"
 				},
 				{
 					"name": "adminDeadLetterQueueReplay",
 					"domain": "admin",
-					"description": "Replay one parked dead-letter message to its source queue (for example kody-platform-feedback-dispatch-dlq to kody-platform-feedback-dispatch), then remove it from the dead-letter queue. The source consumer runs it again with fresh retries. Queues without a producer binding (email delivery, Artifacts repo events) report replay as unsupported; ack those instead. Admin-only and audit-logged.",
+					"description": "Replay one parked dead-letter message to its source queue (for example k2-platform-feedback-dispatch-dlq to k2-platform-feedback-dispatch), then remove it from the dead-letter queue. The source consumer runs it again with fresh retries. Queues without a producer binding (email delivery, Artifacts repo events) report replay as unsupported; ack those instead. Admin-only and audit-logged.",
 					"keywords": [
 						"admin",
 						"dead letter queue",
@@ -30911,16 +30911,16 @@ export const capabilityManifest = {
 							"queue": {
 								"type": "string",
 								"enum": [
-									"kody-email-delivery-dlq",
-									"kody-artifacts-repo-events-dlq",
-									"kody-platform-feedback-dispatch-dlq",
-									"kody-community-activity-dispatch-dlq",
-									"kody-community-listing-published-dispatch-dlq",
-									"kody-package-events-dispatch-dlq",
-									"kody-webhook-dispatch-dlq",
-									"kody-scheduled-dispatch-dlq"
+									"k2-email-delivery-dlq",
+									"k2-artifacts-repo-events-dlq",
+									"k2-platform-feedback-dispatch-dlq",
+									"k2-community-activity-dispatch-dlq",
+									"k2-community-listing-published-dispatch-dlq",
+									"k2-package-events-dispatch-dlq",
+									"k2-webhook-dispatch-dlq",
+									"k2-scheduled-dispatch-dlq"
 								],
-								"description": "Production dead-letter queue name, for example kody-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name."
+								"description": "Production dead-letter queue name, for example k2-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name."
 							},
 							"message_id": {
 								"type": "string",
@@ -30961,7 +30961,7 @@ export const capabilityManifest = {
 						],
 						"additionalProperties": false
 					},
-					"inputTypeDefinition": "type AdminDeadLetterQueueReplayInput = {\n\t/** Production dead-letter queue name, for example kody-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name. */\n\tqueue: \"kody-email-delivery-dlq\" | \"kody-artifacts-repo-events-dlq\" | \"kody-platform-feedback-dispatch-dlq\" | \"kody-community-activity-dispatch-dlq\" | \"kody-community-listing-published-dispatch-dlq\" | \"kody-package-events-dispatch-dlq\" | \"kody-webhook-dispatch-dlq\" | \"kody-scheduled-dispatch-dlq\"\n\t/** Cloudflare Queue message id from adminDeadLetterQueuePeek. */\n\tmessage_id: string\n}",
+					"inputTypeDefinition": "type AdminDeadLetterQueueReplayInput = {\n\t/** Production dead-letter queue name, for example k2-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name. */\n\tqueue: \"k2-email-delivery-dlq\" | \"k2-artifacts-repo-events-dlq\" | \"k2-platform-feedback-dispatch-dlq\" | \"k2-community-activity-dispatch-dlq\" | \"k2-community-listing-published-dispatch-dlq\" | \"k2-package-events-dispatch-dlq\" | \"k2-webhook-dispatch-dlq\" | \"k2-scheduled-dispatch-dlq\"\n\t/** Cloudflare Queue message id from adminDeadLetterQueuePeek. */\n\tmessage_id: string\n}",
 					"outputTypeDefinition": "type AdminDeadLetterQueueReplayOutput = {\n\tqueue: string\n\tmessage_id: string\n\tsource_queue: string\n\toutcome: \"replayed\"\n}"
 				},
 				{
@@ -30991,16 +30991,16 @@ export const capabilityManifest = {
 							"queue": {
 								"type": "string",
 								"enum": [
-									"kody-email-delivery-dlq",
-									"kody-artifacts-repo-events-dlq",
-									"kody-platform-feedback-dispatch-dlq",
-									"kody-community-activity-dispatch-dlq",
-									"kody-community-listing-published-dispatch-dlq",
-									"kody-package-events-dispatch-dlq",
-									"kody-webhook-dispatch-dlq",
-									"kody-scheduled-dispatch-dlq"
+									"k2-email-delivery-dlq",
+									"k2-artifacts-repo-events-dlq",
+									"k2-platform-feedback-dispatch-dlq",
+									"k2-community-activity-dispatch-dlq",
+									"k2-community-listing-published-dispatch-dlq",
+									"k2-package-events-dispatch-dlq",
+									"k2-webhook-dispatch-dlq",
+									"k2-scheduled-dispatch-dlq"
 								],
-								"description": "Production dead-letter queue name, for example kody-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name."
+								"description": "Production dead-letter queue name, for example k2-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name."
 							},
 							"message_id": {
 								"type": "string",
@@ -31037,7 +31037,7 @@ export const capabilityManifest = {
 						],
 						"additionalProperties": false
 					},
-					"inputTypeDefinition": "type AdminDeadLetterQueueAckInput = {\n\t/** Production dead-letter queue name, for example kody-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name. */\n\tqueue: \"kody-email-delivery-dlq\" | \"kody-artifacts-repo-events-dlq\" | \"kody-platform-feedback-dispatch-dlq\" | \"kody-community-activity-dispatch-dlq\" | \"kody-community-listing-published-dispatch-dlq\" | \"kody-package-events-dispatch-dlq\" | \"kody-webhook-dispatch-dlq\" | \"kody-scheduled-dispatch-dlq\"\n\t/** Cloudflare Queue message id from adminDeadLetterQueuePeek. */\n\tmessage_id: string\n}",
+					"inputTypeDefinition": "type AdminDeadLetterQueueAckInput = {\n\t/** Production dead-letter queue name, for example k2-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name. */\n\tqueue: \"k2-email-delivery-dlq\" | \"k2-artifacts-repo-events-dlq\" | \"k2-platform-feedback-dispatch-dlq\" | \"k2-community-activity-dispatch-dlq\" | \"k2-community-listing-published-dispatch-dlq\" | \"k2-package-events-dispatch-dlq\" | \"k2-webhook-dispatch-dlq\" | \"k2-scheduled-dispatch-dlq\"\n\t/** Cloudflare Queue message id from adminDeadLetterQueuePeek. */\n\tmessage_id: string\n}",
 					"outputTypeDefinition": "type AdminDeadLetterQueueAckOutput = {\n\tqueue: string\n\tmessage_id: string\n\toutcome: \"acked\"\n}"
 				},
 				{
@@ -31066,16 +31066,16 @@ export const capabilityManifest = {
 							"queue": {
 								"type": "string",
 								"enum": [
-									"kody-email-delivery-dlq",
-									"kody-artifacts-repo-events-dlq",
-									"kody-platform-feedback-dispatch-dlq",
-									"kody-community-activity-dispatch-dlq",
-									"kody-community-listing-published-dispatch-dlq",
-									"kody-package-events-dispatch-dlq",
-									"kody-webhook-dispatch-dlq",
-									"kody-scheduled-dispatch-dlq"
+									"k2-email-delivery-dlq",
+									"k2-artifacts-repo-events-dlq",
+									"k2-platform-feedback-dispatch-dlq",
+									"k2-community-activity-dispatch-dlq",
+									"k2-community-listing-published-dispatch-dlq",
+									"k2-package-events-dispatch-dlq",
+									"k2-webhook-dispatch-dlq",
+									"k2-scheduled-dispatch-dlq"
 								],
-								"description": "Production dead-letter queue name, for example kody-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name."
+								"description": "Production dead-letter queue name, for example k2-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name."
 							},
 							"confirm": {
 								"type": "string",
@@ -31126,7 +31126,7 @@ export const capabilityManifest = {
 						],
 						"additionalProperties": false
 					},
-					"inputTypeDefinition": "type AdminDeadLetterQueuePurgeInput = {\n\t/** Production dead-letter queue name, for example kody-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name. */\n\tqueue: \"kody-email-delivery-dlq\" | \"kody-artifacts-repo-events-dlq\" | \"kody-platform-feedback-dispatch-dlq\" | \"kody-community-activity-dispatch-dlq\" | \"kody-community-listing-published-dispatch-dlq\" | \"kody-package-events-dispatch-dlq\" | \"kody-webhook-dispatch-dlq\" | \"kody-scheduled-dispatch-dlq\"\n\t/** Must equal the queue name exactly. Guards against purging the wrong queue. */\n\tconfirm: string\n}",
+					"inputTypeDefinition": "type AdminDeadLetterQueuePurgeInput = {\n\t/** Production dead-letter queue name, for example k2-platform-feedback-dispatch-dlq. adminDeadLetterQueueList returns every name. */\n\tqueue: \"k2-email-delivery-dlq\" | \"k2-artifacts-repo-events-dlq\" | \"k2-platform-feedback-dispatch-dlq\" | \"k2-community-activity-dispatch-dlq\" | \"k2-community-listing-published-dispatch-dlq\" | \"k2-package-events-dispatch-dlq\" | \"k2-webhook-dispatch-dlq\" | \"k2-scheduled-dispatch-dlq\"\n\t/** Must equal the queue name exactly. Guards against purging the wrong queue. */\n\tconfirm: string\n}",
 					"outputTypeDefinition": "type AdminDeadLetterQueuePurgeOutput = {\n\tqueue: string\n\tpurged_count: number\n\tmessage_ids: Array<string>\n\t/** Parked messages still in the queue. Call purge again while > 0. */\n\tremaining_count: number\n\toutcome: \"purged\"\n}"
 				},
 				{

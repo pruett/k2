@@ -27,8 +27,8 @@ test('previewPullRequestNumber reads only names inside the preview naming scheme
 
 	for (const name of [
 		'kody',
-		'kody-platform',
-		'kody-production',
+		'k2-platform',
+		'k2-production',
 		'kody-pr-preview',
 		'kody-pr-',
 		'kody-pr-0',
@@ -71,7 +71,7 @@ test('previewBranchWorkerName reads the bare worker name from any branch-preview
 
 	for (const name of [
 		'kody',
-		'kody-platform',
+		'k2-platform',
 		'kody-pr-12',
 		'kody-pr-12-branch-x',
 		'other-branch-x',

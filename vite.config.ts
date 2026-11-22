@@ -110,9 +110,9 @@ export default defineConfig(async ({ command }) => {
 		}
 		// Jobs + highlight stay attached in the test env (Playwright e2e).
 		// Platform/runtime have no test env and stay skipped there. Pin the
-		// registered names so origin `service: "kody-jobs"` / `kody-highlight`
+		// registered names so origin `service: "k2-jobs"` / `k2-highlight`
 		// resolve under `--env production` (otherwise wrangler registers
-		// `kody-jobs-production`).
+		// `k2-jobs-production`).
 		const jobsDevConfigPath = await writeLocalAuxiliaryDevConfig({
 			configPath: 'packages/jobs-worker/wrangler.jsonc',
 			envName,

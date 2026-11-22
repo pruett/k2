@@ -445,16 +445,16 @@ test('dry-run ensure and delete make no Cloudflare requests', async () => {
 test('ensureExistingVectorizeMetadataIndexes adds only missing metadata indexes, reports them, and never creates or deletes the index', async () => {
 	consoleError.mockImplementation(() => {})
 	const api = fakeVectorizeApi()
-	api.indexes.set('kody-capabilities-prod', {
+	api.indexes.set('k2-capabilities-prod', {
 		config: { dimensions: 384, metric: 'cosine' },
 		metadataIndexes: ['kind'],
 	})
 	const first = await ensureExistingVectorizeMetadataIndexes({
 		...client(api.fetcher),
-		name: 'kody-capabilities-prod',
+		name: 'k2-capabilities-prod',
 	})
 	expect(first.created).toEqual(['userId', 'status', 'category', 'domain'])
-	expect(api.indexes.get('kody-capabilities-prod')?.metadataIndexes).toEqual([
+	expect(api.indexes.get('k2-capabilities-prod')?.metadataIndexes).toEqual([
 		'kind',
 		'userId',
 		'status',
@@ -465,11 +465,11 @@ test('ensureExistingVectorizeMetadataIndexes adds only missing metadata indexes,
 	api.requests.length = 0
 	const second = await ensureExistingVectorizeMetadataIndexes({
 		...client(api.fetcher),
-		name: 'kody-capabilities-prod',
+		name: 'k2-capabilities-prod',
 	})
 	expect(second.created).toEqual([])
 	expect(api.requests).toEqual([
-		'GET /kody-capabilities-prod/metadata_index/list',
+		'GET /k2-capabilities-prod/metadata_index/list',
 	])
 
 	api.requests.length = 0
@@ -489,7 +489,7 @@ test('ensureExistingVectorizeMetadataIndexes dry-run makes no Cloudflare request
 	const result = await ensureExistingVectorizeMetadataIndexes({
 		...client(api.fetcher),
 		dryRun: true,
-		name: 'kody-capabilities-prod',
+		name: 'k2-capabilities-prod',
 	})
 	expect(result.created).toEqual([])
 	expect(api.requests).toEqual([])

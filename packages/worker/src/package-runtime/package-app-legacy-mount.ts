@@ -57,7 +57,7 @@ export function buildLegacyPackageAppSubdomainMountLocation(input: {
  * user subdomain. Never throws. Skipped in local wrangler and when the binding
  * is absent.
  *
- * The `kody_package_app_legacy_events` dataset is bound on `kody-runtime`, the
+ * The `kody_package_app_legacy_events` dataset is bound on `k2-runtime`, the
  * Worker that serves package-app hosts. The removal window in #4119 counts
  * from the first recorded hit, not from a deploy: the dataset only exists once
  * a point is written.

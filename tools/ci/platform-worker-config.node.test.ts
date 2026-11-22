@@ -59,7 +59,7 @@ test('platform worker owns remaining classes and binds runtime DOs cross-script'
 		expect(byName(env, 'MCP_OBJECT')?.script_name).toBeUndefined()
 		expect(byName(env, 'STORAGE_RUNNER')).toMatchObject({
 			class_name: 'StorageRunner',
-			script_name: 'kody-runtime',
+			script_name: 'k2-runtime',
 		})
 		expect(env?.send_email).toEqual([{ name: 'EMAIL' }])
 		expect(env?.artifacts?.[0]).toMatchObject({
@@ -93,15 +93,15 @@ function buildMainGeneratedConfig(envName: string) {
 	const env = {
 		durable_objects: {
 			bindings: [
-				doBinding('MCP_OBJECT', 'MCP', 'kody-platform'),
-				doBinding('USER_METER', 'UserMeter', 'kody-platform'),
-				doBinding('STORAGE_RUNNER', 'StorageRunner', 'kody-runtime'),
+				doBinding('MCP_OBJECT', 'MCP', 'k2-platform'),
+				doBinding('USER_METER', 'UserMeter', 'k2-platform'),
+				doBinding('STORAGE_RUNNER', 'StorageRunner', 'k2-runtime'),
 			],
 		},
 		services: [
 			{
 				binding: 'RUNTIME_WORKER',
-				service: 'kody-runtime',
+				service: 'k2-runtime',
 				entrypoint: 'RuntimeWorkerService',
 			},
 			{ binding: 'JOBS', service: 'kody-pr-7-jobs', entrypoint: 'JobsService' },
@@ -304,14 +304,14 @@ test('generate rewrites worker names, copies resource ids, and writes a bootstra
 test('generate rewrites the production transfer from_script to the main worker name', async () => {
 	const { platform } = await generatePlatform({
 		envName: 'production',
-		workerPrefix: 'kody',
-		mainWorkerName: 'kody-production',
+		workerPrefix: 'k2',
+		mainWorkerName: 'k2-production',
 	})
-	expect(platform.env?.production?.name).toBe('kody-platform')
+	expect(platform.env?.production?.name).toBe('k2-platform')
 	expect(platform.migrations?.[0]?.tag).toBe('v1')
 	expect(
 		platform.migrations?.[0]?.transferred_classes?.every(
-			(entry) => entry.from_script === 'kody-production',
+			(entry) => entry.from_script === 'k2-production',
 		),
 	).toBe(true)
 })

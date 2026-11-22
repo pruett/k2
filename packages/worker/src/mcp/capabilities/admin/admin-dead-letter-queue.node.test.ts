@@ -49,8 +49,8 @@ vi.mock(import('@sentry/cloudflare'), async (importOriginal) => ({
 // These tests assert real `audit_events` rows.
 vi.unmock('#worker/audit-log.ts')
 
-const feedbackDlq = 'kody-platform-feedback-dispatch-dlq'
-const emailDlq = 'kody-email-delivery-dlq'
+const feedbackDlq = 'k2-platform-feedback-dispatch-dlq'
+const emailDlq = 'k2-email-delivery-dlq'
 const secretBody = {
 	feedbackId: 'feedback-fixture-1',
 	kind: 'fixture.event',
@@ -177,7 +177,7 @@ test('every production DLQ resolves, including preview-prefixed names', () => {
 	expect(
 		resolveDeadLetterQueue('kody-pr-42-platform-feedback-dispatch-dlq')?.name,
 	).toBe(feedbackDlq)
-	expect(resolveDeadLetterQueue('kody-platform-feedback-dispatch')).toBeNull()
+	expect(resolveDeadLetterQueue('k2-platform-feedback-dispatch')).toBeNull()
 })
 
 test('redacted metadata keeps shape and stable ids, never values or secrets', () => {
@@ -280,7 +280,7 @@ test('admins list depth, peek redacted metadata, replay, ack, and confirmed purg
 	expect(
 		list.queues.find((queue) => queue.queue === feedbackDlq),
 	).toMatchObject({
-		source_queue: 'kody-platform-feedback-dispatch',
+		source_queue: 'k2-platform-feedback-dispatch',
 		depth: 3,
 		parked_count: 3,
 		oldest_message_at: '2026-01-01T00:00:00.000Z',
@@ -300,7 +300,7 @@ test('admins list depth, peek redacted metadata, replay, ack, and confirmed purg
 	expect(firstPage.messages[0]).toMatchObject({
 		message_id: 'msg-fixture-a',
 		queue: feedbackDlq,
-		source_queue: 'kody-platform-feedback-dispatch',
+		source_queue: 'k2-platform-feedback-dispatch',
 		status: 'parked',
 		attempts: 4,
 		enqueued_at: '2026-01-01T00:00:00.000Z',
@@ -337,7 +337,7 @@ test('admins list depth, peek redacted metadata, replay, ack, and confirmed purg
 	).resolves.toEqual({
 		queue: feedbackDlq,
 		message_id: 'msg-fixture-a',
-		source_queue: 'kody-platform-feedback-dispatch',
+		source_queue: 'k2-platform-feedback-dispatch',
 		outcome: 'replayed',
 	})
 	expect(t.send).toHaveBeenCalledWith(secretBody, { contentType: 'json' })
@@ -347,7 +347,7 @@ test('admins list depth, peek redacted metadata, replay, ack, and confirmed purg
 			{ queue: emailDlq, message_id: 'msg-fixture-email' },
 			t.ctx,
 		),
-	).rejects.toThrow(/Replay is unsupported for queue=kody-email-delivery-dlq/)
+	).rejects.toThrow(/Replay is unsupported for queue=k2-email-delivery-dlq/)
 
 	await expect(
 		adminDeadLetterQueueAckCapability.handler(
@@ -396,13 +396,13 @@ test('admins list depth, peek redacted metadata, replay, ack, and confirmed purg
 		{
 			action: 'adminDeadLetterQueueReplay',
 			result: 'success',
-			reason: `queue=${feedbackDlq};message_id=msg-fixture-a;source_queue=kody-platform-feedback-dispatch;outcome=replayed`,
+			reason: `queue=${feedbackDlq};message_id=msg-fixture-a;source_queue=k2-platform-feedback-dispatch;outcome=replayed`,
 		},
 		{
 			action: 'adminDeadLetterQueueReplay',
 			result: 'failure',
 			reason: expect.stringContaining(
-				'Replay is unsupported for queue=kody-email-delivery-dlq;message_id=msg-fixture-email',
+				'Replay is unsupported for queue=k2-email-delivery-dlq;message_id=msg-fixture-email',
 			),
 		},
 		{
@@ -468,11 +468,9 @@ test('scheduled-dispatch DLQ replays through the jobs worker', async () => {
 	consoleInfo.mockImplementation(() => {})
 	const t = createHarness()
 	const body = { lane: 'fixture_lane', scheduledTime: 1, cron: '* * * * *' }
-	await t.park('kody-scheduled-dispatch-dlq', [
-		{ id: 'msg-fixture-lane', body },
-	])
+	await t.park('k2-scheduled-dispatch-dlq', [{ id: 'msg-fixture-lane', body }])
 	await adminDeadLetterQueueReplayCapability.handler(
-		{ queue: 'kody-scheduled-dispatch-dlq', message_id: 'msg-fixture-lane' },
+		{ queue: 'k2-scheduled-dispatch-dlq', message_id: 'msg-fixture-lane' },
 		t.ctx,
 	)
 	expect(t.replayScheduledDispatchMessage).toHaveBeenCalledWith({ body })
@@ -514,7 +512,7 @@ test('non-admins cannot list, peek, replay, ack, or purge dead-letter queues', a
 
 test('purge deletes a bounded oldest-first batch and reports what remains', async () => {
 	const t = createHarness()
-	const queue = 'kody-platform-feedback-dispatch-dlq'
+	const queue = 'k2-platform-feedback-dispatch-dlq'
 	await t.park(queue, [
 		{ id: 'msg-fixture-1', body: { feedbackId: 'feedback-fixture-1' } },
 		{ id: 'msg-fixture-2', body: { feedbackId: 'feedback-fixture-2' } },

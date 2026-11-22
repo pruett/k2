@@ -4,7 +4,7 @@ import { parse } from 'jsonc-parser'
 import { expect, test } from 'vitest'
 
 // The generated `Env` merges all three wrangler configs, so a runtime-reachable
-// read of a binding that only `kody` / `kody-platform` declare still
+// read of a binding that only `kody` / `k2-platform` declare still
 // type-checks. This test bundles the runtime Worker entry, collects `env.NAME`
 // reads, and fails when a name is neither declared in the runtime config nor
 // in the reviewed baseline (secrets, dev flags, and guarded optional reads).

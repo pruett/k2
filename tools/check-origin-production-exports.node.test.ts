@@ -10,7 +10,7 @@ const configPath = 'packages/worker/wrangler.jsonc'
 const platformMailbox = {
 	name: 'MAILBOX',
 	class_name: 'Mailbox',
-	script_name: 'kody-platform',
+	script_name: 'k2-platform',
 }
 
 type ConfigOverrides = {
@@ -144,7 +144,7 @@ test('the origin export guardrail accepts the dev/test/preview split and rejects
 					{
 						name: 'STORAGE_RUNNER',
 						class_name: 'StorageRunner',
-						script_name: 'kody-runtime',
+						script_name: 'k2-runtime',
 					},
 				],
 			},

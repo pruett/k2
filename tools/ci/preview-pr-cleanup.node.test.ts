@@ -73,8 +73,8 @@ test('listPreviewWorkerNames lists PR previews and live bare branch Workers only
 	expect(
 		listPreviewWorkerNames([
 			'kody',
-			'kody-production',
-			'kody-platform',
+			'k2-production',
+			'k2-platform',
 			'kody-pr-12-platform',
 			'kody-pr-3',
 			'kody-branch-live',
@@ -82,9 +82,9 @@ test('listPreviewWorkerNames lists PR previews and live bare branch Workers only
 			'kody-branch-orphan-runtime',
 			'kody-branch-live-mock-cloudflare',
 			'kody-branch-live-two',
-			'kody-api',
-			'kody-runtime',
-			'kody-nx-cache',
+			'k2-api',
+			'k2-runtime',
+			'k2-nx-cache',
 			'kody-backup-control-plane',
 			'kody-branch',
 			'kody-branch-',
@@ -108,16 +108,16 @@ test('production and other non-preview Workers never reach cleanup', async () =>
 	const { deps, cleaned } = createDeps({
 		scripts: [
 			'kody',
-			'kody-production',
-			'kody-api',
-			'kody-api-docs',
-			'kody-platform',
-			'kody-runtime',
-			'kody-jobs',
-			'kody-highlight',
-			'kody-push-queue',
-			'kody-nx-cache',
-			'kody-status',
+			'k2-production',
+			'k2-api',
+			'k2-api-docs',
+			'k2-platform',
+			'k2-runtime',
+			'k2-jobs',
+			'k2-highlight',
+			'k2-push-queue',
+			'k2-nx-cache',
+			'k2-status',
 			'kody-backup-control-plane',
 		],
 		pulls: {},
@@ -214,7 +214,7 @@ test('runPreviewPrCleanup deletes closed, merged, and no-PR previews and keeps o
 			'kody-branch-from-main',
 			'kody-branch-no-pr',
 			'kody-branch-no-commit',
-			'kody-production',
+			'k2-production',
 		],
 		pulls: {
 			1: { state: 'closed', merged_at: '2026-10-01T00:00:00Z' },
@@ -279,7 +279,7 @@ test('runPreviewPrCleanup deletes closed, merged, and no-PR previews and keeps o
 	expect(result.report).toContain(
 		'| `kody-branch-no-commit` | 2026-10-09 |  | no recorded deploy commit | kept (owner unknown) |',
 	)
-	expect(cleaned).not.toContain('kody-production')
+	expect(cleaned).not.toContain('k2-production')
 })
 
 test('dry run reports what it would delete through the dry-run cleanup', async () => {

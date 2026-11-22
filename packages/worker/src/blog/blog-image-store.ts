@@ -1,6 +1,6 @@
 /**
  * Weekly blog screenshots live in Cloudflare R2, not the git tree. The
- * `kody-community-assets` bucket (worker binding `COMMUNITY_ASSETS`) holds
+ * `k2-community-assets` bucket (worker binding `COMMUNITY_ASSETS`) holds
  * them under the `blog-images/` prefix, and the worker serves them at the
  * same origin-relative path a git-backed file would use:
  *

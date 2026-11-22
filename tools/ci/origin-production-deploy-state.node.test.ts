@@ -278,12 +278,12 @@ test('Cloudflare probe error classifiers match only 200 non-JSON and 404 failure
 	const cases: Array<[(error: unknown) => boolean, string, boolean]> = [
 		[
 			isCloudflareOkNonJsonError,
-			'Malformed Cloudflare response (200) for /workers/scripts/kody-runtime: --boundary',
+			'Malformed Cloudflare response (200) for /workers/scripts/k2-runtime: --boundary',
 			true,
 		],
 		[
 			isCloudflareOkNonJsonError,
-			'Malformed Cloudflare response (502) for /workers/scripts/kody-runtime: upstream',
+			'Malformed Cloudflare response (502) for /workers/scripts/k2-runtime: upstream',
 			false,
 		],
 		[
@@ -450,7 +450,7 @@ test('strip helpers keep transferred destination bindings and no-op without matc
 				workflows: [
 					{
 						binding: 'DYNAMIC_CALLABLE_WORKFLOWS',
-						name: 'kody-runtime-dynamic-callable-workflows',
+						name: 'k2-runtime-dynamic-callable-workflows',
 						class_name: 'DynamicCallableWorkflow',
 						script_name: productionRuntimeScriptName,
 					},

@@ -9,8 +9,8 @@ type JsonRecord = Record<string, unknown>
 /**
  * Builds a local-dev variant of a Vite auxiliary worker (jobs or highlight).
  * Wrangler registers each `--env` worker as `<name>-<env>`, so the committed
- * `kody-jobs` / `kody-highlight` configs resolve as `kody-jobs-production`
- * while origin still binds `service: "kody-jobs"`. Pin the registered name to
+ * `k2-jobs` / `k2-highlight` configs resolve as `k2-jobs-production`
+ * while origin still binds `service: "k2-jobs"`. Pin the registered name to
  * the committed worker name, localize Durable Object migrations, and point
  * HOST back at the origin's local name.
  */

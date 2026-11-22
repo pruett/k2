@@ -64,8 +64,8 @@ export type PreviewResourceKind =
  * `truncateWithSuffix` may shorten the base but keeps this shape). The
  * Artifacts namespace uses the bare worker name (`kody-pr-<n>` /
  * `kody-branch-<slug>`) with no suffix. Production names (`kody`,
- * `kody-platform`, `kody-runtime`, `kody-jobs`, `kody-audit`, `kody-oauth`,
- * `kody-webhook-dispatch`, ...) and the committed preview-env placeholder
+ * `k2-platform`, `k2-runtime`, `k2-jobs`, `k2-audit`, `kody-oauth`,
+ * `k2-webhook-dispatch`, ...) and the committed preview-env placeholder
  * names (`kody-preview*`) never carry a `-pr-<number>` or `-branch-<slug>`
  * segment.
  */

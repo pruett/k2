@@ -72,7 +72,7 @@ function loadOriginProductionQueueProducers(
 }
 
 /**
- * `kody-webhook-dispatch` on worker `kody-pr-42` becomes
+ * `k2-webhook-dispatch` on worker `kody-pr-42` becomes
  * `kody-pr-42-webhook-dispatch`. Names that would exceed 63 characters keep
  * the production suffix and a short hash of the full worker name so two long
  * branch slugs that share a prefix do not bind the same queue.
@@ -81,12 +81,14 @@ export function previewQueueName(
 	workerName: string,
 	productionQueueName: string,
 ) {
-	if (!productionQueueName.startsWith('kody-')) {
+	// k2: production queues are named k2-*; upstream kody-* still parses.
+	const prefix = /^(?:kody|k2)(?=-)/.exec(productionQueueName)?.[0]
+	if (!prefix) {
 		throw new Error(
-			`Production queue "${productionQueueName}" must start with "kody-" so preview names stay derived from it.`,
+			`Production queue "${productionQueueName}" must start with "kody-" or "k2-" so preview names stay derived from it.`,
 		)
 	}
-	const suffix = productionQueueName.slice('kody'.length)
+	const suffix = productionQueueName.slice(prefix.length)
 	const full = `${workerName}${suffix}`
 	if (full.length <= previewQueueNameMaxLength) return full
 	const digest = createHash('sha256').update(workerName).digest('hex')

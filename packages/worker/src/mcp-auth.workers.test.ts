@@ -506,7 +506,7 @@ test('mcp endpoint serves browser guidance without changing protocol auth challe
 
 test('protected resource metadata and auth challenge use the request origin over APP_BASE_URL', async () => {
 	// MCP clients require resource metadata to match the URL they connected to.
-	const requestOrigin = 'https://kody-production.kentcdodds.workers.dev'
+	const requestOrigin = 'https://k2-production.kentcdodds.workers.dev'
 	const envOverrides = { APP_BASE_URL: 'https://heykody.dev' }
 	expect(buildProtectedResourceMetadata(requestOrigin)).toEqual({
 		resource: `${requestOrigin}/mcp`,

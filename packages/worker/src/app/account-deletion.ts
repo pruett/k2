@@ -2024,7 +2024,7 @@ export async function deleteUserAccount(input: {
 	}
 
 	// Outside the provider's fetch wrapper (hourly unverified-account purge via
-	// `JobsHost.runScheduledLane`, admin MCP capability on kody-platform) this
+	// `JobsHost.runScheduledLane`, admin MCP capability on k2-platform) this
 	// builds the same helpers through the library's `getOAuthApi`.
 	const helpers: OAuthHelpersShape | undefined = await resolveOAuthHelpers(
 		input.env,

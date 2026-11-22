@@ -23,10 +23,10 @@ const deployArgs = [
 	'.wrangler/sentry-bundle',
 	'--upload-source-maps',
 	'--name',
-	'kody-production',
+	'k2-production',
 ]
 const unknownError10013 =
-	'✘ [ERROR] A request to the Cloudflare API (/accounts/a/workers/scripts/kody-production/deployments) failed.\n  An unknown error has occurred. [code: 10013]'
+	'✘ [ERROR] A request to the Cloudflare API (/accounts/a/workers/scripts/k2-production/deployments) failed.\n  An unknown error has occurred. [code: 10013]'
 
 function ok(output = ''): WranglerDeployRunResult {
 	return { status: 0, output, errorMessage: '' }
@@ -85,7 +85,7 @@ test('splitDeployArgs keeps every flag for upload and only target flags for depl
 		'--config',
 		'dist/server/wrangler.json',
 		'--name',
-		'kody-production',
+		'k2-production',
 		'--env',
 		'production',
 	])
@@ -117,7 +117,7 @@ test('parseUploadedVersionId prefers the wrangler output file, then the console 
 	expect(
 		parseUploadedVersionId(
 			'',
-			`Uploaded kody-production\nWorker Version ID: ${versionId}\n`,
+			`Uploaded k2-production\nWorker Version ID: ${versionId}\n`,
 		),
 	).toBe(versionId)
 	expect(parseUploadedVersionId('', 'nothing')).toBeNull()

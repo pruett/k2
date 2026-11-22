@@ -34,7 +34,7 @@ import { runWithDynamicWorkerEvaluationBudget } from '#worker/dynamic-worker-eva
 import { respondToRuntimeStorageUnavailable } from '#worker/runtime-worker-storage-unavailable.ts'
 
 /**
- * Package runtime Worker entrypoint (script `kody-runtime`, deployed from
+ * Package runtime Worker entrypoint (script `k2-runtime`, deployed from
  * `packages/runtime-worker/wrangler.jsonc`).
  *
  * Owns the untrusted-code execution lane extracted from the main `kody`

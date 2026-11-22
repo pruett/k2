@@ -129,7 +129,7 @@ test('parseBackupFullManifest accepts declared d1Sources and keeps historical pa
 		},
 		{
 			databaseId: '44444444-4444-4444-8444-444444444444',
-			databaseName: 'kody-jobs',
+			databaseName: 'k2-jobs',
 			manifestKey:
 				'daily/d1/44444444-4444-4444-8444-444444444444/2026-07-22/manifest.json',
 			manifestSha256: 'b'.repeat(64),

@@ -28,13 +28,13 @@ import {
 	webhookDispatchQueueName,
 } from '../../packages/worker/src/webhooks/dispatch-queue-names.ts'
 
-const emailDeliveryQueueName = 'kody-email-delivery'
-const emailDeliveryDeadLetterQueueName = 'kody-email-delivery-dlq'
+const emailDeliveryQueueName = 'k2-email-delivery'
+const emailDeliveryDeadLetterQueueName = 'k2-email-delivery-dlq'
 const expectedMaxBatchSize = 10
 const expectedMaxBatchTimeout = 5
 const expectedMaxRetries = 3
 const expectedSourceConsumerCount = 7
-const scheduledDispatchDeadLetterQueueName = 'kody-scheduled-dispatch-dlq'
+const scheduledDispatchDeadLetterQueueName = 'k2-scheduled-dispatch-dlq'
 /** packages/worker/src/dead-letter/consumer.ts deadLetterConsumerMaxRetries */
 const expectedDeadLetterConsumerMaxRetries = 100
 const expectedDeadLetterConsumerRetryDelay = 60

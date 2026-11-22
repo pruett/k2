@@ -135,7 +135,8 @@ export function resolveDeadLetterQueue(
 ): DeadLetterQueueDefinition | null {
 	for (const queue of deadLetterQueues) {
 		if (batchQueue === queue.name) return queue
-		const suffix = queue.name.slice('kody'.length)
+		// k2: production names are k2-<suffix>; strip the first label either way.
+		const suffix = queue.name.slice(queue.name.indexOf('-'))
 		if (suffix.startsWith('-') && batchQueue.endsWith(suffix)) return queue
 	}
 	return null

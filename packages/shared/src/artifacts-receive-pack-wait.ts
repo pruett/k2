@@ -6,7 +6,7 @@
  * an HTTP error body or in-band as HTTP 200 with a sideband fatal (band 3)
  * pkt-line. Kody's smart-HTTP proxy holds the client connection and retries
  * upstream instead of rejecting immediately. The isolate-local FIFO gate keeps
- * same-isolate waiters ordered; `RepoPushQueueV1` (kody-push-queue) provides
+ * same-isolate waiters ordered; `RepoPushQueueV1` (k2-push-queue) provides
  * global per-repo FIFO for flagged repos.
  */
 

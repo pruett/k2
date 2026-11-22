@@ -15,7 +15,7 @@ beforeAll(async () => {
 	await applyD1Migrations(testEnv.APP_DB, testEnv.TEST_MIGRATIONS)
 })
 
-// `kody-runtime` serves every `{username}.kody.run` request, so the legacy
+// `k2-runtime` serves every `{username}.kody.run` request, so the legacy
 // `/packages/{name}` counter must be written through its own binding.
 test('the runtime Worker records legacy /packages hits through PACKAGE_APP_LEGACY_EVENTS', async () => {
 	const writeDataPoint = vi.fn()

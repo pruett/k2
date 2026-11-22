@@ -3,9 +3,9 @@ import path from 'node:path'
 import { cloudflareApiRequest } from './resource-utils.ts'
 import { defaultDevEntryPath } from '../check-origin-production-exports.ts'
 
-export const productionOriginScriptName = 'kody-production'
-export const productionPlatformScriptName = 'kody-platform'
-export const productionRuntimeScriptName = 'kody-runtime'
+export const productionOriginScriptName = 'k2-production'
+export const productionPlatformScriptName = 'k2-platform'
+export const productionRuntimeScriptName = 'k2-runtime'
 
 export const platformOwnedClassNames = [
 	'MCP',
@@ -515,7 +515,7 @@ export function stripOriginCrossScriptClassBindings(
 					delete workflow.script_name
 					// Preview's first origin deploy uses a distinct workflow
 					// name for the same reason: workflows cannot transfer, and
-					// kody-runtime later claims kody-runtime-dynamic-callable-workflows.
+					// k2-runtime later claims k2-runtime-dynamic-callable-workflows.
 					workflow.name = productionOriginBootstrapWorkflowName
 				}
 			}

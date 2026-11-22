@@ -164,18 +164,18 @@ async function readCommittedResourceNames() {
 
 const derivedProductionNames = [
 	'kody',
-	'kody-platform',
-	'kody-runtime',
-	'kody-jobs',
+	'k2-platform',
+	'k2-runtime',
+	'k2-jobs',
 	'kody-db',
-	'kody-production',
-	'kody-production-backups',
-	'kody-production-d1-backups',
+	'k2-production',
+	'k2-production-backups',
+	'k2-production-d1-backups',
 	'kody-oauth',
 	'kody-bundle-artifacts',
 	'kody-email-delivery-events',
 	'kody-artifacts-lifecycle-events',
-	'kody-nx-cache',
+	'k2-nx-cache',
 ]
 
 const nonPreviewNames = [
@@ -230,12 +230,12 @@ test('assertPreviewResourceName rejects committed production names and names out
 	expect(committed).toEqual(
 		expect.arrayContaining([
 			'kody',
-			'kody-audit',
-			'kody-community-assets',
-			'kody-webhook-dispatch',
-			'kody-scheduled-dispatch',
+			'k2-audit',
+			'k2-community-assets',
+			'k2-webhook-dispatch',
+			'k2-scheduled-dispatch',
 			'kody-preview-jobs',
-			'kody-capabilities-prod',
+			'k2-capabilities-prod',
 			'kody-capabilities-preview',
 		]),
 	)
@@ -336,13 +336,14 @@ test('assertPreviewResourceName accepts every derived preview name kind, includi
 
 test('cleanup and each guarded delete refuse production names before any wrangler or REST call', async () => {
 	using cloudflare = stubCloudflare()
-	for (const workerName of ['kody', 'kody-platform', 'kody-runtime', '']) {
+	for (const workerName of ['kody', 'k2-platform', 'k2-runtime', '']) {
 		await expect(
 			cleanupPreviewResources({ workerName, dryRun: false }),
 		).rejects.toThrow('does not match the preview resource naming scheme')
 	}
 	await expect(
 		cleanupPreviewResources({ workerName: 'kody', dryRun: true }),
+		// k2: keep upstream name (preview name derived from worker "kody")
 	).rejects.toThrow('Refusing to delete worker "kody-api"')
 	expect(consoleError).not.toHaveBeenCalled()
 
@@ -353,16 +354,16 @@ test('cleanup and each guarded delete refuse production names before any wrangle
 	}
 	const refusals: Array<[() => Promise<unknown>, string]> = [
 		[
-			() => deletePreviewWorkerScript({ name: 'kody-platform', dryRun: false }),
-			'worker "kody-platform"',
+			() => deletePreviewWorkerScript({ name: 'k2-platform', dryRun: false }),
+			'worker "k2-platform"',
 		],
 		[
 			() => deletePreviewD1Database({ name: 'kody', dryRun: false }),
 			'd1 "kody"',
 		],
 		[
-			() => deletePreviewD1Database({ name: 'kody-audit', dryRun: false }),
-			'd1 "kody-audit"',
+			() => deletePreviewD1Database({ name: 'k2-audit', dryRun: false }),
+			'd1 "k2-audit"',
 		],
 		[
 			() => deletePreviewKvNamespace({ title: 'kody-oauth', dryRun: false }),
@@ -370,29 +371,28 @@ test('cleanup and each guarded delete refuse production names before any wrangle
 		],
 		[
 			() =>
-				deletePreviewR2Bucket({ name: 'kody-community-assets', dryRun: false }),
-			'r2 "kody-community-assets"',
+				deletePreviewR2Bucket({ name: 'k2-community-assets', dryRun: false }),
+			'r2 "k2-community-assets"',
 		],
 		[
-			() =>
-				deletePreviewQueue({ ...queueClient, name: 'kody-webhook-dispatch' }),
-			'queue "kody-webhook-dispatch"',
+			() => deletePreviewQueue({ ...queueClient, name: 'k2-webhook-dispatch' }),
+			'queue "k2-webhook-dispatch"',
 		],
 		[
 			() =>
 				removePreviewQueueConsumers({
 					...queueClient,
-					name: 'kody-email-delivery',
+					name: 'k2-email-delivery',
 				}),
-			'queue "kody-email-delivery"',
+			'queue "k2-email-delivery"',
 		],
 		[
 			() =>
 				deletePreviewVectorizeIndex({
 					...queueClient,
-					name: 'kody-capabilities-prod',
+					name: 'k2-capabilities-prod',
 				}),
-			'vectorize "kody-capabilities-prod"',
+			'vectorize "k2-capabilities-prod"',
 		],
 		[
 			() =>

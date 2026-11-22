@@ -174,7 +174,7 @@ test('secret bulk omits empty --env so --name pins the unsuffixed script', () =>
 			{
 				...baseOptions,
 				env: '',
-				name: 'kody-runtime',
+				name: 'k2-runtime',
 				config: 'packages/runtime-worker/wrangler-production.generated.json',
 			},
 			secretsFile,
@@ -184,7 +184,7 @@ test('secret bulk omits empty --env so --name pins the unsuffixed script', () =>
 		'bulk',
 		secretsFile,
 		'--name',
-		'kody-runtime',
+		'k2-runtime',
 		'--config',
 		'packages/runtime-worker/wrangler-production.generated.json',
 	])
@@ -212,7 +212,7 @@ test('secret bulk omits empty --env so --name pins the unsuffixed script', () =>
 test('versioned secrets stage bindings without deploying pending code', () => {
 	expect(
 		buildWranglerSecretBulkFlags(
-			{ ...baseOptions, versioned: true, env: '', name: 'kody-platform' },
+			{ ...baseOptions, versioned: true, env: '', name: 'k2-platform' },
 			'/tmp/secrets.env',
 		),
 	).toEqual([
@@ -221,7 +221,7 @@ test('versioned secrets stage bindings without deploying pending code', () => {
 		'bulk',
 		'/tmp/secrets.env',
 		'--name',
-		'kody-platform',
+		'k2-platform',
 	])
 
 	expect(
@@ -254,7 +254,7 @@ test('secret bulk detects Cloudflare 10215 undeployed-version refusals', () => {
 	).toBe(true)
 	expect(
 		isSecretBulkUndeployedVersionError(
-			'PATCH /accounts/acct/workers/scripts/kody-runtime/secrets-bulk -> 503 Service Unavailable',
+			'PATCH /accounts/acct/workers/scripts/k2-runtime/secrets-bulk -> 503 Service Unavailable',
 		),
 	).toBe(false)
 	expect(
@@ -290,13 +290,13 @@ test('secret bulk rejects --env with --name so it cannot target name-env', () =>
 				{
 					...baseOptions,
 					env: 'production',
-					name: 'kody-runtime',
+					name: 'k2-runtime',
 				},
 				'/tmp/wrangler-secrets.env',
 			),
 		).toThrow('process.exit called')
 		expect(consoleError).toHaveBeenCalledWith(
-			expect.stringContaining('kody-runtime-production'),
+			expect.stringContaining('k2-runtime-production'),
 		)
 	} finally {
 		exitSpy.mockRestore()
@@ -312,7 +312,7 @@ test('secret bulk retries a Cloudflare 503 then fails fast on real errors', asyn
 			'Received a malformed response from the API',
 			'',
 			'  upstream connect error or disconnect/reset before headers. reset reason: connection termination',
-			'  PATCH /accounts/acct/workers/scripts/kody-runtime/secrets-bulk -> 503 Service Unavailable',
+			'  PATCH /accounts/acct/workers/scripts/k2-runtime/secrets-bulk -> 503 Service Unavailable',
 		].join('\n'),
 	}
 	const upload = async (
@@ -367,7 +367,7 @@ test('secret bulk output includes stderr that arrives after exit', async () => {
 
 	proc.emit('exit', 1)
 	stderr.write(
-		'PATCH /accounts/acct/workers/scripts/kody-runtime/secrets-bulk -> 503 Service Unavailable\n',
+		'PATCH /accounts/acct/workers/scripts/k2-runtime/secrets-bulk -> 503 Service Unavailable\n',
 	)
 	stdout.end()
 	stderr.end()

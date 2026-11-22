@@ -13,7 +13,7 @@ function healthyDb() {
 
 test('jobs health reports liveness and treats JOBS_DB failure as components-down', async () => {
 	const liveness = await handleJobsHealthRequest(
-		new Request('https://kody-jobs.example/health'),
+		new Request('https://k2-jobs.example/health'),
 		{ APP_COMMIT_SHA: 'abc123def456' },
 	)
 	expect(liveness?.status).toBe(200)
@@ -33,7 +33,7 @@ test('jobs health reports liveness and treats JOBS_DB failure as components-down
 	])
 
 	const healthyResponse = await handleJobsHealthRequest(
-		new Request('https://kody-jobs.example/health/components'),
+		new Request('https://k2-jobs.example/health/components'),
 		{ APP_COMMIT_SHA: 'abc123def456', JOBS_DB: healthyDb() },
 	)
 	expect(healthyResponse?.status).toBe(200)
@@ -45,7 +45,7 @@ test('jobs health reports liveness and treats JOBS_DB failure as components-down
 
 	consoleWarn.mockImplementation(() => {})
 	const failedResponse = await handleJobsHealthRequest(
-		new Request('https://kody-jobs.example/health/components'),
+		new Request('https://k2-jobs.example/health/components'),
 		{
 			APP_COMMIT_SHA: 'abc123def456',
 			JOBS_DB: {
@@ -82,7 +82,7 @@ test('jobs health reports liveness and treats JOBS_DB failure as components-down
 
 	expect(
 		await handleJobsHealthRequest(
-			new Request('https://kody-jobs.example/other'),
+			new Request('https://k2-jobs.example/other'),
 			{ JOBS_DB: healthyDb() },
 		),
 	).toBeNull()

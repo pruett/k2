@@ -32,8 +32,8 @@ const queueList = () =>
 	jsonResponse(200, {
 		success: true,
 		result: [
-			{ queue_id: 'queue-other', queue_name: 'kody-email-delivery' },
-			{ queue_id: queueId, queue_name: 'kody-artifacts-repo-events' },
+			{ queue_id: 'queue-other', queue_name: 'k2-email-delivery' },
+			{ queue_id: queueId, queue_name: 'k2-artifacts-repo-events' },
 		],
 		result_info: { total_pages: 1 },
 	})

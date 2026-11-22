@@ -33,7 +33,7 @@ import {
 import { stripUntrustedWebhookSyntheticFields } from './synthetic.ts'
 
 const webhookDispatchRetryDelaySeconds = 30
-/** Matches `kody-webhook-dispatch` consumer `max_retries` in wrangler.jsonc. */
+/** Matches `k2-webhook-dispatch` consumer `max_retries` in wrangler.jsonc. */
 export const webhookDispatchMaxRetries = 10
 
 function resolveWebhookDispatchInvocation(

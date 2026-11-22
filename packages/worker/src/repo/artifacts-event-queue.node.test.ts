@@ -84,7 +84,7 @@ test('artifacts repo events queue acks terminal outcomes and retries unmatched c
 
 	await handleArtifactsRepoEventsQueue(
 		{
-			queue: 'kody-artifacts-repo-events',
+			queue: 'k2-artifacts-repo-events',
 			messages: [
 				dispatched,
 				ignored,

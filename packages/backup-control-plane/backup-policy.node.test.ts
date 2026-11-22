@@ -29,7 +29,7 @@ import {
 
 const JOBS_DATABASE_ID = '44444444-4444-4444-8444-444444444444'
 const APP_DB = { id: DATABASE_ID, name: 'production-db' }
-const JOBS_DB = { id: JOBS_DATABASE_ID, name: 'kody-jobs' }
+const JOBS_DB = { id: JOBS_DATABASE_ID, name: 'k2-jobs' }
 const APP_DB_LIVE = { uuid: DATABASE_ID, name: 'production-db' }
 
 function multiDatabaseEnv() {
@@ -154,7 +154,7 @@ test('exports a database-specific prefix for each SOURCE_DATABASES entry', () =>
 		),
 		JOBS_DB,
 	)
-	assert.deepEqual(resolveSourceDatabase(env, 'kody-jobs'), JOBS_DB)
+	assert.deepEqual(resolveSourceDatabase(env, 'k2-jobs'), JOBS_DB)
 	assert.deepEqual(
 		resolveSourceDatabase(env, JOBS_DATABASE_ID.toUpperCase()),
 		JOBS_DB,
@@ -198,7 +198,7 @@ test('SOURCE_DATABASES accepts optional restExport and defaults it to enabled', 
 	])
 	assert.deepEqual(
 		restExportSourceDatabases(env).map((source) => source.name),
-		['production-db', 'kody-jobs'],
+		['production-db', 'k2-jobs'],
 	)
 	env.SOURCE_DATABASES = JSON.stringify([
 		{ id: DATABASE_ID, name: 'production-db', restExport: 'nope' },
@@ -230,7 +230,7 @@ test('declaredSourceDatabases uses the sealed day list and notes absent configur
 	})
 	const declared = [
 		declare(DATABASE_ID, 'production-db', 'a'),
-		declare(JOBS_DATABASE_ID, 'kody-jobs', 'b'),
+		declare(JOBS_DATABASE_ID, 'k2-jobs', 'b'),
 	]
 	assert.deepEqual(declaredSourceDatabases(env, declared), [APP_DB, JOBS_DB])
 	assert.deepEqual(

@@ -2,7 +2,7 @@ import { parsePackageAppRequestHost } from '#worker/app-base-url.ts'
 import { isPackageAppRequestPath } from '#worker/package-runtime/package-app-serve.ts'
 
 /**
- * Requests owned by the package runtime Worker (`kody-runtime`): everything on
+ * Requests owned by the package runtime Worker (`k2-runtime`): everything on
  * the package-app origin (apex, per-user subdomains, and unrecognized labels
  * the wildcard still delivers) and inline package-app paths on the app origin.
  * When the main Worker has a `RUNTIME_WORKER` service binding it forwards these

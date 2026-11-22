@@ -124,7 +124,7 @@ test('rehearsals refuse PR previews, production, and non-preview names', () => {
 	for (const name of [
 		'kody',
 		'kody-pr-12',
-		'kody-platform',
+		'k2-platform',
 		'kody-branch-',
 		'x',
 	]) {

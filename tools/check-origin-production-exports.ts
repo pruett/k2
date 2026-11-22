@@ -234,7 +234,7 @@ export function checkOriginProductionExports(input: {
 		for (const binding of collectClassBindings(slimEnv)) {
 			if (!binding.script_name) {
 				errors.push(
-					`${input.configPath}: env.${envName} binds "${binding.class_name}" without a script_name, so the slim ${envName} origin would locally own this Durable Object/workflow class (ADR 0034 violation). Either add script_name (kody-platform or kody-runtime) or export the class from ${productionEntryPath}.`,
+					`${input.configPath}: env.${envName} binds "${binding.class_name}" without a script_name, so the slim ${envName} origin would locally own this Durable Object/workflow class (ADR 0034 violation). Either add script_name (k2-platform or k2-runtime) or export the class from ${productionEntryPath}.`,
 				)
 			}
 		}

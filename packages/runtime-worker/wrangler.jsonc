@@ -8,7 +8,7 @@
 	// packages/worker/src/runtime-worker.ts so the shared source tree,
 	// `#worker`/`#app` import maps, and the pre-bundled generated
 	// modules resolve identically to the main Worker.
-	"name": "kody-runtime",
+	"name": "k2-runtime",
 	// Birthday Week 2026-10-01: pending I/O keeps a DO from idle eviction for
 	// up to 15 minutes per operation (execute / StorageRunner / RunLog /
 	// PackageRealtimeSession). Date default on 2026-10-01; bump here for the
@@ -149,7 +149,7 @@
 				"traces": {
 					"enabled": true,
 					"head_sampling_rate": 0.1,
-					"destinations": ["sentry-otlp-traces"],
+					// k2: no Sentry OTLP destination in this account.
 				},
 			},
 			"worker_loaders": [
@@ -163,7 +163,7 @@
 			"workflows": [
 				{
 					"binding": "DYNAMIC_CALLABLE_WORKFLOWS",
-					"name": "kody-runtime-dynamic-callable-workflows",
+					"name": "k2-runtime-dynamic-callable-workflows",
 					"class_name": "DynamicCallableWorkflow",
 				},
 			],
@@ -186,27 +186,27 @@
 					{
 						"class_name": "UserMeter",
 						"name": "USER_METER",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "MCP",
 						"name": "MCP_OBJECT",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "McpClientHub",
 						"name": "MCP_CLIENT_HUB",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "Mailbox",
 						"name": "MAILBOX",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "RepoSession",
 						"name": "REPO_SESSION",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					// Catalog authority for repo_* capabilities. Package and
 					// workflow execution on this worker open/list/publish
@@ -214,19 +214,19 @@
 					{
 						"class_name": "RepoSessionIndex",
 						"name": "REPO_SESSION_INDEX",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "FileStore",
 						"name": "FILE_STORE",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					// Workflow steps with `execution` dispatch to the context's
 					// session DO, which the platform Worker owns (ADR 0086).
 					{
 						"class_name": "ExecutionContextSessionV1",
 						"name": "EXECUTION_CONTEXT_SESSION",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 				],
 			},
@@ -235,19 +235,19 @@
 			"services": [
 				{
 					"binding": "JOBS",
-					"service": "kody-jobs",
+					"service": "k2-jobs",
 					"entrypoint": "JobsService",
 				},
 			],
 			"d1_databases": [
 				{
 					"binding": "APP_DB",
-					"database_name": "kody",
+					"database_name": "k2",
 					"migrations_dir": "./../worker/migrations",
 				},
 				{
 					"binding": "AUDIT_DB",
-					"database_name": "kody-audit",
+					"database_name": "k2-audit",
 					"migrations_dir": "./../worker/audit-migrations",
 				},
 			],
@@ -262,49 +262,49 @@
 			"r2_buckets": [
 				{
 					"binding": "COMMUNITY_ASSETS",
-					"bucket_name": "kody-community-assets",
+					"bucket_name": "k2-community-assets",
 				},
 				// Capability execution on the runtime lane reads email
 				// attachments (email-attachment-get) from the shared blob store.
 				{
 					"binding": "EMAIL_BLOBS",
-					"bucket_name": "kody-email-blobs",
+					"bucket_name": "k2-email-blobs",
 				},
 				// Durable package check and publish runs store their full result
 				// (and read the staged check upload) under package-runs/.
 				{
 					"binding": "REPO_SESSION_BLOBS",
-					"bucket_name": "kody-repo-session-blobs",
+					"bucket_name": "k2-repo-session-blobs",
 				},
 			],
 			"queues": {
 				"producers": [
 					{
 						"binding": "PLATFORM_FEEDBACK_DISPATCH_QUEUE",
-						"queue": "kody-platform-feedback-dispatch",
+						"queue": "k2-platform-feedback-dispatch",
 					},
 					{
 						"binding": "COMMUNITY_ACTIVITY_DISPATCH_QUEUE",
-						"queue": "kody-community-activity-dispatch",
+						"queue": "k2-community-activity-dispatch",
 					},
 					{
 						"binding": "COMMUNITY_LISTING_PUBLISHED_DISPATCH_QUEUE",
-						"queue": "kody-community-listing-published-dispatch",
+						"queue": "k2-community-listing-published-dispatch",
 					},
 					{
 						"binding": "PACKAGE_EVENTS_DISPATCH_QUEUE",
-						"queue": "kody-package-events-dispatch",
+						"queue": "k2-package-events-dispatch",
 					},
 					{
 						"binding": "WEBHOOK_DISPATCH_QUEUE",
-						"queue": "kody-webhook-dispatch",
+						"queue": "k2-webhook-dispatch",
 					},
 				],
 			},
 			"vectorize": [
 				{
 					"binding": "CAPABILITY_VECTOR_INDEX",
-					"index_name": "kody-capabilities-prod",
+					"index_name": "k2-capabilities-prod",
 				},
 			],
 			"analytics_engine_datasets": [
@@ -347,7 +347,8 @@
 				"SENTRY_ENVIRONMENT": "production",
 				"SENTRY_TRACES_SAMPLE_RATE": 0,
 				"ARTIFACTS_NAMESPACE": "production",
-				"PACKAGE_APP_BASE_URL": "https://kody.run",
+				// k2: PACKAGE_APP_BASE_URL is inherited from packages/worker production
+				// vars (the package-app switch) by tools/ci/runtime-worker-config.ts.
 				// When https://{handle}.kody.run/{app}/ stops serving apps and
 				// only redirects to https://{app}--{handle}.kody.run/. Must match
 				// packages/worker/wrangler.jsonc and packageAppPathMountCutoverAt.
@@ -420,27 +421,27 @@
 					{
 						"class_name": "UserMeter",
 						"name": "USER_METER",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "MCP",
 						"name": "MCP_OBJECT",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "McpClientHub",
 						"name": "MCP_CLIENT_HUB",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "Mailbox",
 						"name": "MAILBOX",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "RepoSession",
 						"name": "REPO_SESSION",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					// Catalog authority for repo_* capabilities. Package and
 					// workflow execution on this worker open/list/publish
@@ -448,19 +449,19 @@
 					{
 						"class_name": "RepoSessionIndex",
 						"name": "REPO_SESSION_INDEX",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					{
 						"class_name": "FileStore",
 						"name": "FILE_STORE",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 					// Workflow steps with `execution` dispatch to the context's
 					// session DO, which the platform Worker owns (ADR 0086).
 					{
 						"class_name": "ExecutionContextSessionV1",
 						"name": "EXECUTION_CONTEXT_SESSION",
-						"script_name": "kody-platform",
+						"script_name": "k2-platform",
 					},
 				],
 			},
@@ -470,7 +471,7 @@
 			"services": [
 				{
 					"binding": "JOBS",
-					"service": "kody-jobs",
+					"service": "k2-jobs",
 					"entrypoint": "JobsService",
 				},
 			],

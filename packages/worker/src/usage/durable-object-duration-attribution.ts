@@ -6,7 +6,7 @@
  * `activeTime` (microseconds) in GraphQL `durableObjectsPeriodicGroups`.
  * Object ids are `idFromName` hashes, so this lane rebuilds the id for every
  * frozen per-user name it can enumerate and maps Cloudflare's rows back to
- * owners. Unmappable objects (MCP session DOs, JobManager on kody-jobs,
+ * owners. Unmappable objects (MCP session DOs, JobManager on k2-jobs,
  * discarded repo sessions, platform singletons) stay in the day's
  * unattributed total instead of being guessed.
  *

@@ -25,7 +25,7 @@ test('ensureD1Database retries transient creates and reconciles already-existing
 		.mockReturnValueOnce([])
 		.mockReturnValueOnce([])
 		.mockReturnValueOnce([])
-		.mockReturnValueOnce([{ uuid: 'database-uuid', name: 'kody-audit' }])
+		.mockReturnValueOnce([{ uuid: 'database-uuid', name: 'k2-audit' }])
 	const run = vi
 		.fn<typeof runWrangler>()
 		.mockReturnValueOnce({
@@ -44,7 +44,7 @@ test('ensureD1Database retries transient creates and reconciles already-existing
 	const delays: Array<number> = []
 	await expect(
 		ensureD1Database({
-			name: 'kody-audit',
+			name: 'k2-audit',
 			dryRun: false,
 			list,
 			run,
@@ -53,7 +53,7 @@ test('ensureD1Database retries transient creates and reconciles already-existing
 				delays.push(ms)
 			},
 		}),
-	).resolves.toEqual({ name: 'kody-audit', id: 'database-uuid' })
+	).resolves.toEqual({ name: 'k2-audit', id: 'database-uuid' })
 	expect(run).toHaveBeenCalledTimes(2)
 	expect(list).toHaveBeenCalledTimes(4)
 	expect(delays).toEqual([250, 1_000, 1_000])
@@ -72,7 +72,7 @@ test('ensureD1Database never guesses an ID when an existing database is not list
 	})
 	await expect(
 		ensureD1Database({
-			name: 'kody-audit',
+			name: 'k2-audit',
 			dryRun: false,
 			list,
 			run,
@@ -80,7 +80,7 @@ test('ensureD1Database never guesses an ID when an existing database is not list
 			sleep: async () => {},
 		}),
 	).rejects.toThrow(
-		'D1 database "kody-audit" already exists but could not be found via list after 3 attempts',
+		'D1 database "k2-audit" already exists but could not be found via list after 3 attempts',
 	)
 	expect(list).toHaveBeenCalledTimes(4)
 })
@@ -105,7 +105,7 @@ test('ensureR2Bucket retries Cloudflare API flakes and accepts an already-create
 	const delays: Array<number> = []
 	await expect(
 		ensureR2Bucket({
-			name: 'kody-email-blobs',
+			name: 'k2-email-blobs',
 			dryRun: false,
 			run,
 			sleep: async (ms) => {
@@ -113,7 +113,7 @@ test('ensureR2Bucket retries Cloudflare API flakes and accepts an already-create
 			},
 			maxAttempts: 3,
 		}),
-	).resolves.toEqual({ name: 'kody-email-blobs' })
+	).resolves.toEqual({ name: 'k2-email-blobs' })
 	expect(run).toHaveBeenCalledTimes(2)
 	expect(delays).toEqual([250])
 })

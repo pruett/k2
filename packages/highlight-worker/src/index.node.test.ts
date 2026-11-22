@@ -33,7 +33,7 @@ function highlightRequest(url: string, snippets: Array<unknown>) {
 
 test('highlight worker refuses /highlight on public hostnames but keeps /health', async () => {
 	const publicResponse = await handler.fetch(
-		highlightRequest('https://kody-highlight.example.workers.dev/highlight', [
+		highlightRequest('https://k2-highlight.example.workers.dev/highlight', [
 			{ code: 'const x = 1', lang: 'ts' },
 		]),
 		{},
@@ -41,7 +41,7 @@ test('highlight worker refuses /highlight on public hostnames but keeps /health'
 	expect(publicResponse.status).toBe(404)
 
 	const health = await handler.fetch(
-		new Request('https://kody-highlight.example.workers.dev/health'),
+		new Request('https://k2-highlight.example.workers.dev/health'),
 		{ APP_COMMIT_SHA: 'abc' },
 	)
 	expect(health.status).toBe(200)

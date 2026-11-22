@@ -1,6 +1,6 @@
 {
 	"$schema": "../../node_modules/wrangler/config-schema.json",
-	"name": "kody-nx-cache",
+	"name": "k2-nx-cache",
 	"main": "./worker.ts",
 	"compatibility_date": "2026-07-22",
 	"compatibility_flags": ["nodejs_compat"],
@@ -18,14 +18,14 @@
 	// and GitHub Actions share one URL without a workers.dev account slug.
 	"routes": [
 		{
-			"pattern": "nx-cache.kody.codes",
+			"pattern": "k2-nx-cache.pruett.in",
 			"custom_domain": true,
 		},
 	],
 	"r2_buckets": [
 		{
 			"binding": "CACHE_BUCKET",
-			"bucket_name": "kody-nx-cache",
+			"bucket_name": "k2-nx-cache",
 		},
 	],
 	"vars": {

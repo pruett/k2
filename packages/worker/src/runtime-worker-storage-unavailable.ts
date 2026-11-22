@@ -9,7 +9,7 @@ import { reportInfraHiccup } from '#worker/infra-hiccup-sentry.ts'
 const retryAfterSeconds = '5'
 
 /**
- * Runs a `kody-runtime` request and answers a D1 storage blip (overload,
+ * Runs a `k2-runtime` request and answers a D1 storage blip (overload,
  * lock, export, network drop) with a retryable 503 instead of an uncaught
  * exception, which Cloudflare renders as a 1101 page through the origin
  * forward. Every other error still throws.

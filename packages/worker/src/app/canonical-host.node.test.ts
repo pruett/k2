@@ -12,16 +12,16 @@ const productionEnv = {
 }
 
 const workersDevHome = new Request(
-	'https://kody-production.kody-a99.workers.dev/',
+	'https://k2-production.kody-a99.workers.dev/',
 )
 const workersDevHealth = new Request(
-	'https://kody-production.kody-a99.workers.dev/health',
+	'https://k2-production.kody-a99.workers.dev/health',
 )
 const workersDevPlatformHealth = new Request(
-	'https://kody-platform.kody-a99.workers.dev/__platform/health',
+	'https://k2-platform.kody-a99.workers.dev/__platform/health',
 )
 const workersDevRuntimeHealth = new Request(
-	'https://kody-runtime.kody-a99.workers.dev/__runtime/health',
+	'https://k2-runtime.kody-a99.workers.dev/__runtime/health',
 )
 
 async function expectNotFound(response: Response | null) {
@@ -78,7 +78,7 @@ test('production refuses workers.dev except health probes, and accepts product h
 	)
 	await expectNotFound(
 		refuseNonCanonicalProductionHost({
-			request: new Request('https://kody-production.kody-a99.workers.dev/mcp'),
+			request: new Request('https://k2-production.kody-a99.workers.dev/mcp'),
 			env: productionEnv,
 			allowedHealthPath: '/health',
 		}),
@@ -86,7 +86,7 @@ test('production refuses workers.dev except health probes, and accepts product h
 	await expectNotFound(
 		refuseNonCanonicalProductionHost({
 			request: new Request(
-				'https://kody-production.kody-a99.workers.dev/health/components',
+				'https://k2-production.kody-a99.workers.dev/health/components',
 			),
 			env: productionEnv,
 			allowedHealthPath: '/health',

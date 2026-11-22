@@ -10,22 +10,22 @@ export const deployTokenEnvName = 'CLOUDFLARE_API_TOKEN'
  */
 export const workerTokenPermissions = {
 	CLOUDFLARE_APP_API_TOKEN:
-		'kody-production + kody-platform: Account Email Sending Edit, Artifacts Edit, Account Analytics Read, Queues Edit',
+		'k2-production + k2-platform: Account Email Sending Edit, Artifacts Edit, Account Analytics Read, Queues Edit',
 	CLOUDFLARE_RUNTIME_API_TOKEN:
-		'kody-runtime: Account Email Sending Edit, Artifacts Edit',
-	CLOUDFLARE_STATUS_API_TOKEN: 'kody-status: Account Email Sending Edit',
+		'k2-runtime: Account Email Sending Edit, Artifacts Edit',
+	CLOUDFLARE_STATUS_API_TOKEN: 'k2-status: Account Email Sending Edit',
 } as const
 
 /**
  * Tokens that must not block deploy. `CLOUDFLARE_CUSTOM_HOSTNAMES_API_TOKEN`
  * is Zone SSL and Certificates Edit on the package-app SaaS zone. It is
- * uploaded only when present (`--set-from-env-optional` on kody-production,
- * kody-platform, and kody-runtime). Keep it out of
+ * uploaded only when present (`--set-from-env-optional` on k2-production,
+ * k2-platform, and k2-runtime). Keep it out of
  * {@link workerTokenPermissions} so the required-token check does not fail.
  */
 export const optionalWorkerTokenPermissions = {
 	CLOUDFLARE_CUSTOM_HOSTNAMES_API_TOKEN:
-		'kody-production and kody-platform package-app zone: Zone SSL and Certificates Edit (Cloudflare for SaaS custom hostnames). Runtime serves verified hosts from D1 and does not call the SaaS API.',
+		'k2-production and k2-platform package-app zone: Zone SSL and Certificates Edit (Cloudflare for SaaS custom hostnames). Runtime serves verified hosts from D1 and does not call the SaaS API.',
 } as const
 
 export type WorkerTokenEnvName = keyof typeof workerTokenPermissions

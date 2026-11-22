@@ -58,16 +58,16 @@ function buildMainGeneratedConfig(envName: string) {
 	const env = {
 		durable_objects: {
 			bindings: [
-				doBinding('USER_METER', 'UserMeter', 'kody-platform'),
-				doBinding('MCP_OBJECT', 'MCP', 'kody-platform'),
-				doBinding('STORAGE_RUNNER', 'StorageRunner', 'kody-runtime'),
-				doBinding('RUN_LOG', 'RunLog', 'kody-runtime'),
+				doBinding('USER_METER', 'UserMeter', 'k2-platform'),
+				doBinding('MCP_OBJECT', 'MCP', 'k2-platform'),
+				doBinding('STORAGE_RUNNER', 'StorageRunner', 'k2-runtime'),
+				doBinding('RUN_LOG', 'RunLog', 'k2-runtime'),
 			],
 		},
 		services: [
 			{
 				binding: 'RUNTIME_WORKER',
-				service: 'kody-runtime',
+				service: 'k2-runtime',
 				entrypoint: 'RuntimeWorkerService',
 			},
 			{ binding: 'JOBS', service: 'kody-pr-7-jobs', entrypoint: 'JobsService' },
@@ -75,9 +75,9 @@ function buildMainGeneratedConfig(envName: string) {
 		workflows: [
 			{
 				binding: 'DYNAMIC_CALLABLE_WORKFLOWS',
-				name: 'kody-runtime-dynamic-callable-workflows',
+				name: 'k2-runtime-dynamic-callable-workflows',
 				class_name: 'DynamicCallableWorkflow',
-				script_name: 'kody-runtime',
+				script_name: 'k2-runtime',
 			},
 		],
 		d1_databases: [
@@ -316,20 +316,20 @@ const packageAppRoutes = [
 test('generate publishes the package-app custom domain for production', async () => {
 	const { runtime } = await generateRuntime({
 		envName: 'production',
-		workerPrefix: 'kody',
+		workerPrefix: 'k2',
 		mainWorkerName: 'kody',
 	})
 	// Package-app hosts are zone routes, never custom domains: a custom
 	// domain in a zone whose route table the deploy also publishes gets
 	// detached (deleting its DNS record) when the routes are replaced.
 	expect(runtime.env?.production?.routes).toEqual(packageAppRoutes)
-	expect(runtime.env?.production?.name).toBe('kody-runtime')
+	expect(runtime.env?.production?.name).toBe('k2-runtime')
 	expect(runtime.env?.production?.workers_dev).toBe(true)
 	expect(
 		byName(runtime.env?.production, 'EXECUTION_CONTEXT_SESSION'),
 	).toMatchObject({
 		class_name: 'ExecutionContextSessionV1',
-		script_name: 'kody-platform',
+		script_name: 'k2-platform',
 	})
 	// The storage transfer migration survives generation untouched.
 	expect(runtime.migrations?.[0]?.tag).toBe('v1')
@@ -401,7 +401,7 @@ test('the runtime Worker binds Artifacts and package run staging in every env', 
 })
 
 test('only the runtime Worker binds the legacy package-app mount counter', async () => {
-	// `kody-runtime` owns the package-app host routes, so the legacy
+	// `k2-runtime` owns the package-app host routes, so the legacy
 	// `/packages/{name}` counter (#4119) is written there and nowhere else.
 	type AnalyticsConfig = {
 		env?: Record<

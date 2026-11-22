@@ -6,7 +6,7 @@ import { buildCliClientIdMetadataDocument } from '#worker/cli-client-metadata.ts
 import { isLoopbackHostname } from '#worker/repo/artifacts.ts'
 
 /**
- * Local `npm run dev` / `control-kody dev` has no `kody-api` edge worker, so
+ * Local `npm run dev` / `control-kody dev` has no `k2-api` edge worker, so
  * the origin itself answers `/v1/*` and `/openapi.json` on loopback hosts.
  * Production and previews never set `WRANGLER_IS_LOCAL_DEV`, and their
  * app origin keeps answering these paths with a 404.
@@ -25,7 +25,7 @@ export function isLocalDevApiRequest(env: Env, url: URL) {
 	return isLocalDevRequest(env, url) && localApiPathPattern.test(url.pathname)
 }
 
-/** Same allowlist as the `kody-api` edge: cookies never reach the API. */
+/** Same allowlist as the `k2-api` edge: cookies never reach the API. */
 const forwardedHeaderNames = [
 	'Authorization',
 	ecpSignatureHeader,

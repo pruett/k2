@@ -35,7 +35,7 @@ test('origins follow the preview worker naming', () => {
 		mockCloudflare:
 			'https://kody-branch-teams-rehearsal-mock-cloudflare.kody-a99.workers.dev',
 	})
-	expect(() => rehearsalOrigins('kody-production', 'kody-a99')).toThrow(
+	expect(() => rehearsalOrigins('k2-production', 'kody-a99')).toThrow(
 		'rehearsals run only on branch previews',
 	)
 })

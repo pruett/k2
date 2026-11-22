@@ -7,7 +7,7 @@
 	// the shared source tree, `#worker`/`#app` import maps, and the
 	// pre-bundled generated modules resolve identically to the
 	// origin Worker.
-	"name": "kody-platform",
+	"name": "k2-platform",
 	// Birthday Week 2026-10-01: pending I/O (service bindings, DO RPC/fetch,
 	// waitUntil, timers, container.monitor()) keeps a DO from idle eviction
 	// for up to 15 minutes per operation with no connected client. Date
@@ -175,7 +175,7 @@
 				"traces": {
 					"enabled": true,
 					"head_sampling_rate": 0.02,
-					"destinations": ["sentry-otlp-traces"],
+					// k2: no Sentry OTLP destination in this account.
 				},
 			},
 			"worker_loaders": [
@@ -189,9 +189,9 @@
 			"workflows": [
 				{
 					"binding": "DYNAMIC_CALLABLE_WORKFLOWS",
-					"name": "kody-runtime-dynamic-callable-workflows",
+					"name": "k2-runtime-dynamic-callable-workflows",
 					"class_name": "DynamicCallableWorkflow",
-					"script_name": "kody-runtime",
+					"script_name": "k2-runtime",
 				},
 			],
 			"durable_objects": {
@@ -242,36 +242,36 @@
 					{
 						"class_name": "StorageRunner",
 						"name": "STORAGE_RUNNER",
-						"script_name": "kody-runtime",
+						"script_name": "k2-runtime",
 					},
 					{
 						"class_name": "RunLog",
 						"name": "RUN_LOG",
-						"script_name": "kody-runtime",
+						"script_name": "k2-runtime",
 					},
 					{
 						"class_name": "PackageRealtimeSession",
 						"name": "PACKAGE_REALTIME_SESSION",
-						"script_name": "kody-runtime",
+						"script_name": "k2-runtime",
 					},
 				],
 			},
 			"services": [
 				{
 					"binding": "JOBS",
-					"service": "kody-jobs",
+					"service": "k2-jobs",
 					"entrypoint": "JobsService",
 				},
 			],
 			"d1_databases": [
 				{
 					"binding": "APP_DB",
-					"database_name": "kody",
+					"database_name": "k2",
 					"migrations_dir": "./../worker/migrations",
 				},
 				{
 					"binding": "AUDIT_DB",
-					"database_name": "kody-audit",
+					"database_name": "k2-audit",
 					"migrations_dir": "./../worker/audit-migrations",
 				},
 			],
@@ -286,53 +286,53 @@
 			"r2_buckets": [
 				{
 					"binding": "COMMUNITY_ASSETS",
-					"bucket_name": "kody-community-assets",
+					"bucket_name": "k2-community-assets",
 				},
 				{
 					"binding": "EMAIL_BLOBS",
-					"bucket_name": "kody-email-blobs",
+					"bucket_name": "k2-email-blobs",
 				},
 				{
 					"binding": "REPO_SESSION_BLOBS",
-					"bucket_name": "kody-repo-session-blobs",
+					"bucket_name": "k2-repo-session-blobs",
 				},
 				{
 					"binding": "FILE_BLOBS",
-					"bucket_name": "kody-file-blobs",
+					"bucket_name": "k2-file-blobs",
 				},
 				{
 					"binding": "OPERATOR_BACKUPS",
-					"bucket_name": "kody-operator-backups",
+					"bucket_name": "k2-operator-backups",
 				},
 			],
 			"queues": {
 				"producers": [
 					{
 						"binding": "PLATFORM_FEEDBACK_DISPATCH_QUEUE",
-						"queue": "kody-platform-feedback-dispatch",
+						"queue": "k2-platform-feedback-dispatch",
 					},
 					{
 						"binding": "COMMUNITY_ACTIVITY_DISPATCH_QUEUE",
-						"queue": "kody-community-activity-dispatch",
+						"queue": "k2-community-activity-dispatch",
 					},
 					{
 						"binding": "COMMUNITY_LISTING_PUBLISHED_DISPATCH_QUEUE",
-						"queue": "kody-community-listing-published-dispatch",
+						"queue": "k2-community-listing-published-dispatch",
 					},
 					{
 						"binding": "PACKAGE_EVENTS_DISPATCH_QUEUE",
-						"queue": "kody-package-events-dispatch",
+						"queue": "k2-package-events-dispatch",
 					},
 					{
 						"binding": "WEBHOOK_DISPATCH_QUEUE",
-						"queue": "kody-webhook-dispatch",
+						"queue": "k2-webhook-dispatch",
 					},
 				],
 			},
 			"vectorize": [
 				{
 					"binding": "CAPABILITY_VECTOR_INDEX",
-					"index_name": "kody-capabilities-prod",
+					"index_name": "k2-capabilities-prod",
 				},
 			],
 			"analytics_engine_datasets": [
@@ -438,7 +438,7 @@
 					"binding": "DYNAMIC_CALLABLE_WORKFLOWS",
 					"name": "kody-runtime-preview-dynamic-callable-workflows",
 					"class_name": "DynamicCallableWorkflow",
-					"script_name": "kody-runtime",
+					"script_name": "k2-runtime",
 				},
 			],
 			"durable_objects": {
@@ -487,24 +487,24 @@
 					{
 						"class_name": "StorageRunner",
 						"name": "STORAGE_RUNNER",
-						"script_name": "kody-runtime",
+						"script_name": "k2-runtime",
 					},
 					{
 						"class_name": "RunLog",
 						"name": "RUN_LOG",
-						"script_name": "kody-runtime",
+						"script_name": "k2-runtime",
 					},
 					{
 						"class_name": "PackageRealtimeSession",
 						"name": "PACKAGE_REALTIME_SESSION",
-						"script_name": "kody-runtime",
+						"script_name": "k2-runtime",
 					},
 				],
 			},
 			"services": [
 				{
 					"binding": "JOBS",
-					"service": "kody-jobs",
+					"service": "k2-jobs",
 					"entrypoint": "JobsService",
 				},
 			],

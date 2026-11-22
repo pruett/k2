@@ -462,7 +462,7 @@ export async function createD1DrillTarget(input: {
 }
 
 export function migrationsDirectoryForDatabase(databaseName: string): string {
-	return databaseName === 'kody-jobs'
+	return databaseName === 'k2-jobs'
 		? jobsMigrationsDirectory
 		: applicationMigrationsDirectory
 }

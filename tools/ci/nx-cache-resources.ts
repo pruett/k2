@@ -1,7 +1,7 @@
 import { isExecutedDirectly } from '../node-runtime.ts'
 import { ensureR2Bucket, ensureR2BucketLifecycle } from './resource-utils.ts'
 
-export const NX_CACHE_R2_BUCKET_NAME = 'kody-nx-cache'
+export const NX_CACHE_R2_BUCKET_NAME = 'k2-nx-cache'
 export const NX_CACHE_OBJECT_PREFIX = 'v1/'
 export const NX_CACHE_LIFECYCLE_RULE_ID = 'expire-nx-cache-after-14-days'
 export const NX_CACHE_OBJECT_RETENTION_DAYS = 14

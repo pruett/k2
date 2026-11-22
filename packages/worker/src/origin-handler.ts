@@ -336,7 +336,7 @@ const appHandler = withCors({
 
 		if (url.pathname === '/__maintenance/execute-smoke') {
 			// Origin-only: proves this script's ctx.exports.KodyFetchGateway.
-			// MCP execute looks up the gateway on kody-platform.
+			// MCP execute looks up the gateway on k2-platform.
 			return handleExecuteSmokeRequest(request, env)
 		}
 
@@ -937,7 +937,7 @@ async function fetchWithDynamicWorkerBudget(
 		if (!customHostname) return nonCanonicalHost
 		// Custom hosts are not in the sync runtime-ownership predicate (D1).
 		// When the binding exists, forward wholesale so handoff HMAC and
-		// package serve stay on kody-runtime.
+		// package serve stay on k2-runtime.
 		if (env.RUNTIME_WORKER) {
 			return forwardRuntimeWorkerFetch(env.RUNTIME_WORKER, request)
 		}
@@ -946,7 +946,7 @@ async function fetchWithDynamicWorkerBudget(
 	// Package runtime lane extraction (ADR 0016): when the runtime Worker
 	// service binding is configured, runtime-owned requests (package-app
 	// origin, inline package apps, package invocation API) are forwarded
-	// wholesale to the `kody-runtime` Worker. Without the binding (tests,
+	// wholesale to the `k2-runtime` Worker. Without the binding (tests,
 	// single-worker local dev) the in-process handlers below keep serving.
 	if (env.RUNTIME_WORKER && isRuntimeWorkerOwnedRequest(request, env)) {
 		// Sentry instruments Fetcher.fetch and rebuilds Requests, dropping the

@@ -24,7 +24,7 @@ vi.mock(
 	async (importOriginal) => ({
 		...(await importOriginal()),
 		communityActivityDispatchQueueName:
-			'kody-community-activity-dispatch' as const,
+			'k2-community-activity-dispatch' as const,
 	}),
 )
 
@@ -38,7 +38,7 @@ vi.mock(
 	async (importOriginal) => ({
 		...(await importOriginal()),
 		communityListingPublishedDispatchQueueName:
-			'kody-community-listing-published-dispatch' as const,
+			'k2-community-listing-published-dispatch' as const,
 	}),
 )
 
@@ -47,12 +47,12 @@ vi.mock('#worker/dead-letter/consumer.ts', () => ({
 }))
 
 vi.mock('#worker/email/delivery-queue.ts', () => ({
-	emailDeliveryQueueName: 'kody-email-delivery',
+	emailDeliveryQueueName: 'k2-email-delivery',
 	handleEmailDeliveryQueue: mocks.handleEmailDeliveryQueue,
 }))
 
 vi.mock('#worker/repo/artifacts-event-queue.ts', () => ({
-	artifactsRepoEventsQueueName: 'kody-artifacts-repo-events',
+	artifactsRepoEventsQueueName: 'k2-artifacts-repo-events',
 	handleArtifactsRepoEventsQueue: mocks.handleArtifactsRepoEventsQueue,
 }))
 
@@ -67,7 +67,7 @@ vi.mock('#worker/platform-feedback/dispatch-queue.ts', () => ({
 
 vi.mock('#worker/webhooks/dispatch-queue.ts', () => ({
 	handleWebhookDispatchQueue: mocks.handleWebhookDispatchQueue,
-	webhookDispatchQueueName: 'kody-webhook-dispatch',
+	webhookDispatchQueueName: 'k2-webhook-dispatch',
 }))
 
 const { handleQueueBatch } = await import('./queue-handler.ts')
@@ -86,20 +86,20 @@ test('worker queue routing isolates known queues and retries unknown queues', as
 	const env = {} as Env
 	const ctx = {} as ExecutionContext
 	const routes: Array<[string, ReturnType<typeof vi.fn>, boolean]> = [
-		['kody-email-delivery', mocks.handleEmailDeliveryQueue, true],
-		['kody-artifacts-repo-events', mocks.handleArtifactsRepoEventsQueue, true],
+		['k2-email-delivery', mocks.handleEmailDeliveryQueue, true],
+		['k2-artifacts-repo-events', mocks.handleArtifactsRepoEventsQueue, true],
 		[
-			'kody-platform-feedback-dispatch',
+			'k2-platform-feedback-dispatch',
 			mocks.handlePlatformFeedbackDispatchQueue,
 			true,
 		],
 		[
-			'kody-community-activity-dispatch',
+			'k2-community-activity-dispatch',
 			mocks.handleCommunityActivityDispatchQueue,
 			true,
 		],
 		[
-			'kody-community-listing-published-dispatch',
+			'k2-community-listing-published-dispatch',
 			mocks.handleCommunityListingPublishedDispatchQueue,
 			true,
 		],
@@ -147,8 +147,8 @@ test('worker queue routing isolates known queues and retries unknown queues', as
 		deadLetterBatch,
 		env,
 		expect.objectContaining({
-			name: 'kody-platform-feedback-dispatch-dlq',
-			sourceQueue: 'kody-platform-feedback-dispatch',
+			name: 'k2-platform-feedback-dispatch-dlq',
+			sourceQueue: 'k2-platform-feedback-dispatch',
 		}),
 	)
 })

@@ -16,7 +16,7 @@ const executeSmokeProviders = [
 /**
  * Origin `/__maintenance/execute-smoke` proves this script's
  * `ctx.exports.KodyFetchGateway` only. MCP `execute` looks up the gateway on
- * `kody-platform` (the script that owns the `MCP` Durable Object). A passing
+ * `k2-platform` (the script that owns the `MCP` Durable Object). A passing
  * origin smoke is not MCP execute health.
  */
 export const executeSmokeScope = 'origin-only' as const

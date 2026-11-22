@@ -314,7 +314,7 @@ function combineFirstPackage(
 /**
  * `OAUTH_PROVIDER` is injected only inside the provider's `fetch` wrapper on
  * origin. The `waitingSummary` capability and search-tool waiting hints also
- * run in the sessionful `MCP` Durable Object on kody-platform, where
+ * run in the sessionful `MCP` Durable Object on k2-platform, where
  * `resolveOAuthHelpers` builds the same helpers through the library.
  */
 async function userHasMcpOAuthGrants(env: WaitingEnv, stableUserId: OwnerId) {

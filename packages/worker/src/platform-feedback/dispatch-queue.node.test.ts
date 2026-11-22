@@ -44,7 +44,7 @@ function createQueueMessage(id: string, body: unknown) {
 
 function createBatch(messages: Array<ReturnType<typeof createQueueMessage>>) {
 	return {
-		queue: 'kody-platform-feedback-dispatch',
+		queue: 'k2-platform-feedback-dispatch',
 		messages,
 		ackAll: vi.fn(),
 		retryAll: vi.fn(),
