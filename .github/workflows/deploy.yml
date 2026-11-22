@@ -832,7 +832,8 @@ jobs:
             --worker-name k2-platform \
             --runtime-worker-name k2-runtime \
             --main-worker-name k2-production \
-            --out-config packages/platform-worker/wrangler-production.generated.json | tee -a "$GITHUB_OUTPUT"
+            --out-config packages/platform-worker/wrangler-production.generated.json \
+            --out-platform-bootstrap-config packages/platform-worker/wrangler-production-bootstrap.generated.json | tee -a "$GITHUB_OUTPUT"
 
       # Read-only: compare each Worker's newest version with its active
       # deployment. A mismatch (an uploaded-but-undeployed version) is what
@@ -897,8 +898,8 @@ jobs:
             ${{ secrets.CLOUDFLARE_CUSTOM_HOSTNAMES_API_TOKEN }}
           PACKAGE_APP_TICKET_KEYS: ${{ secrets.PACKAGE_APP_TICKET_KEYS }}
         run: >
-          node tools/ci/sync-worker-secrets.ts --env production --config
-          "$WRANGLER_CONFIG" --set-from-env COOKIE_SECRET
+          node tools/ci/sync-worker-secrets.ts --env "" --name k2-production
+          --config "$WRANGLER_CONFIG" --set-from-env COOKIE_SECRET
           --set-from-env-optional SECRET_STORE_KEY --set-from-env-optional
           AI_GATEWAY_ID --set-from-env-optional SENTRY_DSN --set-from-env
           CLOUDFLARE_API_TOKEN=CLOUDFLARE_APP_API_TOKEN --set-from-env-optional
@@ -1083,6 +1084,35 @@ jobs:
             sleep "$deploy_delay_seconds"
             deploy_delay_seconds=$((deploy_delay_seconds * 2))
           done
+
+      # k2 fresh account: platform and runtime bind each other's Durable
+      # Objects, and Cloudflare rejects a binding to a class the other script
+      # does not export yet (10061). Upload platform without its runtime
+      # references, then runtime; the full platform and runtime deploys below
+      # restore every binding. preview.yml uses the same order.
+      - name:
+          ☁️ Bootstrap platform worker (fresh account, no runtime references)
+        if: steps.resources.outputs.origin_deploy_mode == 'fresh'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          DEPLOY_COMMIT_SHA: ${{ needs.sha-guard.outputs.deploy_sha }}
+          WRANGLER_CONFIG:
+            ${{ steps.platform_config.outputs.platform_bootstrap_wrangler_config
+            }}
+        run: |
+          set -euo pipefail
+          npm run deploy -- --name k2-platform --config "$WRANGLER_CONFIG" --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}"
+
+      - name: ☁️ Bootstrap runtime worker (fresh account)
+        if: steps.resources.outputs.origin_deploy_mode == 'fresh'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          DEPLOY_COMMIT_SHA: ${{ needs.sha-guard.outputs.deploy_sha }}
+          WRANGLER_CONFIG:
+            ${{ steps.runtime_config.outputs.runtime_wrangler_config }}
+        run: |
+          set -euo pipefail
+          npm run deploy -- --name k2-runtime --config "$WRANGLER_CONFIG" --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}"
 
       # Deploys before runtime and origin so cross-script Durable Object
       # bindings stay valid. See

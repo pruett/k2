@@ -134,6 +134,11 @@ origin_secret_flags=(
 	--set-from-env TURNSTILE_SITE_KEY --set-from-env TURNSTILE_SECRET_KEY
 )
 
+runtime_owns_classes() {
+	cf_api "/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/durable_objects/namespaces?per_page=1000" |
+		node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.exit(JSON.parse(s).result.some(n=>n.script==="k2-runtime"&&n.class==="StorageRunner")?0:1))'
+}
+
 step_origin() {
 	[ -f packages/worker/.env ] || cp packages/worker/.env.example packages/worker/.env
 	log "origin: ensure production resources"
@@ -153,10 +158,13 @@ step_origin() {
 	node tools/ci/platform-worker-config.ts generate --env production \
 		--main-config packages/worker/wrangler-production.generated.json \
 		--worker-name k2-platform --runtime-worker-name k2-runtime --main-worker-name k2-production \
-		--out-config packages/platform-worker/wrangler-production.generated.json
+		--out-config packages/platform-worker/wrangler-production.generated.json \
+		--out-platform-bootstrap-config packages/platform-worker/wrangler-production-bootstrap.generated.json
 
 	log "secrets: origin, runtime, platform"
-	node tools/ci/sync-worker-secrets.ts --env production --config "$config" "${origin_secret_flags[@]}"
+	# --env "" with --name: secret bulk suffixes -<env> onto the config's base
+	# name (kody), which would write to a kody-production script.
+	node tools/ci/sync-worker-secrets.ts --env "" --name k2-production --config "$config" "${origin_secret_flags[@]}"
 	node tools/ci/sync-worker-secrets.ts --env "" --name k2-runtime \
 		--config packages/runtime-worker/wrangler-production.generated.json \
 		--set-from-env COOKIE_SECRET --set-from-env SECRET_STORE_KEY \
@@ -173,6 +181,20 @@ step_origin() {
 	if [ "$mode" = fresh ]; then
 		log "bootstrap fresh origin (full entry)"
 		CLOUDFLARE_ENV=production retry npm run deploy -- --name k2-production --config "$bootstrap" \
+			--var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA"
+	fi
+	# Platform and runtime bind each other's Durable Objects; Cloudflare rejects
+	# a binding to a class the runtime script does not export yet (10061). Until
+	# k2-runtime owns StorageRunner, upload platform without runtime references
+	# first (preview.yml does the same), then runtime, then the full platform.
+	if ! runtime_owns_classes; then
+		log "platform worker bootstrap (no runtime references)"
+		retry npm run deploy -- --name k2-platform \
+			--config packages/platform-worker/wrangler-production-bootstrap.generated.json \
+			--var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA"
+		log "runtime worker"
+		retry npm run deploy -- --name k2-runtime \
+			--config packages/runtime-worker/wrangler-production.generated.json \
 			--var "APP_COMMIT_SHA:$DEPLOY_COMMIT_SHA"
 	fi
 	log "platform worker"
