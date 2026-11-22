@@ -53,7 +53,7 @@ export function SiteFooter(props: SiteFooterProps) {
 					<SiteLink href="/blog">Blog</SiteLink>
 					<SiteLink href="/newsletter">Newsletter</SiteLink>
 					<SiteLink
-						href="https://github.com/kody-hq/kody"
+						href="https://github.com/pruett/k2"
 						target="_blank"
 						rel="noreferrer noopener"
 					>
