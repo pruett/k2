@@ -10,6 +10,12 @@
 #
 # Every step is safe to rerun: resource ensures are idempotent, secret sync is
 # a bulk upsert, and wrangler deploys converge to the checked-out commit.
+#
+# Warning: the Vite build writes .wrangler/deploy/config.json, a redirect that
+# makes any ad-hoc `wrangler deploy` run anywhere under this repo deploy
+# dist/server/wrangler.json (the origin, with the k2.pruett.in custom domain)
+# under whatever --name you pass. Deploy ad-hoc Workers from a directory
+# outside the repo with an explicit --config, and --dry-run first.
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
@@ -136,19 +142,15 @@ origin_secret_flags=(
 	--set-from-env TURNSTILE_SITE_KEY --set-from-env TURNSTILE_SECRET_KEY
 )
 
-runtime_owns_classes() {
-	cf_api "/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/durable_objects/namespaces?per_page=1000" |
-		node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.exit(JSON.parse(s).result.some(n=>n.script==="k2-runtime"&&n.class==="StorageRunner")?0:1))'
-}
-
 step_origin() {
 	[ -f packages/worker/.env ] || cp packages/worker/.env.example packages/worker/.env
 	log "origin: ensure production resources"
 	node tools/ci/production-resources.ts ensure \
 		--out-config packages/worker/wrangler-production.generated.json --resource-title-base k2 | tee "$STATE_DIR/origin.out"
-	local config mode bootstrap
+	local config mode bootstrap platform_runtime_bootstrap
 	config="$(output_of "$STATE_DIR/origin.out" wrangler_config)"
 	mode="$(output_of "$STATE_DIR/origin.out" origin_deploy_mode)"
+	platform_runtime_bootstrap="$(output_of "$STATE_DIR/origin.out" platform_runtime_bootstrap)"
 	bootstrap="$(optional_output_of "$STATE_DIR/origin.out" origin_bootstrap_wrangler_config)"
 	echo "origin_deploy_mode=$mode"
 
@@ -187,9 +189,11 @@ step_origin() {
 	fi
 	# Platform and runtime bind each other's Durable Objects; Cloudflare rejects
 	# a binding to a class the runtime script does not export yet (10061). Until
-	# k2-runtime owns StorageRunner, upload platform without runtime references
+	# k2-runtime owns its classes, upload platform without runtime references
 	# first (preview.yml does the same), then runtime, then the full platform.
-	if ! runtime_owns_classes; then
+	# The decision comes from the shared classifier, the same output deploy.yml
+	# gates on (tools/ci/origin-production-deploy-state.ts).
+	if [ "$platform_runtime_bootstrap" = true ]; then
 		log "platform worker bootstrap (no runtime references)"
 		retry npm run deploy -- --name k2-platform \
 			--config packages/platform-worker/wrangler-production-bootstrap.generated.json \

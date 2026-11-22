@@ -69,6 +69,19 @@ export type OriginProductionScriptState = {
 	mode: OriginProductionDeployMode
 	reason: string
 	originOwnedTransferredClassNames: ReadonlyArray<string>
+	/**
+	 * k2-runtime does not own its classes yet, so the platform must first be
+	 * uploaded without runtime references, then runtime (Cloudflare 10061
+	 * otherwise). The one decision deploy.yml and tools/k2/deploy.sh share.
+	 */
+	platformRuntimeBootstrap: boolean
+	/**
+	 * A first deploy interrupted after the platform bootstrap: platform owns
+	 * all its classes, origin still owns every runtime class, runtime owns
+	 * none. The bootstrap completes the transfer in the same run, so origin
+	 * can upload the slim entry instead of replaying its bootstrap.
+	 */
+	resumesRuntimeTransfer: boolean
 }
 
 export type OriginProductionDeployPlan = {
@@ -76,6 +89,7 @@ export type OriginProductionDeployPlan = {
 	originEntry: 'full' | 'slim'
 	runOriginBootstrap: boolean
 	forcePlatformAndRuntime: boolean
+	platformRuntimeBootstrap: boolean
 	reason: string
 }
 
@@ -103,6 +117,7 @@ export function planOriginProductionDeploy(
 			originEntry: 'slim',
 			runOriginBootstrap: true,
 			forcePlatformAndRuntime: true,
+			platformRuntimeBootstrap: state.platformRuntimeBootstrap,
 			reason: state.reason,
 		}
 	}
@@ -112,15 +127,19 @@ export function planOriginProductionDeploy(
 			originEntry: 'slim',
 			runOriginBootstrap: false,
 			forcePlatformAndRuntime: false,
+			platformRuntimeBootstrap: false,
 			reason: state.reason,
 		}
 	}
 	return {
 		mode: 'ambiguous',
-		originEntry: 'full',
+		originEntry: state.resumesRuntimeTransfer ? 'slim' : 'full',
 		runOriginBootstrap: false,
-		forcePlatformAndRuntime: false,
-		reason: state.reason,
+		forcePlatformAndRuntime: state.platformRuntimeBootstrap,
+		platformRuntimeBootstrap: state.platformRuntimeBootstrap,
+		reason: state.resumesRuntimeTransfer
+			? `${state.reason} Platform owns its classes and origin still owns every runtime class: resume with platform bootstrap, runtime, then the slim origin.`
+			: state.reason,
 	}
 }
 
@@ -200,7 +219,13 @@ function scriptState(
 	reason: string,
 	originOwnedTransferredClassNames: ReadonlyArray<string> = [],
 ): OriginProductionScriptState {
-	return { mode, reason, originOwnedTransferredClassNames }
+	return {
+		mode,
+		reason,
+		originOwnedTransferredClassNames,
+		platformRuntimeBootstrap: false,
+		resumesRuntimeTransfer: false,
+	}
 }
 
 /**
@@ -209,13 +234,76 @@ function scriptState(
  * `null` means the probe failed or was skipped (dry-run). That is never
  * treated as fresh or steady — both of those require positive evidence.
  */
-export function classifyOriginProductionScriptState(input: {
+type OriginFleetProbe = {
 	originScriptExists: boolean | null
 	platformScriptExists?: boolean | null
 	runtimeScriptExists?: boolean | null
 	namespaces: ReadonlyArray<DurableObjectNamespaceOwnership> | null
 	scriptNames?: OriginFleetScriptNames
-}): OriginProductionScriptState {
+}
+
+export function classifyOriginProductionScriptState(
+	input: OriginFleetProbe,
+): OriginProductionScriptState {
+	const ownership = classifyOriginOwnership(input)
+	return {
+		...ownership,
+		...classifyPlatformRuntimeBootstrap(input, ownership.mode),
+	}
+}
+
+/**
+ * Runtime class ownership decides the platform/runtime bootstrap, so a resumed
+ * first deploy takes the same path whatever the origin mode is. The runtime
+ * bootstrap transfers its classes from origin, so it runs only when origin
+ * owns them all, or on a fresh fleet (origin bootstrap creates them first).
+ * Anything else, including an unknown origin probe or a missing namespace
+ * listing outside a fresh fleet, does not bootstrap (fail closed).
+ */
+function classifyPlatformRuntimeBootstrap(
+	input: OriginFleetProbe,
+	mode: OriginProductionDeployMode,
+) {
+	const none = {
+		platformRuntimeBootstrap: false,
+		resumesRuntimeTransfer: false,
+	}
+	if (input.originScriptExists === null) return none
+	if (!input.namespaces) {
+		return { ...none, platformRuntimeBootstrap: mode === 'fresh' }
+	}
+	const scriptNames = input.scriptNames ?? productionFleetScriptNames
+	const namespaces = input.namespaces
+	const runtimeOwned = classesOnScript(namespaces, scriptNames.runtime)
+	const originOwned = classesOnScript(namespaces, scriptNames.origin)
+	const runtimeOwnsAll = runtimeOwnedClassNames.every((className) =>
+		runtimeOwned.has(className),
+	)
+	const originOwnsAllRuntime = runtimeOwnedClassNames.every((className) =>
+		originOwned.has(className),
+	)
+	return {
+		platformRuntimeBootstrap:
+			!runtimeOwnsAll && (mode === 'fresh' || originOwnsAllRuntime),
+		resumesRuntimeTransfer:
+			mode === 'ambiguous' &&
+			input.originScriptExists === true &&
+			originOwnsAllRuntime &&
+			everyClassOnScript(
+				namespaces,
+				scriptNames.platform,
+				platformOwnedClassNames,
+			) &&
+			!platformOwnedClassNames.some((className) =>
+				originOwned.has(className),
+			) &&
+			!runtimeOwnedClassNames.some((className) => runtimeOwned.has(className)),
+	}
+}
+
+function classifyOriginOwnership(
+	input: OriginFleetProbe,
+): OriginProductionScriptState {
 	const scriptNames = input.scriptNames ?? productionFleetScriptNames
 	if (input.originScriptExists === null) {
 		return scriptState(

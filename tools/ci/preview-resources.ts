@@ -676,6 +676,8 @@ async function ensurePreviewResources(options: CliOptions) {
 					mode: 'fresh',
 					reason: 'Dry run; plan as a fresh preview fleet.',
 					originOwnedTransferredClassNames: [],
+					platformRuntimeBootstrap: false,
+					resumesRuntimeTransfer: false,
 				}
 			: await inspectOriginProductionScriptState({
 					accountId,

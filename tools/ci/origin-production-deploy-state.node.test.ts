@@ -518,3 +518,87 @@ test('origin bootstrap omits native platform classes instead of creating stray o
 		{ name: 'MCP_OBJECT', class_name: 'MCP' },
 	])
 })
+
+test('runtime class ownership alone decides the platform/runtime bootstrap, including a resumed first deploy', () => {
+	const origin = productionOriginScriptName
+	const platform = productionPlatformScriptName
+	const runtime = productionRuntimeScriptName
+	const plan = (
+		originScriptExists: boolean | null,
+		namespaces: Array<DurableObjectNamespaceOwnership> | null,
+		runtimeScriptExists?: boolean,
+	) => {
+		const state = classifyOriginProductionScriptState({
+			originScriptExists,
+			namespaces,
+			runtimeScriptExists,
+		})
+		return { state, plan: planOriginProductionDeploy(state) }
+	}
+
+	// review-m3: first deploy interrupted after the platform bootstrap. The
+	// platform took its classes, origin still owns the runtime classes, and
+	// the runtime script (a secrets-only placeholder at most) owns none.
+	const interrupted = plan(true, [
+		...platformOn(platform),
+		...runtimeOn(origin),
+	])
+	expect(interrupted.state).toMatchObject({
+		mode: 'ambiguous',
+		platformRuntimeBootstrap: true,
+		resumesRuntimeTransfer: true,
+	})
+	expect(interrupted.plan).toMatchObject({
+		originEntry: 'slim',
+		runOriginBootstrap: false,
+		forcePlatformAndRuntime: true,
+		platformRuntimeBootstrap: true,
+	})
+
+	// Fresh fleets bootstrap; a completed transfer does not.
+	expect(plan(false, []).plan.platformRuntimeBootstrap).toBe(true)
+	expect(
+		plan(true, [...platformOn(origin), ...runtimeOn(origin)]).plan,
+	).toMatchObject({ mode: 'fresh', platformRuntimeBootstrap: true })
+	expect(
+		plan(true, [...platformOn(platform), ...runtimeOn(runtime)]).plan,
+	).toMatchObject({ mode: 'steady', platformRuntimeBootstrap: false })
+
+	// Partially transferred platform: still bootstrap runtime, but never slim
+	// the origin, since the transfer cannot be completed in one pass.
+	const partial = plan(true, [ownership(platform, 'MCP'), ...runtimeOn(origin)])
+	expect(partial.state.resumesRuntimeTransfer).toBe(false)
+	expect(partial.plan).toMatchObject({
+		mode: 'ambiguous',
+		originEntry: 'full',
+		platformRuntimeBootstrap: true,
+	})
+
+	// Runtime already owns its classes while origin still owns a platform
+	// class: no bootstrap (it would replay nothing useful).
+	expect(
+		plan(true, [...runtimeOn(runtime), ownership(origin, 'Mailbox')]).plan
+			.platformRuntimeBootstrap,
+	).toBe(false)
+
+	// The runtime bootstrap transfers from origin: without origin owning the
+	// runtime classes (and outside a fresh fleet) it must not run.
+	expect(
+		plan(false, [ownership(platform, 'MCP')]).plan.platformRuntimeBootstrap,
+	).toBe(false)
+
+	// Fail closed on an unknown origin probe; without a namespace listing only
+	// a fresh fleet (every script missing) bootstraps.
+	expect(plan(null, []).plan.platformRuntimeBootstrap).toBe(false)
+	expect(plan(true, null, false).plan.platformRuntimeBootstrap).toBe(false)
+	const missingFleet = classifyOriginProductionScriptState({
+		originScriptExists: false,
+		platformScriptExists: false,
+		runtimeScriptExists: false,
+		namespaces: null,
+	})
+	expect(missingFleet).toMatchObject({
+		mode: 'fresh',
+		platformRuntimeBootstrap: true,
+	})
+})

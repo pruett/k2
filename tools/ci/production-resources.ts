@@ -925,6 +925,8 @@ async function ensureProductionResources(options: CliOptions) {
 					reason:
 						'Dry-run or missing Cloudflare credentials; keep the full origin entry and do not bootstrap transfers.',
 					originOwnedTransferredClassNames: [],
+					platformRuntimeBootstrap: false,
+					resumesRuntimeTransfer: false,
 				}
 			: await inspectOriginProductionScriptState({
 					accountId,
@@ -1032,6 +1034,9 @@ async function ensureProductionResources(options: CliOptions) {
 	)
 	console.log(
 		`origin_force_platform_runtime=${deployPlan.forcePlatformAndRuntime ? 'true' : 'false'}`,
+	)
+	console.log(
+		`platform_runtime_bootstrap=${deployPlan.platformRuntimeBootstrap ? 'true' : 'false'}`,
 	)
 	if (bootstrapConfigPath) {
 		console.log(`origin_bootstrap_wrangler_config=${bootstrapConfigPath}`)

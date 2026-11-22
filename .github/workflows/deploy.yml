@@ -805,7 +805,8 @@ jobs:
         if: >-
           needs.sha-guard.outputs.deploy_runtime == 'true' ||
           needs.sha-guard.outputs.deploy_platform == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         run: |
           set -euo pipefail
           node tools/ci/runtime-worker-config.ts generate \
@@ -823,7 +824,8 @@ jobs:
         id: platform_config
         if: >-
           needs.sha-guard.outputs.deploy_platform == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         run: |
           set -euo pipefail
           node tools/ci/platform-worker-config.ts generate \
@@ -939,7 +941,8 @@ jobs:
       - name: 🔐 Sync Cloudflare Secrets to runtime worker (bulk)
         if: >-
           needs.sha-guard.outputs.deploy_runtime == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_RUNTIME_API_TOKEN:
@@ -965,7 +968,8 @@ jobs:
       - name: 🔐 Sync Cloudflare Secrets to platform worker (bulk)
         if: >-
           needs.sha-guard.outputs.deploy_platform == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         env:
           # A fresh account has no Worker version for versions secret bulk to patch.
           PLATFORM_SECRET_MODE:
@@ -1085,14 +1089,19 @@ jobs:
             deploy_delay_seconds=$((deploy_delay_seconds * 2))
           done
 
-      # k2 fresh account: platform and runtime bind each other's Durable
-      # Objects, and Cloudflare rejects a binding to a class the other script
-      # does not export yet (10061). Upload platform without its runtime
-      # references, then runtime; the full platform and runtime deploys below
-      # restore every binding. preview.yml uses the same order.
+      # k2: platform and runtime bind each other's Durable Objects, and
+      # Cloudflare rejects a binding to a class the other script does not
+      # export yet (10061). Whenever k2-runtime does not own its classes (a
+      # fresh account, or a first deploy interrupted after the platform
+      # bootstrap), upload platform without its runtime references, then
+      # runtime; the full platform and runtime deploys below restore every
+      # binding. platform_runtime_bootstrap comes from the shared classifier
+      # (tools/ci/origin-production-deploy-state.ts), which tools/k2/deploy.sh
+      # reads too. preview.yml uses the same order.
       - name:
-          ☁️ Bootstrap platform worker (fresh account, no runtime references)
-        if: steps.resources.outputs.origin_deploy_mode == 'fresh'
+          ☁️ Bootstrap platform worker (runtime owns no classes yet; no runtime
+          references)
+        if: steps.resources.outputs.platform_runtime_bootstrap == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           DEPLOY_COMMIT_SHA: ${{ needs.sha-guard.outputs.deploy_sha }}
@@ -1103,8 +1112,8 @@ jobs:
           set -euo pipefail
           npm run deploy -- --name k2-platform --config "$WRANGLER_CONFIG" --var "APP_COMMIT_SHA:${DEPLOY_COMMIT_SHA}"
 
-      - name: ☁️ Bootstrap runtime worker (fresh account)
-        if: steps.resources.outputs.origin_deploy_mode == 'fresh'
+      - name: ☁️ Bootstrap runtime worker (runtime owns no classes yet)
+        if: steps.resources.outputs.platform_runtime_bootstrap == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           DEPLOY_COMMIT_SHA: ${{ needs.sha-guard.outputs.deploy_sha }}
@@ -1121,7 +1130,8 @@ jobs:
         id: deploy_platform
         if: >-
           needs.sha-guard.outputs.deploy_platform == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           DEPLOY_COMMIT_SHA: ${{ needs.sha-guard.outputs.deploy_sha }}
@@ -1185,7 +1195,8 @@ jobs:
         id: deploy_runtime
         if: >-
           needs.sha-guard.outputs.deploy_runtime == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           DEPLOY_COMMIT_SHA: ${{ needs.sha-guard.outputs.deploy_sha }}
@@ -1246,7 +1257,8 @@ jobs:
         id: deploy_info
         if: >-
           needs.sha-guard.outputs.deploy_main == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         env:
           DEPLOY_COMMIT_SHA: ${{ needs.sha-guard.outputs.deploy_sha }}
           DEPLOY_ENVIRONMENT: production
@@ -1260,7 +1272,8 @@ jobs:
         id: retained_assets
         if: >-
           needs.sha-guard.outputs.deploy_main == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         uses: actions/github-script@v8
         with:
           script: |
@@ -1300,7 +1313,8 @@ jobs:
         id: deploy
         if: >-
           needs.sha-guard.outputs.deploy_main == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ENV: production
@@ -1417,7 +1431,8 @@ jobs:
       - name: 🩺 Healthcheck (production)
         if: >-
           needs.sha-guard.outputs.deploy_main == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         shell: bash
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
@@ -1462,7 +1477,8 @@ jobs:
       - name: 🩺 Healthcheck platform worker (production)
         if: >-
           needs.sha-guard.outputs.deploy_platform == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         shell: bash
         env:
           PLATFORM_URL: ${{ steps.deploy_platform.outputs.url }}
@@ -1507,7 +1523,8 @@ jobs:
       - name: 🩺 Healthcheck runtime worker (production)
         if: >-
           needs.sha-guard.outputs.deploy_runtime == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         shell: bash
         env:
           RUNTIME_URL: ${{ steps.deploy_runtime.outputs.url }}
@@ -1552,7 +1569,8 @@ jobs:
       - name: 🧪 Origin-only execute smoke check (production)
         if: >-
           needs.sha-guard.outputs.deploy_main == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         shell: bash
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
@@ -1598,7 +1616,8 @@ jobs:
       - name: 🌍 Multi-region healthcheck (production)
         if: >-
           needs.sha-guard.outputs.deploy_main == 'true' ||
-          steps.resources.outputs.origin_deploy_mode == 'fresh'
+          steps.resources.outputs.origin_deploy_mode == 'fresh' ||
+          steps.resources.outputs.platform_runtime_bootstrap == 'true'
         shell: bash
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
