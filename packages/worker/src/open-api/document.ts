@@ -83,7 +83,8 @@ export type OpenApiDocument = {
 }
 
 /** Public interactive docs host (separate Worker; JSON stays on api.kody.codes). */
-export const kodyApiDocsUrl = 'https://api-docs.kody.codes'
+// k2: the k2 API docs host.
+export const kodyApiDocsUrl = 'https://k2-api-docs.pruett.in'
 
 const errorResponseRef = { $ref: '#/components/responses/Error' } as const
 const rateLimitedResponseRef = {
@@ -616,7 +617,7 @@ function buildDocumentBody(registry: BuiltCapabilityRegistry) {
 			title: 'Kody API',
 			version: kodyApiVersion,
 			description: [
-				'HTTP API for a Kody account. Versioned under `/v1`; changes within v1 are additive. See https://kody.codes/docs/api-versioning.md for deprecation windows and migration policy (we do not break users; phased migration with codemods when needed).',
+				'HTTP API for a Kody account. Versioned under `/v1`; changes within v1 are additive. See https://k2.pruett.in/docs/api-versioning.md for deprecation windows and migration policy (we do not break users; phased migration with codemods when needed).',
 				'',
 				'Authenticate with `Authorization: Bearer kody_at_…`. Tokens are minted by the MCP `api` tool (`tokenCreate`) or by another token, and each carries explicit org-permission scopes. There is no write-implies-read hierarchy.',
 				apiTokenIdleTtlDescription(),

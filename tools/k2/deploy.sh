@@ -140,6 +140,7 @@ origin_secret_flags=(
 	--set-from-env CLOUDFLARE_API_TOKEN=CLOUDFLARE_APP_API_TOKEN
 	--set-from-env OIDC_SIGNING_PRIVATE_KEY_PEM --set-from-env OIDC_SIGNING_KEY_ID
 	--set-from-env TURNSTILE_SITE_KEY --set-from-env TURNSTILE_SECRET_KEY
+	--set-from-env-optional STATUS_INCIDENT_EVENT_SECRET
 )
 
 step_origin() {
@@ -234,6 +235,12 @@ step_status() {
 		--var "CLOUDFLARE_ACCOUNT_ID:$CLOUDFLARE_ACCOUNT_ID"
 	printf '%s' "$CLOUDFLARE_STATUS_API_TOKEN" |
 		npx wrangler secret put CLOUDFLARE_API_TOKEN --config packages/status/wrangler.jsonc
+	# Shared with origin: authorizes /__maintenance/incidents (retrospective,
+	# delete) and incident events, as deploy.yml syncs it.
+	if [ -n "${STATUS_INCIDENT_EVENT_SECRET:-}" ]; then
+		printf '%s' "$STATUS_INCIDENT_EVENT_SECRET" |
+			npx wrangler secret put STATUS_INCIDENT_EVENT_SECRET --config packages/status/wrangler.jsonc
+	fi
 }
 
 step_api() {

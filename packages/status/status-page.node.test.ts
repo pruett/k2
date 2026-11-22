@@ -80,7 +80,7 @@ const providerIncident = (shortlink: string): ProviderIncident => ({
 
 const missing = (html: string, fragments: Array<string>) =>
 	fragments.filter((fragment) => !html.includes(fragment))
-const commitUrl = 'https://github.com/kody-hq/kody/commit/'
+const commitUrl = 'https://github.com/pruett/k2/commit/'
 
 test('status page renders components, incidents, unknown state, and escapes detail html', () => {
 	const healthy = renderStatusPage(snapshot())
@@ -205,7 +205,7 @@ test('status page renders components, incidents, unknown state, and escapes deta
 	const maintenance = renderMaintenancePage()
 	expect(
 		missing(maintenance, [
-			'href="https://status.kody.codes/"',
+			'href="https://k2-status.pruett.in/"',
 			`href="${statusFaviconPath('unknown')}"`,
 		]),
 	).toEqual([])

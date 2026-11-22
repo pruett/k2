@@ -390,7 +390,8 @@ function renderProviderIncident(incident: ProviderIncident): string {
 }
 
 /** Public GitHub repository for the main kody worker (production deploys). */
-const productionRepo = 'kody-hq/kody'
+// k2: commits deploy from the pruett/k2 fork.
+const productionRepo = 'pruett/k2'
 
 function productionCommitLink(commitSha: string): string {
 	const shortSha = commitSha.slice(0, 7)
@@ -424,7 +425,8 @@ function renderProviderIncidentsSection(
 </section>`
 }
 
-const statusPageUrl = 'https://status.kody.codes/'
+// k2: the k2 status host.
+const statusPageUrl = 'https://k2-status.pruett.in/'
 
 /** Static HTML for origin-edge maintenance. No Durable Object or D1. */
 export function renderMaintenancePage(): string {
@@ -444,7 +446,7 @@ ${renderFaviconLinks('unknown')}
 	</header>
 	<div class="banner unknown">Service restore in progress</div>
 	<div class="card">
-		<p>Kody is in maintenance. We are restoring service; nothing you need to do. Check <a href="${statusPageUrl}">status.kody.codes</a> for updates.</p>
+		<p>Kody is in maintenance. We are restoring service; nothing you need to do. Check <a href="${statusPageUrl}">k2-status.pruett.in</a> for updates.</p>
 	</div>
 </main>
 </body>
@@ -511,7 +513,7 @@ ${renderFaviconLinks(snapshot.overallStatus)}
 	${recentIncidents}
 	<footer>
 		${renderProductionCommits(snapshot)}Probes run every minute from an independently deployed worker.
-		<a href="https://kody.codes">kody.codes</a> ·
+		<a href="https://k2.pruett.in">k2.pruett.in</a> ·
 		<a href="/status.json">JSON</a><span data-breakout-footer-start hidden>
 		· <button type="button" class="footer-play">Play Breakout</button></span>
 	</footer>

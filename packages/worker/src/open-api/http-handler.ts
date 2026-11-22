@@ -162,7 +162,7 @@ function deprecatedForwardHeaders(
 	return {
 		Deprecation: `@${deprecatedUnixSeconds}`,
 		Sunset: new Date(`${sunset}T00:00:00.000Z`).toUTCString(),
-		Link: '<https://kody.codes/docs/api-versioning.md>; rel="deprecation"',
+		Link: '<https://k2.pruett.in/docs/api-versioning.md>; rel="deprecation"',
 	}
 }
 

@@ -259,13 +259,13 @@ test('the OpenAPI document covers every operation with resolvable refs', async (
 	expect(document.servers).toEqual([{ url: 'https://api.kody.codes' }])
 	expect(document.externalDocs).toEqual({
 		description: 'Interactive Kody API docs (Scalar)',
-		url: 'https://api-docs.kody.codes',
+		url: 'https://k2-api-docs.pruett.in',
 	})
 	expect(String(document.info['description'])).toContain(
-		'https://api-docs.kody.codes',
+		'https://k2-api-docs.pruett.in',
 	)
 	expect(String(document.info['description'])).toContain(
-		'https://kody.codes/docs/api-versioning.md',
+		'https://k2.pruett.in/docs/api-versioning.md',
 	)
 	expect(document.components.responses.Error).toBeDefined()
 	expect(document.components.responses.RateLimited).toBeDefined()

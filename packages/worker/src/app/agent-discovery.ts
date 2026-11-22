@@ -26,10 +26,12 @@ export const sitemapPath = '/sitemap.xml'
 /** Production Open API host (separate Worker from the marketing origin). */
 export const kodyOpenApiOrigin = 'https://api.kody.codes'
 /** Scalar interactive docs for {@link kodyOpenApiOrigin}. */
-export const kodyApiDocsOrigin = 'https://api-docs.kody.codes'
+// k2: the k2 API docs host.
+export const kodyApiDocsOrigin = 'https://k2-api-docs.pruett.in'
 export const kodyOpenApiSpecUrl = `${kodyOpenApiOrigin}/openapi.json`
 export const kodyOpenApiV1Anchor = `${kodyOpenApiOrigin}/v1`
-export const kodyGithubUrl = 'https://github.com/kody-hq/kody'
+// k2: the fork's repository.
+export const kodyGithubUrl = 'https://github.com/pruett/k2'
 
 /**
  * Public OpenAI Apps domain-verification token for `openaiAppsChallengePath`.

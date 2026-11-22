@@ -213,7 +213,7 @@ test('forwards deprecated integration locks with the legacy body and deprecation
 	expect(response.headers.get('Deprecation')).toBe('@1792800000')
 	expect(response.headers.get('Sunset')).toBe('Fri, 22 Jan 2027 00:00:00 GMT')
 	expect(response.headers.get('Link')).toBe(
-		'<https://kody.codes/docs/api-versioning.md>; rel="deprecation"',
+		'<https://k2.pruett.in/docs/api-versioning.md>; rel="deprecation"',
 	)
 })
 
