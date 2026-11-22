@@ -1726,7 +1726,7 @@ const dmarcReportMailboxLocal = 'dmarc'
  * the `_dmarc` TXT records are still ensured. Set DMARC_REPORT_FORWARD_TO to a
  * verified Email Routing destination address to forward aggregate reports.
  */
-export const defaultDmarcReportForwardTo = 'off'
+const defaultDmarcReportForwardTo = 'off'
 
 /** The forward destination, or null when the forward rule is switched off. */
 export function resolveDmarcReportForwardTo(configured: string | undefined) {
